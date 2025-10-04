@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3 uid="uid://bpg4j1x65ggbu"]
+
+[ext_resource type="Script" uid="uid://cslvhl78qjpb2" path="res://main.gd" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://3h85qvgsayfs" path="res://player.tscn" id="2_0xm2m"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7dm0k"]
+size = Vector2(741, 40)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_ig7tw")
+
+[node name="Ground" type="StaticBody2D" parent="."]
+position = Vector2(15, 1229)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
+position = Vector2(346.5, 20)
+shape = SubResource("RectangleShape2D_7dm0k")
+
+[node name="ColorRect" type="ColorRect" parent="Ground"]
+offset_left = -40.0
+offset_right = 716.0
+offset_bottom = 40.0
+
+[node name="Player" parent="." instance=ExtResource("2_0xm2m")]
+position = Vector2(149, 69)
