@@ -15,6 +15,10 @@ run/main_scene="uid://bpg4j1x65ggbu"
 config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+RoomManager="*res://scripts/room_manager.gd"
+
 [display]
 
 window/size/viewport_width=720

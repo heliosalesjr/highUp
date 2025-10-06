@@ -1,9 +1,12 @@
-extends Node2D
+[gd_scene load_steps=2 format=3 uid="uid://wy5pdbdc4l7e"]
+
+[sub_resource type="GDScript" id="GDScript_8cj0n"]
+script/source = "extends Node2D
 
 const ROOM_HEIGHT = 320
 const INITIAL_ROOMS = 10  # Número de salas iniciais
 
-var room_scene = preload("res://room.tscn")
+var room_scene = preload(\"res://room.tscn\")
 var rooms = []
 var current_room_count = 0
 
@@ -26,7 +29,7 @@ func create_room(index: int):
 	# Posiciona a sala (de baixo para cima, começando do topo)
 	# Sala 0 fica no topo, sala 1 abaixo dela, etc
 	room.position = Vector2(0, -index * ROOM_HEIGHT)
-	room.name = "Room" + str(index)
+	room.name = \"Room\" + str(index)
 	
 	add_child(room)
 	rooms.append(room)
@@ -35,3 +38,7 @@ func create_room(index: int):
 # Função para criar mais salas conforme o jogador sobe
 func create_room_above():
 	create_room(current_room_count)
+"
+
+[node name="Game" type="Node2D"]
+script = SubResource("GDScript_8cj0n")

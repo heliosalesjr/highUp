@@ -4,8 +4,8 @@ const ROOM_WIDTH = 720
 const ROOM_HEIGHT = 320
 const WALL_THICKNESS = 4
 const FLOOR_THICKNESS = 4
-const LADDER_START_HEIGHT = 100
-const LADDER_WIDTH = 60
+const LADDER_START_HEIGHT = 200
+const LADDER_WIDTH = 30
 
 enum LadderSide { LEFT, RIGHT }
 

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://fjoxar3ix374"]
+
+[ext_resource type="Script" uid="uid://bli8xah0t5aeo" path="res://obstacles/spike_static.gd" id="1_ashmy"]
+
+[node name="SpikeStatic" type="Area2D"]
+script = ExtResource("1_ashmy")
