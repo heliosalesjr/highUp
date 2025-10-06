@@ -5,7 +5,7 @@ const ROOM_HEIGHT = 320
 const WALL_THICKNESS = 4
 const FLOOR_THICKNESS = 4
 const LADDER_START_HEIGHT = 100
-const LADDER_WIDTH = 40
+const LADDER_WIDTH = 60
 
 enum LadderSide { LEFT, RIGHT }
 
@@ -81,6 +81,8 @@ func create_walls():
 func create_ladder():
 	var ladder = Area2D.new()
 	ladder.name = "Ladder"
+	ladder.collision_layer = 2  # Layer 2 para escadas
+	ladder.collision_mask = 1   # Detecta o player (layer 1)
 	
 	# Altura da escada (do teto até 100px abaixo)
 	var ladder_height = LADDER_START_HEIGHT

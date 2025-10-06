@@ -2,13 +2,18 @@ extends CharacterBody2D
 
 # Constantes de movimento
 const SPEED = 200.0
-const JUMP_VELOCITY = -800.0
+const JUMP_VELOCITY = -700.0
 const ACCELERATION = 1500.0
 const FRICTION = 1200.0
 const AIR_RESISTANCE = 200.0
 
 # Pulo variável (segurar o botão pula mais alto)
 const JUMP_RELEASE_FORCE = -200.0
+
+# Escada
+const CLIMB_SPEED = 250.0
+var is_on_ladder = false
+var current_ladder: Area2D = null
 
 # Coiote time (permite pular logo após sair da borda)
 const COYOTE_TIME = 0.1
@@ -22,12 +27,30 @@ var jump_buffer_timer = 0.0
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
 func _ready():
-	print("PLAYER READY - TESTE DE OUTPUT")
+	# Configura collision layer do player
+	collision_layer = 1
+	collision_mask = 1
 	
+	# Conecta sinais da área de detecção
+	var detection_area = get_node_or_null("DetectionArea")
+	if detection_area:
+		detection_area.collision_layer = 1
+		detection_area.collision_mask = 2  # Detecta layer 2 (escadas)
+		detection_area.area_entered.connect(_on_area_entered)
+		detection_area.area_exited.connect(_on_area_exited)
+		print("DetectionArea configurada!")
+	else:
+		print("ERRO: DetectionArea não encontrada!")
+
 func _physics_process(delta):
-	apply_gravity(delta)
-	handle_jump(delta)
-	handle_movement(delta)
+	# Se estiver na escada, sobe automaticamente
+	if is_on_ladder:
+		climb_ladder(delta)
+	else:
+		apply_gravity(delta)
+		handle_jump(delta)
+		handle_movement(delta)
+	
 	move_and_slide()
 	update_timers(delta)
 
@@ -77,3 +100,25 @@ func update_timers(delta):
 	
 	if jump_buffer_timer > 0:
 		jump_buffer_timer -= delta
+
+func climb_ladder(delta):
+	# Sobe automaticamente
+	velocity.y = -CLIMB_SPEED
+	velocity.x = 0  # Trava movimento horizontal
+	
+	# Verifica se saiu da escada por cima
+	if current_ladder and global_position.y < current_ladder.global_position.y - 10:
+		is_on_ladder = false
+		current_ladder = null
+
+func _on_area_entered(area: Area2D):
+	if area.name == "Ladder":
+		is_on_ladder = true
+		current_ladder = area
+		print("Entrando na escada!")
+
+func _on_area_exited(area: Area2D):
+	if area.name == "Ladder":
+		is_on_ladder = false
+		current_ladder = null
+		print("Saindo da escada!")
