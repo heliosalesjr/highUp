@@ -1,8 +1,8 @@
 extends CharacterBody2D
 
 # Constantes de movimento
-const SPEED = 200.0
-const JUMP_VELOCITY = -700.0
+const SPEED = 300.0
+const JUMP_VELOCITY = -800.0
 const ACCELERATION = 1500.0
 const FRICTION = 1200.0
 const AIR_RESISTANCE = 200.0
@@ -14,6 +14,8 @@ const JUMP_RELEASE_FORCE = -200.0
 const CLIMB_SPEED = 250.0
 var is_on_ladder = false
 var current_ladder: Area2D = null
+var ladder_cooldown = 0.0
+const LADDER_COOLDOWN_TIME = 0.3
 
 # Coiote time (permite pular logo após sair da borda)
 const COYOTE_TIME = 0.1

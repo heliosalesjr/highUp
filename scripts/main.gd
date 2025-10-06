@@ -3,7 +3,7 @@ extends Node2D
 const ROOM_HEIGHT = 320
 const SCREEN_HEIGHT = 1280
 const INITIAL_ROOMS = 5  # Começa com menos salas
-const ROOMS_AHEAD = 3    # Quantas salas manter acima do player
+const ROOMS_AHEAD = 5    # Quantas salas manter acima do player (aumentei de 3 para 5)
 
 var room_scene = preload("res://scenes/room.tscn")
 var rooms = []
@@ -28,31 +28,31 @@ func create_rooms():
 
 func create_room(index: int):
 	"""Cria uma sala específica"""
+	
+	print("→ Criando Room ", index)
+	
 	var room = room_scene.instantiate()
 	
-	# Alterna escada: par = direita, ímpar = esquerda
+	# Alterna escada
 	if index % 2 == 0:
-		room.ladder_side = 1  # RIGHT
+		room.ladder_side = 1
 	else:
-		room.ladder_side = 0  # LEFT
+		room.ladder_side = 0
 	
-	# Calcula posição Y
-	# Sala 0 em Y=960, sala 1 em Y=640, sala 2 em Y=320, sala 3 em Y=0, sala 4 em Y=-320...
+	# Posição Y
 	var y_pos = (SCREEN_HEIGHT - ROOM_HEIGHT) - (index * ROOM_HEIGHT)
 	room.position = Vector2(0, y_pos)
 	room.name = "Room_" + str(index)
 	
 	add_child(room)
 	rooms.append(room)
+	highest_room_created = max(highest_room_created, index)
 	
-	# Popula a sala com conteúdo procedural
-	if room_manager:
-		# Aguarda um frame para garantir que a sala está pronta
-		await get_tree().process_frame
+	# Popula DEPOIS de adicionar à árvore
+	if room_manager and index > 0:
 		room_manager.populate_room(room, index)
 	
-	highest_room_created = max(highest_room_created, index)
-	print("Room ", index, " criada em Y = ", y_pos)
+	print("  ✓ Room ", index, " completa em Y=", y_pos)
 
 func generate_rooms_ahead(current_room_index: int):
 	"""Gera salas à frente do player conforme necessário"""
@@ -61,10 +61,9 @@ func generate_rooms_ahead(current_room_index: int):
 	var target_room = current_room_index + ROOMS_AHEAD
 	
 	# Cria salas que ainda não existem
-	if target_room > highest_room_created:
-		for i in range(highest_room_created + 1, target_room + 1):
-			create_room(i)
-			print("→ Gerando sala ", i, " proceduralmente")
+	for i in range(highest_room_created + 1, target_room + 1):
+		create_room(i)
+		print("→ Gerando sala ", i, " proceduralmente (player na sala ~", current_room_index, ")")
 
 func _process(_delta):
 	# Debug: mostra quantas salas existem

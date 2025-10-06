@@ -52,9 +52,11 @@ func _process(_delta):
 func check_and_generate_rooms():
 	"""Verifica se precisa gerar novas salas acima"""
 	
-	# Calcula qual sala o player está
-	var current_room_index = int(abs(highest_y_reached) / ROOM_HEIGHT)
+	# Calcula qual sala o player está baseado na posição Y
+	# Como as salas vão para cima (Y negativo), precisamos calcular corretamente
+	var rooms_climbed = int(abs((highest_y_reached - 960) / ROOM_HEIGHT))
 	
-	# Se o player está subindo, gera salas à frente
+	# Sempre gera salas à frente
 	if main_scene and main_scene.has_method("generate_rooms_ahead"):
-		main_scene.generate_rooms_ahead(current_room_index)
+		main_scene.generate_rooms_ahead(rooms_climbed)
+		

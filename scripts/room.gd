@@ -27,7 +27,7 @@ func create_floor():
 	var shape = RectangleShape2D.new()
 	shape.size = Vector2(ROOM_WIDTH, FLOOR_THICKNESS)
 	collision.shape = shape
-	collision.position = Vector2(ROOM_WIDTH / 2, ROOM_HEIGHT - FLOOR_THICKNESS / 2)
+	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT - FLOOR_THICKNESS / 2.0)
 	collision.one_way_collision = true
 	
 	var visual = ColorRect.new()
@@ -48,7 +48,7 @@ func create_walls():
 	var left_shape = RectangleShape2D.new()
 	left_shape.size = Vector2(WALL_THICKNESS, ROOM_HEIGHT)
 	left_collision.shape = left_shape
-	left_collision.position = Vector2(WALL_THICKNESS / 2, ROOM_HEIGHT / 2)
+	left_collision.position = Vector2(WALL_THICKNESS / 2.0, ROOM_HEIGHT / 2.0)
 	
 	var left_visual = ColorRect.new()
 	left_visual.size = Vector2(WALL_THICKNESS, ROOM_HEIGHT)
@@ -67,7 +67,7 @@ func create_walls():
 	var right_shape = RectangleShape2D.new()
 	right_shape.size = Vector2(WALL_THICKNESS, ROOM_HEIGHT)
 	right_collision.shape = right_shape
-	right_collision.position = Vector2(ROOM_WIDTH - WALL_THICKNESS / 2, ROOM_HEIGHT / 2)
+	right_collision.position = Vector2(ROOM_WIDTH - WALL_THICKNESS / 2.0, ROOM_HEIGHT / 2.0)
 	
 	var right_visual = ColorRect.new()
 	right_visual.size = Vector2(WALL_THICKNESS, ROOM_HEIGHT)
@@ -99,7 +99,7 @@ func create_ladder():
 	var shape = RectangleShape2D.new()
 	shape.size = Vector2(LADDER_WIDTH, ladder_height)
 	collision.shape = shape
-	collision.position = Vector2(ladder_x + LADDER_WIDTH / 2, ladder_height / 2)
+	collision.position = Vector2(ladder_x + LADDER_WIDTH / 2.0, ladder_height / 2.0)
 	
 	# Visual da escada
 	var visual = ColorRect.new()
@@ -112,7 +112,7 @@ func create_ladder():
 		var step = ColorRect.new()
 		step.size = Vector2(LADDER_WIDTH, 3)
 		step.color = Color(0.6, 0.4, 0.1)
-		step.position = Vector2(ladder_x, i * (ladder_height / 5))
+		step.position = Vector2(ladder_x, i * (ladder_height / 5.0))
 		ladder.add_child(step)
 	
 	ladder.add_child(collision)
