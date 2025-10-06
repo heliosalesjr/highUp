@@ -2,7 +2,7 @@ extends CharacterBody2D
 
 # Constantes de movimento
 const SPEED = 200.0
-const JUMP_VELOCITY = -400.0
+const JUMP_VELOCITY = -800.0
 const ACCELERATION = 1500.0
 const FRICTION = 1200.0
 const AIR_RESISTANCE = 200.0
@@ -21,6 +21,9 @@ var jump_buffer_timer = 0.0
 # Gravidade customizada
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
+func _ready():
+	print("PLAYER READY - TESTE DE OUTPUT")
+	
 func _physics_process(delta):
 	apply_gravity(delta)
 	handle_jump(delta)
