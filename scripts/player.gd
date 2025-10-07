@@ -2,42 +2,37 @@ extends CharacterBody2D
 
 # Constantes de movimento
 const SPEED = 300.0
-const JUMP_VELOCITY = -800.0
+const JUMP_VELOCITY = -500.0
 const ACCELERATION = 1500.0
-const FRICTION = 1200.0
+const FRICTION = 1000.0
 const AIR_RESISTANCE = 200.0
-
-# Pulo variável (segurar o botão pula mais alto)
 const JUMP_RELEASE_FORCE = -200.0
 
 # Escada
 const CLIMB_SPEED = 250.0
 var is_on_ladder = false
 var current_ladder: Area2D = null
-var ladder_cooldown = 0.0
-const LADDER_COOLDOWN_TIME = 0.3
 
-# Coiote time (permite pular logo após sair da borda)
+# Coiote time e buffer de pulo
 const COYOTE_TIME = 0.1
 var coyote_timer = 0.0
-
-# Buffer de pulo (registra o input de pulo antes de tocar no chão)
 const JUMP_BUFFER_TIME = 0.1
 var jump_buffer_timer = 0.0
 
-# Gravidade customizada
+# Gravidade
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
+# Direção automática (1 = direita, -1 = esquerda)
+var direction = 1
+
 func _ready():
-	# Configura collision layer do player
 	collision_layer = 1
 	collision_mask = 1
 	
-	# Conecta sinais da área de detecção
 	var detection_area = get_node_or_null("DetectionArea")
 	if detection_area:
 		detection_area.collision_layer = 1
-		detection_area.collision_mask = 2  # Detecta layer 2 (escadas)
+		detection_area.collision_mask = 2
 		detection_area.area_entered.connect(_on_area_entered)
 		detection_area.area_exited.connect(_on_area_exited)
 		print("DetectionArea configurada!")
@@ -45,72 +40,77 @@ func _ready():
 		print("ERRO: DetectionArea não encontrada!")
 
 func _physics_process(delta):
-	# Se estiver na escada, sobe automaticamente
 	if is_on_ladder:
 		climb_ladder(delta)
 	else:
 		apply_gravity(delta)
 		handle_jump(delta)
-		handle_movement(delta)
+		auto_walk(delta)
 	
 	move_and_slide()
 	update_timers(delta)
+	check_wall_collision()
 
 func apply_gravity(delta):
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
 func handle_jump(delta):
-	# Coiote time - permite pular por um breve momento após sair do chão
 	if is_on_floor():
 		coyote_timer = COYOTE_TIME
 	
-	# Registra o input de pulo
 	if Input.is_action_just_pressed("ui_accept"):
 		jump_buffer_timer = JUMP_BUFFER_TIME
 	
-	# Executa o pulo se estiver no chão ou no coiote time
 	if jump_buffer_timer > 0 and (is_on_floor() or coyote_timer > 0):
 		velocity.y = JUMP_VELOCITY
 		jump_buffer_timer = 0
 		coyote_timer = 0
 	
-	# Pulo variável - se soltar o botão, cai mais rápido
 	if Input.is_action_just_released("ui_accept") and velocity.y < JUMP_RELEASE_FORCE:
 		velocity.y = JUMP_RELEASE_FORCE
 
-func handle_movement(delta):
-	var direction = Input.get_axis("ui_left", "ui_right")
-	
-	if direction != 0:
-		# Acelera na direção do input
-		if is_on_floor():
-			velocity.x = move_toward(velocity.x, direction * SPEED, ACCELERATION * delta)
-		else:
-			# Controle de ar levemente reduzido
-			velocity.x = move_toward(velocity.x, direction * SPEED, AIR_RESISTANCE * delta)
+func auto_walk(delta):
+	# Movimento automático baseado na direção atual
+	if is_on_floor():
+		velocity.x = move_toward(velocity.x, direction * SPEED, ACCELERATION * delta)
 	else:
-		# Aplica fricção quando não há input
-		if is_on_floor():
-			velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
-		else:
-			velocity.x = move_toward(velocity.x, 0, AIR_RESISTANCE * delta)
+		velocity.x = move_toward(velocity.x, direction * SPEED, AIR_RESISTANCE * delta)
+
+func check_wall_collision():
+	# Inverte direção ao bater em uma parede
+	if is_on_wall():
+		direction *= -1
 
 func update_timers(delta):
 	if coyote_timer > 0:
 		coyote_timer -= delta
-	
 	if jump_buffer_timer > 0:
 		jump_buffer_timer -= delta
 
 func climb_ladder(delta):
-	# Sobe automaticamente
 	velocity.y = -CLIMB_SPEED
-	velocity.x = 0  # Trava movimento horizontal
+	velocity.x = 0
 	
-	# Verifica se saiu da escada por cima
+	# Sai da escada quando chegar ao topo
 	if current_ladder and global_position.y < current_ladder.global_position.y - 10:
 		is_on_ladder = false
+		
+		# Define direção com base no lado da escada
+		var ladder_parent = current_ladder.get_parent()
+		if ladder_parent and "ladder_side" in ladder_parent:
+			var side = ladder_parent.ladder_side
+			if side == 0:
+				# Escada à esquerda → anda pra direita
+				direction = 1
+			else:
+				# Escada à direita → anda pra esquerda
+				direction = -1
+		else:
+			# fallback (caso algo falhe)
+			var ladder_x = current_ladder.global_position.x
+			direction = 1 if global_position.x < ladder_x else -1
+		
 		current_ladder = null
 
 func _on_area_entered(area: Area2D):
@@ -121,6 +121,8 @@ func _on_area_entered(area: Area2D):
 
 func _on_area_exited(area: Area2D):
 	if area.name == "Ladder":
-		is_on_ladder = false
-		current_ladder = null
-		print("Saindo da escada!")
+		# só sai se já tiver subido o suficiente
+		if not is_on_ladder:
+			current_ladder = null
+			print("Saindo da escada!")
+  
