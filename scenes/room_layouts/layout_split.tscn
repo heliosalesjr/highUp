@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cxb06pkbb24oq"]
+
+[ext_resource type="Script" uid="uid://dbeqxuo6h6kwo" path="res://scenes/room_layouts/layout_split.gd" id="1_a2bw4"]
+
+[node name="layout_split" type="Node2D"]
+script = ExtResource("1_a2bw4")

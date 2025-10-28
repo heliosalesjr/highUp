@@ -1,11 +1,11 @@
 extends CharacterBody2D
 
 # Constantes de movimento
-const SPEED = 300.0
-const JUMP_VELOCITY = -500.0
-const ACCELERATION = 1500.0
-const FRICTION = 1000.0
-const AIR_RESISTANCE = 200.0
+const SPEED = 400.0
+const JUMP_VELOCITY = -600.0
+const ACCELERATION = 2000.0
+const FRICTION = 800.0
+const AIR_RESISTANCE = 100.0
 const JUMP_RELEASE_FORCE = -200.0
 
 # Escada

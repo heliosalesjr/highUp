@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6ah38mghwb34"]
+
+[ext_resource type="Script" uid="uid://d20r0ckf4f5by" path="res://scenes/room_layouts/layout_simple_01.gd" id="1_x1jn6"]
+
+[node name="layout_simple_01" type="Node2D"]
+script = ExtResource("1_x1jn6")
