@@ -4,7 +4,9 @@ extends Node
 var layouts = {
 	"simple": [
 		preload("res://scenes/room_layouts/layout_simple_01.tscn"),
-		preload("res://scenes/room_layouts/layout_simple_02.tscn")
+		preload("res://scenes/room_layouts/layout_simple_02.tscn"),
+		preload("res://scenes/room_layouts/layout_simple_03.tscn"),
+		preload("res://scenes/room_layouts/layout_simple_04.tscn")
 	],
 	"split": [
 		preload("res://scenes/room_layouts/layout_split.tscn")

@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://bl24me7aelx0o"]
+
+[ext_resource type="Script" uid="uid://xv5se6qbvkn" path="res://scenes/obstacles/rock.gd" id="1_eauog"]
+[ext_resource type="Texture2D" uid="uid://oe1nbqn1ebgk" path="res://icon.svg" id="2_gung0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_h5txw"]
+size = Vector2(40, 40)
+
+[node name="Rock" type="Area2D"]
+collision_layer = 8
+script = ExtResource("1_eauog")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_h5txw")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-4.7683716e-07, 4.7683716e-07)
+scale = Vector2(0.3125, 0.3125)
+texture = ExtResource("2_gung0")

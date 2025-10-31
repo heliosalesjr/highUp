@@ -125,4 +125,8 @@ func _on_area_exited(area: Area2D):
 		if not is_on_ladder:
 			current_ladder = null
 			print("Saindo da escada!")
-  
+
+
+func reverse_direction():
+	direction *= -1  # Inverte a direção
+	print("🔄 Direção invertida!")
