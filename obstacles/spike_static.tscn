@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://fjoxar3ix374"]
-
-[sub_resource type="GDScript" id="GDScript_1wr3l"]
-script/source = "extends Node2D
-"
-
-[node name="SpikeStatic" type="Area2D"]
-script = SubResource("GDScript_1wr3l")
