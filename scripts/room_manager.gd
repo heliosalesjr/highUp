@@ -9,7 +9,8 @@ var layouts = {
 		preload("res://scenes/room_layouts/layout_simple_04.tscn")
 	],
 	"split": [
-		preload("res://scenes/room_layouts/layout_split.tscn")
+		preload("res://scenes/room_layouts/layout_split.tscn"),
+		preload("res://scenes/room_layouts/layout_split_01.tscn")
 	]
 }
 
