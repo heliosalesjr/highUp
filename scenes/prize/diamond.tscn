@@ -1,0 +1,83 @@
+[gd_scene load_steps=13 format=3 uid="uid://0bp7jt185ha0"]
+
+[ext_resource type="Script" uid="uid://owsmmva7iij0" path="res://scenes/prize/diamond.gd" id="1_mdfsf"]
+[ext_resource type="Texture2D" uid="uid://wr07n2wwhcp1" path="res://assets/diamond-sh.png" id="2_wuy82"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fts0a"]
+atlas = ExtResource("2_wuy82")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pqgx7"]
+atlas = ExtResource("2_wuy82")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2q6fa"]
+atlas = ExtResource("2_wuy82")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1io6f"]
+atlas = ExtResource("2_wuy82")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f5dsj"]
+atlas = ExtResource("2_wuy82")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h1sh7"]
+atlas = ExtResource("2_wuy82")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jaehd"]
+atlas = ExtResource("2_wuy82")
+region = Rect2(192, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ayt5l"]
+atlas = ExtResource("2_wuy82")
+region = Rect2(224, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ejipx"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fts0a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pqgx7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2q6fa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1io6f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f5dsj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h1sh7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jaehd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ayt5l")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1v670"]
+
+[node name="Diamond" type="Area2D"]
+collision_layer = 8388608
+script = ExtResource("1_mdfsf")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_ejipx")
+autoplay = "default"
+frame = 6
+frame_progress = 0.55826604
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_1v670")

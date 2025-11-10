@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=3 uid="uid://cc22gw35duc5"]
+
+[ext_resource type="FontFile" uid="uid://dyqtfh8167vds" path="res://assets/ThickThinPixel.ttf" id="1_0mwgc"]
+[ext_resource type="Script" uid="uid://yq5jhbtrwqm5" path="res://scenes/ui/hud.gd" id="1_hqnrr"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_hqnrr"]
+font = ExtResource("1_0mwgc")
+font_size = 36
+
+[sub_resource type="LabelSettings" id="LabelSettings_bo48s"]
+font = ExtResource("1_0mwgc")
+font_size = 36
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hqnrr")
+
+[node name="ScoreContainer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="RoomsLabel" type="Label" parent="ScoreContainer"]
+layout_mode = 0
+offset_left = 87.0
+offset_top = 40.0
+offset_right = 264.0
+offset_bottom = 74.0
+text = "ROOMS: 0"
+label_settings = SubResource("LabelSettings_hqnrr")
+
+[node name="DiamondsLabel" type="Label" parent="ScoreContainer"]
+layout_mode = 0
+offset_left = 368.0
+offset_top = 39.0
+offset_right = 615.0
+offset_bottom = 73.0
+text = "DIAMONDS: 0"
+label_settings = SubResource("LabelSettings_bo48s")

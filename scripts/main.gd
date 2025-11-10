@@ -65,7 +65,9 @@ func create_room(index: int):
 		room_manager.populate_room(room, index)
 	
 	print("  ✓ Room ", index, " completa em Y=", y_pos)
-
+	
+	if index > 0:  # Não conta a sala inicial (0)
+		GameManager.add_room()  # ← NOVO
 func generate_rooms_ahead(current_room_index: int):
 	"""Gera salas à frente do player conforme necessário"""
 	

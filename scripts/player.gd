@@ -25,9 +25,12 @@ var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 # Direção automática (1 = direita, -1 = esquerda)
 var direction = 1
 
+# Referência ao AnimatedSprite2D
+@onready var animated_sprite = $AnimatedSprite2D  # ← NOVO
+
 func _ready():
 	collision_layer = 1
-	collision_mask = 1
+	collision_mask = 25 
 	
 	var detection_area = get_node_or_null("DetectionArea")
 	if detection_area:
@@ -50,6 +53,7 @@ func _physics_process(delta):
 	move_and_slide()
 	update_timers(delta)
 	check_wall_collision()
+	update_animation()  # ← NOVO
 
 func apply_gravity(delta):
 	if not is_on_floor():
@@ -71,14 +75,12 @@ func handle_jump(delta):
 		velocity.y = JUMP_RELEASE_FORCE
 
 func auto_walk(delta):
-	# Movimento automático baseado na direção atual
 	if is_on_floor():
 		velocity.x = move_toward(velocity.x, direction * SPEED, ACCELERATION * delta)
 	else:
 		velocity.x = move_toward(velocity.x, direction * SPEED, AIR_RESISTANCE * delta)
 
 func check_wall_collision():
-	# Inverte direção ao bater em uma parede
 	if is_on_wall():
 		direction *= -1
 
@@ -88,26 +90,38 @@ func update_timers(delta):
 	if jump_buffer_timer > 0:
 		jump_buffer_timer -= delta
 
+func update_animation():  # ← FUNÇÃO NOVA
+	"""Atualiza a animação baseada no estado do player"""
+	
+	# Flip horizontal baseado na direção
+	animated_sprite.flip_h = direction < 0
+	
+	# Escolhe a animação
+	if is_on_ladder:
+		animated_sprite.play("climb")
+	elif not is_on_floor():
+		if velocity.y < 0:
+			animated_sprite.play("climb")  # Usa climb para subir
+		else:
+			animated_sprite.play("fall")
+	else:
+		animated_sprite.play("run")
+
 func climb_ladder(delta):
 	velocity.y = -CLIMB_SPEED
 	velocity.x = 0
 	
-	# Sai da escada quando chegar ao topo
 	if current_ladder and global_position.y < current_ladder.global_position.y - 10:
 		is_on_ladder = false
 		
-		# Define direção com base no lado da escada
 		var ladder_parent = current_ladder.get_parent()
 		if ladder_parent and "ladder_side" in ladder_parent:
 			var side = ladder_parent.ladder_side
 			if side == 0:
-				# Escada à esquerda → anda pra direita
 				direction = 1
 			else:
-				# Escada à direita → anda pra esquerda
 				direction = -1
 		else:
-			# fallback (caso algo falhe)
 			var ladder_x = current_ladder.global_position.x
 			direction = 1 if global_position.x < ladder_x else -1
 		
@@ -121,12 +135,10 @@ func _on_area_entered(area: Area2D):
 
 func _on_area_exited(area: Area2D):
 	if area.name == "Ladder":
-		# só sai se já tiver subido o suficiente
 		if not is_on_ladder:
 			current_ladder = null
 			print("Saindo da escada!")
 
-
 func reverse_direction():
-	direction *= -1  # Inverte a direção
+	direction *= -1
 	print("🔄 Direção invertida!")
