@@ -3,13 +3,15 @@ extends Node
 
 signal rooms_changed(new_value)
 signal diamonds_changed(new_value)
-signal hearts_changed(filled_hearts)  # ← NOVO
+signal hearts_changed(filled_hearts)
+signal player_died()
 
 var rooms_count = 0
 var diamonds_count = 0
-var filled_hearts = 0  # ← NOVO (0 a 3)
+var filled_hearts = 0
+var diamonds_for_next_heart = 0  # ← NOVO: conta diamantes para o próximo coração
 
-const DIAMONDS_PER_HEART = 3  # ← NOVO
+const DIAMONDS_PER_HEART = 3
 
 func add_room():
 	"""Adiciona um ponto de sala"""
@@ -22,25 +24,47 @@ func add_diamond():
 	diamonds_count += 1
 	diamonds_changed.emit(diamonds_count)
 	
-	# Verifica se completa um coração
+	# Incrementa o contador para o próximo coração
+	diamonds_for_next_heart += 1
+	
+	# Verifica se completou um coração
 	check_hearts()
 	
-	print("💎 Diamonds: ", diamonds_count)
+	print("💎 Diamonds: ", diamonds_count, " | Para próximo coração: ", diamonds_for_next_heart, "/", DIAMONDS_PER_HEART)
 
 func check_hearts():
-	"""Verifica quantos corações devem estar preenchidos"""
-	var new_filled = min(diamonds_count / DIAMONDS_PER_HEART, 3)  # Máximo 3 corações
-	
-	if new_filled != filled_hearts:
-		filled_hearts = new_filled
+	"""Verifica se deve ganhar um novo coração"""
+	if diamonds_for_next_heart >= DIAMONDS_PER_HEART and filled_hearts < 3:
+		# Ganha um coração!
+		filled_hearts += 1
+		diamonds_for_next_heart = 0  # Reseta o contador
 		hearts_changed.emit(filled_hearts)
-		print("❤️ Corações preenchidos: ", filled_hearts)
+		print("❤️ Ganhou um coração! Total: ", filled_hearts)
+
+func take_damage() -> bool:
+	"""
+	Player leva dano.
+	Retorna true se sobreviveu, false se morreu.
+	"""
+	if filled_hearts > 0:
+		# Perde um coração
+		filled_hearts -= 1
+		hearts_changed.emit(filled_hearts)
+		
+		print("💔 Perdeu um coração! Restam: ", filled_hearts)
+		return true  # Sobreviveu
+	else:
+		# Sem corações = morte
+		print("💀 Player morreu!")
+		player_died.emit()
+		return false  # Morreu
 
 func reset():
 	"""Reseta os contadores"""
 	rooms_count = 0
 	diamonds_count = 0
 	filled_hearts = 0
+	diamonds_for_next_heart = 0  # ← Reseta também
 	rooms_changed.emit(rooms_count)
 	diamonds_changed.emit(diamonds_count)
 	hearts_changed.emit(filled_hearts)

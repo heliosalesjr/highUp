@@ -1,4 +1,7 @@
 extends CharacterBody2D
+var is_invulnerable = false
+const INVULNERABILITY_TIME = 1.5
+var damaged_enemies = []
 
 # Constantes de movimento
 const SPEED = 400.0
@@ -142,3 +145,54 @@ func _on_area_exited(area: Area2D):
 func reverse_direction():
 	direction *= -1
 	print("🔄 Direção invertida!")
+
+# Adicione esta função no player.gd
+
+func take_damage(enemy):
+	"""Chamado quando o player leva dano"""
+	if is_invulnerable:
+		return
+	
+	# Verifica se já levou dano desse inimigo específico
+	if enemy in damaged_enemies:
+		return
+	
+	var survived = GameManager.take_damage()
+	
+	if survived:
+		# Sobreviveu - ativa invulnerabilidade temporária
+		damaged_enemies.append(enemy)  # Marca esse inimigo
+		start_invulnerability()
+	else:
+		# Morreu - game over
+		die()
+
+func start_invulnerability():
+	"""Ativa invulnerabilidade temporária"""
+	is_invulnerable = true
+	print("🛡️ Invulnerável por ", INVULNERABILITY_TIME, " segundos")
+	
+	# Efeito visual de piscar
+	var tween = create_tween()
+	tween.set_loops(int(INVULNERABILITY_TIME * 5))
+	tween.tween_property(animated_sprite, "modulate:a", 0.3, 0.1)
+	tween.tween_property(animated_sprite, "modulate:a", 1.0, 0.1)
+	
+	# Remove invulnerabilidade após o tempo
+	await get_tree().create_timer(INVULNERABILITY_TIME).timeout
+	is_invulnerable = false
+	damaged_enemies.clear()  # ← LIMPA a lista de inimigos
+	animated_sprite.modulate.a = 1.0
+	print("🛡️ Invulnerabilidade encerrada")
+
+func die():
+	"""Chamado quando o player morre"""
+	print("💀 GAME OVER")
+	set_physics_process(false)
+	
+	# Animação de morte
+	var tween = create_tween()
+	tween.tween_property(self, "modulate:a", 0.0, 0.5)
+	
+	await get_tree().create_timer(1.0).timeout
+	get_tree().reload_current_scene()
