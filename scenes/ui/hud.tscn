@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://cc22gw35duc5"]
+[gd_scene load_steps=6 format=3 uid="uid://cc22gw35duc5"]
 
 [ext_resource type="FontFile" uid="uid://dyqtfh8167vds" path="res://assets/ThickThinPixel.ttf" id="1_0mwgc"]
 [ext_resource type="Script" uid="uid://yq5jhbtrwqm5" path="res://scenes/ui/hud.gd" id="1_hqnrr"]
+[ext_resource type="Texture2D" uid="uid://cswdbvj54gdju" path="res://assets/heart_empty.png" id="3_bo48s"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_hqnrr"]
 font = ExtResource("1_0mwgc")
@@ -37,3 +38,33 @@ offset_right = 615.0
 offset_bottom = 73.0
 text = "DIAMONDS: 0"
 label_settings = SubResource("LabelSettings_bo48s")
+
+[node name="HeartsContainer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Heart1" type="TextureRect" parent="HeartsContainer"]
+layout_mode = 0
+offset_left = 289.0
+offset_top = 93.0
+offset_right = 329.0
+offset_bottom = 133.0
+texture = ExtResource("3_bo48s")
+
+[node name="Heart2" type="TextureRect" parent="HeartsContainer"]
+layout_mode = 0
+offset_left = 349.0
+offset_top = 90.0
+offset_right = 389.0
+offset_bottom = 130.0
+texture = ExtResource("3_bo48s")
+
+[node name="Heart3" type="TextureRect" parent="HeartsContainer"]
+layout_mode = 0
+offset_left = 413.0
+offset_top = 91.0
+offset_right = 453.0
+offset_bottom = 131.0
+texture = ExtResource("3_bo48s")
