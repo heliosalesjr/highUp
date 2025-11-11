@@ -11,7 +11,8 @@ func _ready():
 	create_label("SPLIT ROOM")
 	create_middle_floor()
 	spawn_diamond_randomly()
-	create_floor_detector()
+	create_room_entry_detector()
+	create_second_floor_detector()
 
 func create_label(text: String):
 	var label = Label.new()
@@ -41,37 +42,58 @@ func create_middle_floor():
 	middle_floor.add_child(visual)
 	add_child(middle_floor)
 
-func create_floor_detector():
-	"""Detecta quando o player alcança o segundo piso"""
+func create_room_entry_detector():
+	"""Detecta quando o player ENTRA na sala split"""
 	var detector = Area2D.new()
-	detector.name = "FloorDetector"
+	detector.name = "EntryDetector"
 	detector.collision_layer = 0
 	detector.collision_mask = 1
 	
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
-	shape.size = Vector2(ROOM_WIDTH, 20)
+	shape.size = Vector2(ROOM_WIDTH, 40)
 	collision.shape = shape
-	collision.position = Vector2(ROOM_WIDTH / 2.0, 10)  # Topo da sala
+	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT - 20)
+	
+	detector.add_child(collision)
+	detector.body_entered.connect(_on_room_entered)
+	add_child(detector)
+
+func create_second_floor_detector():
+	"""Detecta quando o player alcança o piso do MEIO (segundo andar)"""
+	var detector = Area2D.new()
+	detector.name = "SecondFloorDetector"
+	detector.collision_layer = 0
+	detector.collision_mask = 1
+	
+	var collision = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(ROOM_WIDTH - 100, 30)  # Um pouco menor que a sala toda
+	collision.shape = shape
+	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - 30)  # Logo ACIMA do piso do meio
 	
 	detector.add_child(collision)
 	detector.body_entered.connect(_on_second_floor_reached)
 	add_child(detector)
 
+func _on_room_entered(body):
+	if body.name == "Player":
+		GameManager.add_room()
+		print("🎯 Sala split alcançada! (+1)")
+		get_node("EntryDetector").queue_free()
+
 func _on_second_floor_reached(body):
 	if body.name == "Player":
 		GameManager.add_room()
-		print("🎯 Segundo piso alcançado!")
-		# Remove o detector para não contar múltiplas vezes
-		get_node("FloorDetector").queue_free()
+		print("🎯 Segundo piso alcançado! (+1)")
+		get_node("SecondFloorDetector").queue_free()
 
 func spawn_diamond_randomly():
 	"""50% de chance de spawnar um diamante"""
 	if randf() > 0.5:
-		return  # Não spawna
+		return
 	
 	var diamond = diamond_scene.instantiate()
-	# Centro horizontal, um pouco acima do piso do meio
 	diamond.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - 40)
 	add_child(diamond)
 	print("💎 Diamante spawnado!")
