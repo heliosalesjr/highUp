@@ -6,11 +6,12 @@ const ROOM_HEIGHT = 320
 const WALL_THICKNESS = 4
 
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
+var heart_scene = preload("res://scenes/prize/heart.tscn")
 
 func _ready():
 	create_label("SPLIT ROOM")
 	create_middle_floor()
-	spawn_diamond_randomly()
+	spawn_prize_randomly()
 	create_room_entry_detector()
 	create_second_floor_detector()
 
@@ -68,9 +69,9 @@ func create_second_floor_detector():
 	
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
-	shape.size = Vector2(ROOM_WIDTH - 100, 30)  # Um pouco menor que a sala toda
+	shape.size = Vector2(ROOM_WIDTH - 100, 30)
 	collision.shape = shape
-	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - 30)  # Logo ACIMA do piso do meio
+	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - 30)
 	
 	detector.add_child(collision)
 	detector.body_entered.connect(_on_second_floor_reached)
@@ -88,12 +89,21 @@ func _on_second_floor_reached(body):
 		print("🎯 Segundo piso alcançado! (+1)")
 		get_node("SecondFloorDetector").queue_free()
 
-func spawn_diamond_randomly():
-	"""50% de chance de spawnar um diamante"""
+func spawn_prize_randomly():
+	"""50% de chance de spawnar um prêmio (diamante ou coração)"""
 	if randf() > 0.5:
 		return
 	
-	var diamond = diamond_scene.instantiate()
-	diamond.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - 40)
-	add_child(diamond)
-	print("💎 Diamante spawnado!")
+	var prize_position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - 40)
+	
+	# Verifica se deve spawnar coração ou diamante
+	if GameManager.should_spawn_heart():
+		var heart = heart_scene.instantiate()
+		heart.position = prize_position
+		add_child(heart)
+		print("❤️ Coração spawnado!")
+	else:
+		var diamond = diamond_scene.instantiate()
+		diamond.position = prize_position
+		add_child(diamond)
+		print("💎 Diamante spawnado!")
