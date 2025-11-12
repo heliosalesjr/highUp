@@ -12,6 +12,7 @@
 script = ExtResource("1_0wfyh")
 
 [node name="BG" type="Node2D" parent="."]
+visible = false
 
 [node name="BackgroundFar" type="Parallax2D" parent="BG"]
 visible = false

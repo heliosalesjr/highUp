@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="HighUp"
-run/main_scene="uid://bpg4j1x65ggbu"
+run/main_scene="uid://csbly5n6nnvc"
 config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 

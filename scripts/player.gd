@@ -190,9 +190,9 @@ func die():
 	print("💀 GAME OVER")
 	set_physics_process(false)
 	
-	# Animação de morte
 	var tween = create_tween()
 	tween.tween_property(self, "modulate:a", 0.0, 0.5)
 	
 	await get_tree().create_timer(1.0).timeout
-	get_tree().reload_current_scene()
+	# Volta para o menu em vez de recarregar
+	get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
