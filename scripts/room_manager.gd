@@ -6,11 +6,13 @@ var layouts = {
 		preload("res://scenes/room_layouts/layout_simple_01.tscn"),
 		preload("res://scenes/room_layouts/layout_simple_02.tscn"),
 		preload("res://scenes/room_layouts/layout_simple_03.tscn"),
-		preload("res://scenes/room_layouts/layout_simple_04.tscn")
+		preload("res://scenes/room_layouts/layout_simple_04.tscn"),
+		preload("res://scenes/room_layouts/layout_simple_05.tscn")  # ← NOVO
 	],
 	"split": [
 		preload("res://scenes/room_layouts/layout_split.tscn"),
-		preload("res://scenes/room_layouts/layout_split_01.tscn")
+		preload("res://scenes/room_layouts/layout_split_01.tscn"),
+		preload("res://scenes/room_layouts/layout_split_bird.tscn")  # ← NOVO
 	]
 }
 

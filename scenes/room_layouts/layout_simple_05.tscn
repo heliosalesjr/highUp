@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b160ot2l61noh"]
+
+[ext_resource type="Script" uid="uid://c17ai74chuvni" path="res://scenes/room_layouts/layout_simple_05.gd" id="1_agmlx"]
+
+[node name="layout_simple_05" type="Node2D"]
+script = ExtResource("1_agmlx")
