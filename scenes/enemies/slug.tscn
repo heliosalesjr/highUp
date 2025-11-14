@@ -1,23 +1,82 @@
-[gd_scene load_steps=5 format=3 uid="uid://bl0xpnw4jsmml"]
+[gd_scene load_steps=13 format=3 uid="uid://bl0xpnw4jsmml"]
 
 [ext_resource type="Script" uid="uid://ciow81hw4d8ls" path="res://scenes/enemies/slug.gd" id="1_nc3h4"]
-[ext_resource type="Texture2D" uid="uid://oe1nbqn1ebgk" path="res://icon.svg" id="2_b22qs"]
+[ext_resource type="Texture2D" uid="uid://i80f3dc1wxbf" path="res://assets/snake.png" id="2_nc3h4"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b22qs"]
+atlas = ExtResource("2_nc3h4")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w68w0"]
+atlas = ExtResource("2_nc3h4")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o28gm"]
+atlas = ExtResource("2_nc3h4")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aqwvy"]
+atlas = ExtResource("2_nc3h4")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nrpll"]
+atlas = ExtResource("2_nc3h4")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n2w74"]
+atlas = ExtResource("2_nc3h4")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vebh7"]
+atlas = ExtResource("2_nc3h4")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_r1dv2"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b22qs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w68w0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o28gm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aqwvy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nrpll")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n2w74")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vebh7")
+}],
+"loop": true,
+"name": &"default",
+"speed": 12.0
+}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_w68w0"]
 size = Vector2(76, 38)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_nc3h4"]
-size = Vector2(80, 40)
+size = Vector2(84, 40)
 
 [node name="Slug" type="CharacterBody2D"]
 collision_layer = 128
 collision_mask = 2147516417
 script = ExtResource("1_nc3h4")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(-2.861023e-06, 1.9073486e-06)
-scale = Vector2(0.62499994, 0.31249997)
-texture = ExtResource("2_b22qs")
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(-4, -4)
+scale = Vector2(1.296875, 1.1066667)
+sprite_frames = SubResource("SpriteFrames_r1dv2")
+autoplay = "default"
+frame_progress = 0.92886513
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1)
@@ -27,4 +86,5 @@ shape = SubResource("RectangleShape2D_w68w0")
 collision_layer = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
+position = Vector2(-2, 0)
 shape = SubResource("RectangleShape2D_nc3h4")

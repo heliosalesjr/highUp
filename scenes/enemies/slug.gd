@@ -7,6 +7,8 @@ extends CharacterBody2D
 var speed = 0.0
 var direction = 1
 
+@onready var animated_sprite = $AnimatedSprite2D  # ← NOVO
+
 func _ready():
 	collision_layer = 8
 	collision_mask = 49
@@ -15,6 +17,9 @@ func _ready():
 	
 	if randf() > 0.5:
 		direction = -1
+	
+	# Aplica flip inicial
+	update_sprite_flip()  # ← NOVO
 	
 	var hitbox = get_node_or_null("HitBox")
 	if hitbox:
@@ -35,9 +40,21 @@ func _physics_process(delta):
 	
 	if is_on_wall():
 		reverse_direction()
+	
+	update_sprite_flip()  # ← NOVO: Atualiza flip a cada frame
 
 func reverse_direction():
 	direction *= -1
+
+func update_sprite_flip():  # ← FUNÇÃO NOVA
+	"""Atualiza o flip do AnimatedSprite2D baseado na direção"""
+	if animated_sprite:
+		# Ajuste baseado na direção original da sua sprite:
+		# Se a sprite original aponta para DIREITA: flip_h = direction < 0
+		# Se a sprite original aponta para ESQUERDA: flip_h = direction > 0
+		
+		# Assumindo que a sprite original aponta para DIREITA:
+		animated_sprite.flip_h = direction > 0
 
 func randomize_speed():
 	speed = randf_range(min_speed, max_speed)
@@ -46,5 +63,5 @@ func randomize_speed():
 func _on_body_entered(body):
 	"""Detecta colisão com o player"""
 	if body.name == "Player" and body.has_method("take_damage"):
-		body.take_damage(self)  # ← PASSA 'self' como referência
+		body.take_damage(self)
 		print("🐌 Slug atingiu o player!")
