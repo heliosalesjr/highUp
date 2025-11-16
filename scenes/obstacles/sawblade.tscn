@@ -1,0 +1,57 @@
+[gd_scene load_steps=9 format=3 uid="uid://dnudnnredqwlc"]
+
+[ext_resource type="Texture2D" uid="uid://b0pc0sqhyc7cq" path="res://assets/SawBladeSuriken.png" id="1_b1xns"]
+[ext_resource type="Script" uid="uid://bbmrm8riclkos" path="res://scenes/obstacles/sawblade.gd" id="1_v27wc"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v27wc"]
+atlas = ExtResource("1_b1xns")
+region = Rect2(0, 0, 25, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y2ltf"]
+atlas = ExtResource("1_b1xns")
+region = Rect2(25, 0, 25, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_axkh2"]
+atlas = ExtResource("1_b1xns")
+region = Rect2(50, 0, 25, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ks11y"]
+atlas = ExtResource("1_b1xns")
+region = Rect2(75, 0, 25, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wodnj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v27wc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y2ltf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_axkh2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ks11y")
+}],
+"loop": true,
+"name": &"spin",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1dn4a"]
+
+[node name="Sawblade" type="Area2D"]
+collision_layer = 8
+script = ExtResource("1_v27wc")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(-2, 1)
+scale = Vector2(1.38, 1.38)
+sprite_frames = SubResource("SpriteFrames_wodnj")
+animation = &"spin"
+autoplay = "spin"
+frame_progress = 0.5159257
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_1dn4a")
