@@ -1,22 +1,22 @@
-[gd_scene load_steps=9 format=3 uid="uid://dnudnnredqwlc"]
+[gd_scene load_steps=9 format=3 uid="uid://4lsqbilg2dw5"]
 
-[ext_resource type="Texture2D" uid="uid://b0pc0sqhyc7cq" path="res://assets/SawBladeSuriken.png" id="1_b1xns"]
-[ext_resource type="Script" uid="uid://bbmrm8riclkos" path="res://scenes/obstacles/sawblade.gd" id="1_v27wc"]
+[ext_resource type="Script" uid="uid://bvnkag6np1478" path="res://scenes/obstacles/sawblade_horizontal.gd" id="1_lak7v"]
+[ext_resource type="Texture2D" uid="uid://b0pc0sqhyc7cq" path="res://assets/SawBladeSuriken.png" id="2_1gnoh"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_v27wc"]
-atlas = ExtResource("1_b1xns")
+atlas = ExtResource("2_1gnoh")
 region = Rect2(0, 0, 25, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_y2ltf"]
-atlas = ExtResource("1_b1xns")
+atlas = ExtResource("2_1gnoh")
 region = Rect2(25, 0, 25, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_axkh2"]
-atlas = ExtResource("1_b1xns")
+atlas = ExtResource("2_1gnoh")
 region = Rect2(50, 0, 25, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ks11y"]
-atlas = ExtResource("1_b1xns")
+atlas = ExtResource("2_1gnoh")
 region = Rect2(75, 0, 25, 32)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_wodnj"]
@@ -41,10 +41,10 @@ animations = [{
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1dn4a"]
 
-[node name="Sawblade" type="Area2D"]
+[node name="Sawblade Horizontal" type="Area2D"]
 scale = Vector2(3, 3)
 collision_layer = 8
-script = ExtResource("1_v27wc")
+script = ExtResource("1_lak7v")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(-2, 1)

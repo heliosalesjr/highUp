@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dk12klb00j5u7"]
+
+[ext_resource type="Script" uid="uid://drvpm05cjxjcf" path="res://scenes/room_layouts/layout_saw_floor.gd" id="1_eaxh5"]
+
+[node name="layout_saw_floor" type="Node2D"]
+script = ExtResource("1_eaxh5")
