@@ -239,6 +239,9 @@ func launch_from_cannon(launch_velocity: float):
 	is_on_ladder = false
 	current_ladder = null
 	
+	# DESABILITA COLISÃO COM INIMIGOS  ← NOVO
+	collision_mask = 17  # Remove layer 8 (inimigos): era 25, agora 17 (1 + 16)
+	
 	# Inicia screen shake na câmera
 	start_camera_shake()
 	
@@ -251,19 +254,26 @@ func launch_from_cannon(launch_velocity: float):
 	tween.tween_property(animated_sprite, "modulate", Color(1.5, 1.5, 1.5), 0.1)
 	tween.tween_property(animated_sprite, "modulate", Color(1, 1, 1), 0.1)
 
-func start_camera_shake():
-	"""Inicia o efeito de tremor na câmera"""
-	var camera = get_node_or_null("Camera2D")
-	if camera:
-		camera.shake(1.5)
-		
 func end_launch():
 	"""Termina o estado de lançamento"""
 	print("🛬 Aterrissagem!")
 	is_launched = false
+	
+	# REABILITA COLISÃO COM INIMIGOS  ← NOVO
+	collision_mask = 25  # Volta ao normal: 1 + 8 + 16
 	
 	# Pequeno delay antes de remover invulnerabilidade
 	await get_tree().create_timer(0.5).timeout
 	launch_invulnerability = false
 	is_invulnerable = false
 	animated_sprite.modulate = Color(1, 1, 1)
+	
+func start_camera_shake():
+	"""Inicia o efeito de tremor na câmera"""
+	var camera = get_tree().get_first_node_in_group("camera")
+	
+	if camera and camera.has_method("shake"):
+		camera.shake(1.5, 30.0)
+		print("✅ Camera shake ativado!")
+	else:
+		print("❌ Câmera não encontrada no grupo 'camera'")

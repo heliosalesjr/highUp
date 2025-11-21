@@ -7,82 +7,82 @@ extends Camera2D
 
 const ROOM_HEIGHT = 320
 
-var fixed_x_position = 360  # Meio da tela (720 / 2)
-var highest_y_reached = 1280  # Começa no bottom
+var fixed_x_position = 360
+var highest_y_reached = 1280
 
 # Shake variables
-var shake_strength = 0.0
-var shake_decay = 5.0
-var shake_timer = 0.0
+var is_shaking = false
+var shake_intensity = 0.0
+var shake_time_remaining = 0.0
+var original_offset = Vector2.ZERO
 
-# Referência para a Main (para gerar novas salas)
+# Referência para a Main
 var main_scene: Node2D
 
 func _ready():
-	# Fixa a posição X no centro da tela
-	position.x = fixed_x_position
 	
-	# Configura a câmera
+	add_to_group("camera")
+	
+	position.x = fixed_x_position
 	zoom = Vector2(1, 1)
 	position_smoothing_enabled = smoothing_enabled
 	position_smoothing_speed = smoothing_speed
-	
-	# Pega referência da Main
 	main_scene = get_parent()
-	
-	# Posição inicial da câmera
-	global_position.y = 640  # Centro vertical da tela (1280 / 2)
+	global_position.y = 640
 
 func _process(delta):
 	if not target:
 		return
 	
-	# Aplica shake se ativo
-	apply_shake(delta)
+	# SHAKE primeiro
+	process_shake(delta)
 	
 	# Segue o player apenas no eixo Y
 	var target_y = target.global_position.y
-	
-	# Só move a câmera se o player subir acima do centro da tela
 	var camera_target_y = target_y
 	
-	# Limita para não descer demais (não vai abaixo da sala inicial)
-	if camera_target_y > 640:  # Centro da primeira sala
+	if camera_target_y > 640:
 		camera_target_y = 640
 	
-	# Atualiza posição da câmera (com shake aplicado)
-	global_position.y = camera_target_y + offset.y
+	# Atualiza posição da câmera
+	global_position.y = camera_target_y
 	
 	# Verifica se player atingiu nova altura máxima
 	if target_y < highest_y_reached:
 		highest_y_reached = target_y
 		check_and_generate_rooms()
 
-func apply_shake(delta):
-	"""Aplica o efeito de tremor"""
-	if shake_timer > 0:
-		shake_timer -= delta
+func process_shake(delta):
+	"""Processa o shake da câmera"""
+	if is_shaking:
+		shake_time_remaining -= delta
 		
-		# Cria tremor aleatório
-		var shake_offset = Vector2(
-			randf_range(-shake_strength, shake_strength),
-			randf_range(-shake_strength, shake_strength)
-		)
-		
-		offset = shake_offset
-		
-		# Decai a força do shake ao longo do tempo
-		shake_strength = lerp(shake_strength, 0.0, shake_decay * delta)
+		if shake_time_remaining > 0:
+			# Aplica shake no offset
+			offset = Vector2(
+				randf_range(-shake_intensity, shake_intensity),
+				randf_range(-shake_intensity, shake_intensity)
+			)
+			
+			# Diminui intensidade gradualmente
+			shake_intensity = lerp(shake_intensity, 0.0, delta * 3.0)
+			
+			print("📹 Shaking - Intensity: ", shake_intensity, " Time: ", shake_time_remaining)
+		else:
+			# Termina o shake
+			is_shaking = false
+			offset = Vector2.ZERO
+			shake_intensity = 0.0
+			print("📹 Shake terminado")
 	else:
-		# Reseta offset quando não há shake
 		offset = Vector2.ZERO
-		shake_strength = 0.0
 
-func shake(duration: float, strength: float = 30.0):
-	"""Inicia o tremor da câmera"""
-	shake_timer = duration
-	shake_strength = strength
-	print("📹 Camera shake iniciado - Força: ", strength, " Duração: ", duration)
+func shake(duration: float, intensity: float = 25.0):
+	"""Inicia o shake da câmera"""
+	print("📹 SHAKE INICIADO! Duração: ", duration, " Intensidade: ", intensity)
+	is_shaking = true
+	shake_time_remaining = duration
+	shake_intensity = intensity
 
 func check_and_generate_rooms():
 	"""Verifica se precisa gerar novas salas acima"""
