@@ -1,4 +1,5 @@
 extends CharacterBody2D
+
 var is_invulnerable = false
 const INVULNERABILITY_TIME = 1.5
 var damaged_enemies = []
@@ -31,7 +32,7 @@ var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 var direction = 1
 
 # Referência ao AnimatedSprite2D
-@onready var animated_sprite = $AnimatedSprite2D  # ← NOVO
+@onready var animated_sprite = $AnimatedSprite2D
 
 func _ready():
 	collision_layer = 1
@@ -48,13 +49,24 @@ func _ready():
 		print("ERRO: DetectionArea não encontrada!")
 
 func _physics_process(delta):
-	
+	# Verifica se terminou o lançamento
 	if is_launched and velocity.y >= 0 and is_on_floor():
 		end_launch()
-		
+	
+	# Durante o lançamento, só aplica movimento básico
+	if is_launched:
+		# Aplica gravidade para o arco de voo
+		velocity.y += gravity * delta
+		# Mantém movimento horizontal mínimo
+		velocity.x = direction * SPEED * 0.5
+		move_and_slide()
+		update_animation()
+		return  # ← IMPORTANTE: Sai da função, ignora todo o resto
+	
+	# Física normal (só quando NÃO está lançado)
 	if is_on_ladder:
 		climb_ladder(delta)
-	elif not is_launched:
+	else:
 		apply_gravity(delta)
 		handle_jump(delta)
 		auto_walk(delta)
@@ -62,7 +74,7 @@ func _physics_process(delta):
 	move_and_slide()
 	update_timers(delta)
 	check_wall_collision()
-	update_animation()  # ← NOVO
+	update_animation()
 
 func apply_gravity(delta):
 	if not is_on_floor():
@@ -99,18 +111,21 @@ func update_timers(delta):
 	if jump_buffer_timer > 0:
 		jump_buffer_timer -= delta
 
-func update_animation():  # ← FUNÇÃO NOVA
+func update_animation():
 	"""Atualiza a animação baseada no estado do player"""
-	
-	# Flip horizontal baseado na direção
 	animated_sprite.flip_h = direction < 0
 	
-	# Escolhe a animação
-	if is_on_ladder:
+	if is_launched:
+		# Animação especial durante lançamento
+		if velocity.y < 0:
+			animated_sprite.play("climb")  # Subindo
+		else:
+			animated_sprite.play("fall")   # Descendo
+	elif is_on_ladder:
 		animated_sprite.play("climb")
 	elif not is_on_floor():
 		if velocity.y < 0:
-			animated_sprite.play("climb")  # Usa climb para subir
+			animated_sprite.play("climb")
 		else:
 			animated_sprite.play("fall")
 	else:
@@ -137,12 +152,20 @@ func climb_ladder(delta):
 		current_ladder = null
 
 func _on_area_entered(area: Area2D):
+	# Ignora escadas durante o lançamento
+	if is_launched:
+		return
+	
 	if area.name == "Ladder":
 		is_on_ladder = true
 		current_ladder = area
 		print("Entrando na escada!")
 
 func _on_area_exited(area: Area2D):
+	# Ignora escadas durante o lançamento
+	if is_launched:
+		return
+	
 	if area.name == "Ladder":
 		if not is_on_ladder:
 			current_ladder = null
@@ -152,25 +175,21 @@ func reverse_direction():
 	direction *= -1
 	print("🔄 Direção invertida!")
 
-# Adicione esta função no player.gd
-
 func take_damage(enemy):
 	"""Chamado quando o player leva dano"""
-	if is_invulnerable or launch_invulnerability:  # ← MODIFICADO
+	# Ignora dano durante lançamento
+	if is_invulnerable or launch_invulnerability or is_launched:  # ← MODIFICADO
 		return
 	
-	# Verifica se já levou dano desse inimigo específico
 	if enemy in damaged_enemies:
 		return
 	
 	var survived = GameManager.take_damage()
 	
 	if survived:
-		# Sobreviveu - ativa invulnerabilidade temporária
-		damaged_enemies.append(enemy)  # Marca esse inimigo
+		damaged_enemies.append(enemy)
 		start_invulnerability()
 	else:
-		# Morreu - game over
 		die()
 
 func start_invulnerability():
@@ -178,16 +197,14 @@ func start_invulnerability():
 	is_invulnerable = true
 	print("🛡️ Invulnerável por ", INVULNERABILITY_TIME, " segundos")
 	
-	# Efeito visual de piscar
 	var tween = create_tween()
 	tween.set_loops(int(INVULNERABILITY_TIME * 5))
 	tween.tween_property(animated_sprite, "modulate:a", 0.3, 0.1)
 	tween.tween_property(animated_sprite, "modulate:a", 1.0, 0.1)
 	
-	# Remove invulnerabilidade após o tempo
 	await get_tree().create_timer(INVULNERABILITY_TIME).timeout
 	is_invulnerable = false
-	damaged_enemies.clear()  # ← LIMPA a lista de inimigos
+	damaged_enemies.clear()
 	animated_sprite.modulate.a = 1.0
 	print("🛡️ Invulnerabilidade encerrada")
 
@@ -196,13 +213,10 @@ func die():
 	print("💀 GAME OVER")
 	set_physics_process(false)
 	
-	# Animação de morte
 	var tween = create_tween()
 	tween.tween_property(self, "modulate:a", 0.0, 0.5)
 	
 	await get_tree().create_timer(1.0).timeout
-	
-	# Mostra a tela de Game Over em vez de ir direto ao menu
 	show_game_over()
 
 func show_game_over():
@@ -212,7 +226,7 @@ func show_game_over():
 func launch_from_cannon(launch_velocity: float):
 	"""Chamado quando o player é lançado pelo canhão"""
 	if is_launched:
-		return  # Já está voando
+		return
 	
 	print("🚀 LANÇAMENTO!")
 	
@@ -220,6 +234,10 @@ func launch_from_cannon(launch_velocity: float):
 	velocity.y = launch_velocity
 	is_launched = true
 	launch_invulnerability = true
+	
+	# Desativa temporariamente a detecção de escada
+	is_on_ladder = false
+	current_ladder = null
 	
 	# Inicia screen shake na câmera
 	start_camera_shake()
@@ -237,13 +255,14 @@ func start_camera_shake():
 	"""Inicia o efeito de tremor na câmera"""
 	var camera = get_node_or_null("Camera2D")
 	if camera:
-		camera.shake(1.5)  # Duração do shake
+		camera.shake(1.5)
 		
 func end_launch():
 	"""Termina o estado de lançamento"""
 	print("🛬 Aterrissagem!")
 	is_launched = false
 	
+	# Pequeno delay antes de remover invulnerabilidade
 	await get_tree().create_timer(0.5).timeout
 	launch_invulnerability = false
 	is_invulnerable = false

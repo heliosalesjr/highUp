@@ -74,5 +74,10 @@ func randomize_speed():
 func _on_body_entered(body):
 	"""Detecta colisão com o player"""
 	if body.name == "Player" and body.has_method("take_damage"):
+		# Verifica se o player está em modo de lançamento  ← NOVO
+		if body.is_launched:
+			print("🦅 Bird ignorou player lançado")
+			return
+		
 		body.take_damage(self)
 		print("🦅 Bird atingiu o player!")
