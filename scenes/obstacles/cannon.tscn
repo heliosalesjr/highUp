@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://b5oi63axkyxi2"]
+
+[ext_resource type="Texture2D" uid="uid://dfxuavfjqay0n" path="res://assets/barrel2.png" id="1_dgdyi"]
+[ext_resource type="Script" uid="uid://copggvc01gfiu" path="res://scenes/obstacles/cannon.gd" id="1_g67w0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g67w0"]
+size = Vector2(20, 58)
+
+[node name="Cannon" type="Area2D"]
+script = ExtResource("1_g67w0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 3)
+shape = SubResource("RectangleShape2D_g67w0")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_dgdyi")

@@ -4,6 +4,10 @@ extends Camera2D
 @export var smoothing_enabled = true
 @export var smoothing_speed = 5.0
 
+var shake_amount = 0.0
+var shake_duration = 0.0
+var shake_timer = 0.0
+
 const ROOM_HEIGHT = 320
 var fixed_x_position = 360  # Meio da tela (720 / 2)
 var highest_y_reached = 1280  # Começa no bottom
@@ -49,6 +53,21 @@ func _process(_delta):
 		highest_y_reached = target_y
 		check_and_generate_rooms()
 
+	if shake_timer > 0:
+		shake_timer -= _delta
+		
+		# Aplica tremor
+		offset = Vector2(
+			randf_range(-shake_amount, shake_amount),
+			randf_range(-shake_amount, shake_amount)
+		)
+		
+		# Reduz gradualmente
+		shake_amount = lerp(shake_amount, 0.0, _delta * 5.0)
+	else:
+		# Reseta posição
+		offset = Vector2.ZERO
+		
 func check_and_generate_rooms():
 	"""Verifica se precisa gerar novas salas acima"""
 	
@@ -60,3 +79,8 @@ func check_and_generate_rooms():
 	if main_scene and main_scene.has_method("generate_rooms_ahead"):
 		main_scene.generate_rooms_ahead(rooms_climbed)
 		
+func shake(duration: float, amount: float = 20.0):
+	"""Inicia o tremor da câmera"""
+	shake_duration = duration
+	shake_timer = duration
+	shake_amount = amount

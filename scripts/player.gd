@@ -2,6 +2,8 @@ extends CharacterBody2D
 var is_invulnerable = false
 const INVULNERABILITY_TIME = 1.5
 var damaged_enemies = []
+var is_launched = false
+var launch_invulnerability = false
 
 # Constantes de movimento
 const SPEED = 400.0
@@ -46,9 +48,13 @@ func _ready():
 		print("ERRO: DetectionArea não encontrada!")
 
 func _physics_process(delta):
+	
+	if is_launched and velocity.y >= 0 and is_on_floor():
+		end_launch()
+		
 	if is_on_ladder:
 		climb_ladder(delta)
-	else:
+	elif not is_launched:
 		apply_gravity(delta)
 		handle_jump(delta)
 		auto_walk(delta)
@@ -150,7 +156,7 @@ func reverse_direction():
 
 func take_damage(enemy):
 	"""Chamado quando o player leva dano"""
-	if is_invulnerable:
+	if is_invulnerable or launch_invulnerability:  # ← MODIFICADO
 		return
 	
 	# Verifica se já levou dano desse inimigo específico
@@ -202,3 +208,43 @@ func die():
 func show_game_over():
 	"""Carrega a tela de Game Over"""
 	get_tree().change_scene_to_file("res://scenes/ui/game_over.tscn")
+
+func launch_from_cannon(launch_velocity: float):
+	"""Chamado quando o player é lançado pelo canhão"""
+	if is_launched:
+		return  # Já está voando
+	
+	print("🚀 LANÇAMENTO!")
+	
+	# Define velocidade de lançamento
+	velocity.y = launch_velocity
+	is_launched = true
+	launch_invulnerability = true
+	
+	# Inicia screen shake na câmera
+	start_camera_shake()
+	
+	# Torna invulnerável durante o voo
+	is_invulnerable = true
+	
+	# Efeito visual de brilho
+	var tween = create_tween()
+	tween.set_loops(10)
+	tween.tween_property(animated_sprite, "modulate", Color(1.5, 1.5, 1.5), 0.1)
+	tween.tween_property(animated_sprite, "modulate", Color(1, 1, 1), 0.1)
+
+func start_camera_shake():
+	"""Inicia o efeito de tremor na câmera"""
+	var camera = get_node_or_null("Camera2D")
+	if camera:
+		camera.shake(1.5)  # Duração do shake
+		
+func end_launch():
+	"""Termina o estado de lançamento"""
+	print("🛬 Aterrissagem!")
+	is_launched = false
+	
+	await get_tree().create_timer(0.5).timeout
+	launch_invulnerability = false
+	is_invulnerable = false
+	animated_sprite.modulate = Color(1, 1, 1)
