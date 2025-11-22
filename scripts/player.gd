@@ -5,6 +5,9 @@ const INVULNERABILITY_TIME = 1.5
 var damaged_enemies = []
 var is_launched = false
 var launch_invulnerability = false
+var magnet_active = false  # ← NOVO
+var magnet_icon = null     # ← NOVO
+const MAGNET_RANGE = 300.0 # ← NOVO: Raio de atração
 
 # Constantes de movimento
 const SPEED = 400.0
@@ -49,6 +52,7 @@ func _ready():
 		print("ERRO: DetectionArea não encontrada!")
 
 func _physics_process(delta):
+	attract_collectibles(delta)
 	# Verifica se terminou o lançamento
 	if is_launched and velocity.y >= 0 and is_on_floor():
 		end_launch()
@@ -80,7 +84,7 @@ func apply_gravity(delta):
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-func handle_jump(delta):
+func handle_jump(_delta):
 	if is_on_floor():
 		coyote_timer = COYOTE_TIME
 	
@@ -131,7 +135,7 @@ func update_animation():
 	else:
 		animated_sprite.play("run")
 
-func climb_ladder(delta):
+func climb_ladder(_delta):
 	velocity.y = -CLIMB_SPEED
 	velocity.x = 0
 	
@@ -177,8 +181,7 @@ func reverse_direction():
 
 func take_damage(enemy):
 	"""Chamado quando o player leva dano"""
-	# Ignora dano durante lançamento
-	if is_invulnerable or launch_invulnerability or is_launched:  # ← MODIFICADO
+	if is_invulnerable or launch_invulnerability or is_launched:
 		return
 	
 	if enemy in damaged_enemies:
@@ -187,6 +190,9 @@ func take_damage(enemy):
 	var survived = GameManager.take_damage()
 	
 	if survived:
+		# Desativa o ímã ao tomar dano  ← NOVO
+		deactivate_magnet()
+		
 		damaged_enemies.append(enemy)
 		start_invulnerability()
 	else:
@@ -277,3 +283,61 @@ func start_camera_shake():
 		print("✅ Camera shake ativado!")
 	else:
 		print("❌ Câmera não encontrada no grupo 'camera'")
+
+func activate_magnet():
+	"""Ativa o poder do ímã"""
+	magnet_active = true
+	print("🧲 Ímã ATIVADO!")
+	
+	# Cria o ícone visual acima do player
+	create_magnet_icon()
+
+func deactivate_magnet():
+	"""Desativa o poder do ímã"""
+	if not magnet_active:
+		return
+	
+	magnet_active = false
+	print("🧲 Ímã DESATIVADO!")
+	
+	# Remove o ícone visual
+	if magnet_icon:
+		magnet_icon.queue_free()
+		magnet_icon = null
+
+func create_magnet_icon():
+	"""Cria o ícone do ímã acima do player"""
+	if magnet_icon:
+		magnet_icon.queue_free()
+	
+	# Cria sprite do ímã
+	magnet_icon = Sprite2D.new()
+	magnet_icon.texture = load("res://assets/powerups/magnet_icon.png")  # Ajuste o caminho
+	magnet_icon.position = Vector2(0, -40)  # Acima do player
+	add_child(magnet_icon)
+	
+	# Animação de rotação suave
+	var tween = create_tween()
+	tween.set_loops()
+	tween.tween_property(magnet_icon, "rotation", TAU, 2.0)  # Gira 360°
+
+func attract_collectibles(delta):
+	"""Atrai diamantes e corações próximos"""
+	if not magnet_active:
+		return
+	
+	# Busca todos os coletáveis na árvore
+	var collectibles = get_tree().get_nodes_in_group("collectible")
+	
+	for collectible in collectibles:
+		var distance = global_position.distance_to(collectible.global_position)
+		
+		# Se está dentro do raio de atração
+		if distance < MAGNET_RANGE:
+			# Move em direção ao player
+			var direction_to_player = (global_position - collectible.global_position).normalized()
+			var attraction_speed = 400.0  # Velocidade de atração
+			
+			collectible.global_position += direction_to_player * attraction_speed * delta
+			
+			print("🧲 Atraindo: ", collectible.name)

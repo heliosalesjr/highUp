@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://00lg8dcmhvwe"]
+
+[ext_resource type="Script" uid="uid://br5cxg1ni2jqx" path="res://scenes/room_layouts/layout_magnet.gd" id="1_lc7u1"]
+
+[node name="layout_magnet" type="Node2D"]
+script = ExtResource("1_lc7u1")

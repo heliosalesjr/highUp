@@ -2,6 +2,7 @@
 extends Area2D
 
 func _ready():
+	add_to_group("collectible")
 	collision_layer = 24
 	collision_mask = 1
 	

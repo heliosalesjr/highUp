@@ -2,6 +2,7 @@
 extends Area2D
 
 func _ready():
+	add_to_group("collectible")
 	# Configuração de collision
 	collision_layer = 24  # ← MUDA AQUI
 	collision_mask = 1    # Detecta player

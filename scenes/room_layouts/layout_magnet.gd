@@ -1,0 +1,73 @@
+# layout_magnet.gd
+extends Node2D
+
+const ROOM_WIDTH = 720
+const ROOM_HEIGHT = 320
+
+var magnet_scene = preload("res://scenes/powerups/magnet.tscn")
+var diamond_scene = preload("res://scenes/prize/diamond.tscn")
+var heart_scene = preload("res://scenes/prize/heart.tscn")
+
+func _ready():
+	create_label("MAGNET ROOM")
+	spawn_magnet()
+	spawn_extra_collectibles()  # Spawna diamantes extras para aproveitar o ímã
+	create_room_entry_detector()
+
+func create_label(text: String):
+	var label = Label.new()
+	label.text = text
+	label.position = Vector2(ROOM_WIDTH / 2.0 - 70, 20)
+	label.add_theme_font_size_override("font_size", 24)
+	label.add_theme_color_override("font_color", Color.MAGENTA)
+	add_child(label)
+
+func spawn_magnet():
+	"""Spawna o ímã no centro da sala"""
+	var magnet = magnet_scene.instantiate()
+	magnet.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0)
+	add_child(magnet)
+	print("🧲 Ímã spawnado!")
+
+func spawn_extra_collectibles():
+	"""Spawna diamantes/corações extras nos cantos"""
+	var positions = [
+		Vector2(100, 80),         # Canto superior esquerdo
+		Vector2(ROOM_WIDTH - 100, 80),  # Canto superior direito
+		Vector2(150, ROOM_HEIGHT - 80), # Canto inferior esquerdo
+		Vector2(ROOM_WIDTH - 150, ROOM_HEIGHT - 80)  # Canto inferior direito
+	]
+	
+	for pos in positions:
+		if randf() > 0.3:  # 70% de chance de spawnar
+			if GameManager.should_spawn_heart() and randf() > 0.7:
+				var heart = heart_scene.instantiate()
+				heart.position = pos
+				add_child(heart)
+			else:
+				var diamond = diamond_scene.instantiate()
+				diamond.position = pos
+				add_child(diamond)
+
+func create_room_entry_detector():
+	"""Detecta quando o player entra na sala"""
+	var detector = Area2D.new()
+	detector.name = "EntryDetector"
+	detector.collision_layer = 0
+	detector.collision_mask = 1
+	
+	var collision = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(ROOM_WIDTH, 40)
+	collision.shape = shape
+	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT - 20)
+	
+	detector.add_child(collision)
+	detector.body_entered.connect(_on_room_entered)
+	add_child(detector)
+
+func _on_room_entered(body):
+	if body.name == "Player":
+		GameManager.add_room()
+		print("🎯 Sala magnet alcançada!")
+		get_node("EntryDetector").queue_free()
