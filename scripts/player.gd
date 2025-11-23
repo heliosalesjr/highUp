@@ -282,13 +282,14 @@ func start_camera_shake():
 
 func activate_magnet():
 	"""Ativa o poder do ímã"""
+	if magnet_active:
+		return
+
 	magnet_active = true
-	attracted_collectibles.clear()  # ← NOVO
+	attracted_collectibles.clear()
 	print("🧲 Ímã ATIVADO!")
 	create_magnet_icon()
-	
-	# Cria o ícone visual acima do player
-	create_magnet_icon()
+
 
 func deactivate_magnet():
 	"""Desativa o poder do ímã"""
@@ -305,20 +306,30 @@ func deactivate_magnet():
 
 
 func create_magnet_icon():
-	"""Cria o ícone do ímã acima do player"""
 	if magnet_icon:
 		magnet_icon.queue_free()
 	
-	# Cria sprite do ímã
 	magnet_icon = Sprite2D.new()
-	magnet_icon.texture = load("res://assets/powerups/magnet_icon.png")  # Ajuste o caminho
-	magnet_icon.position = Vector2(0, -40)  # Acima do player
+	magnet_icon.texture = load("res://assets/powerups/magnet_icon.png")
+	magnet_icon.position = Vector2(0, -40)
 	add_child(magnet_icon)
-	
-	# Animação de rotação suave
-	var tween = create_tween()
-	tween.set_loops()
-	tween.tween_property(magnet_icon, "rotation", TAU, 2.0)  # Gira 360°
+
+	# Inicia spin seguro (usa start_magnet_spin que já está seguro)
+	start_magnet_spin()
+
+func start_magnet_spin():
+	if !magnet_icon or !is_instance_valid(magnet_icon):
+		return
+
+	var tween = create_tween().bind_node(magnet_icon)
+	tween.set_loops(1)
+	tween.tween_property(magnet_icon, "rotation", TAU, 2.0)
+
+	# Quando terminar, reinicia – mas apenas se ainda existe
+	tween.tween_callback(func():
+		if magnet_icon and is_instance_valid(magnet_icon):
+			start_magnet_spin()
+	)
 
 func attract_collectibles(delta):
 	"""Atrai diamantes e corações - VERSÃO DEBUG"""

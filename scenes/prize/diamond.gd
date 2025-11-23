@@ -24,7 +24,7 @@ func collect():
 func create_idle_animation():
 	"""Animação simples de flutuação"""
 	idle_tween = create_tween()
-	idle_tween.set_loops(0)
+	idle_tween.set_loops(1)
 	var start_y = position.y
 	idle_tween.tween_property(self, "position:y", start_y - 5, 0.5)
 	idle_tween.tween_property(self, "position:y", start_y + 5, 0.5)
