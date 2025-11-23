@@ -8,7 +8,7 @@ var launch_invulnerability = false
 var magnet_active = false  # ← NOVO
 var magnet_icon = null     # ← NOVO
 const MAGNET_RANGE = 300.0 # ← NOVO: Raio de atração
-
+var attracted_collectibles = []
 # Constantes de movimento
 const SPEED = 400.0
 const JUMP_VELOCITY = -600.0
@@ -236,30 +236,26 @@ func launch_from_cannon(launch_velocity: float):
 	
 	print("🚀 LANÇAMENTO!")
 	
-	# Define velocidade de lançamento
 	velocity.y = launch_velocity
 	is_launched = true
 	launch_invulnerability = true
 	
-	# Desativa temporariamente a detecção de escada
 	is_on_ladder = false
 	current_ladder = null
 	
-	# DESABILITA COLISÃO COM INIMIGOS  ← NOVO
-	collision_mask = 17  # Remove layer 8 (inimigos): era 25, agora 17 (1 + 16)
+	collision_mask = 17
 	
-	# Inicia screen shake na câmera
 	start_camera_shake()
-	
-	# Torna invulnerável durante o voo
 	is_invulnerable = true
 	
-	# Efeito visual de brilho
+	# Efeito visual de brilho - CORRIGIDO  ← MUDOU AQUI
 	var tween = create_tween()
-	tween.set_loops(10)
+	tween.set_loops(8)  # ← Número fixo de loops em vez de infinito
 	tween.tween_property(animated_sprite, "modulate", Color(1.5, 1.5, 1.5), 0.1)
 	tween.tween_property(animated_sprite, "modulate", Color(1, 1, 1), 0.1)
-
+	
+	# Para garantir que volta ao normal
+	tween.finished.connect(func(): animated_sprite.modulate = Color(1, 1, 1))
 func end_launch():
 	"""Termina o estado de lançamento"""
 	print("🛬 Aterrissagem!")
@@ -287,7 +283,9 @@ func start_camera_shake():
 func activate_magnet():
 	"""Ativa o poder do ímã"""
 	magnet_active = true
+	attracted_collectibles.clear()  # ← NOVO
 	print("🧲 Ímã ATIVADO!")
+	create_magnet_icon()
 	
 	# Cria o ícone visual acima do player
 	create_magnet_icon()
@@ -298,12 +296,13 @@ func deactivate_magnet():
 		return
 	
 	magnet_active = false
+	attracted_collectibles.clear()  # ← NOVO
 	print("🧲 Ímã DESATIVADO!")
 	
-	# Remove o ícone visual
 	if magnet_icon:
 		magnet_icon.queue_free()
 		magnet_icon = null
+
 
 func create_magnet_icon():
 	"""Cria o ícone do ímã acima do player"""
@@ -322,22 +321,36 @@ func create_magnet_icon():
 	tween.tween_property(magnet_icon, "rotation", TAU, 2.0)  # Gira 360°
 
 func attract_collectibles(delta):
-	"""Atrai diamantes e corações próximos"""
+	"""Atrai diamantes e corações - VERSÃO DEBUG"""
 	if not magnet_active:
 		return
 	
-	# Busca todos os coletáveis na árvore
 	var collectibles = get_tree().get_nodes_in_group("collectible")
 	
 	for collectible in collectibles:
+		if not is_instance_valid(collectible):
+			continue
+		
 		var distance = global_position.distance_to(collectible.global_position)
 		
-		# Se está dentro do raio de atração
-		if distance < MAGNET_RANGE:
-			# Move em direção ao player
-			var direction_to_player = (global_position - collectible.global_position).normalized()
-			var attraction_speed = 400.0  # Velocidade de atração
+		if distance < MAGNET_RANGE and collectible not in attracted_collectibles:
+			attracted_collectibles.append(collectible)
+			print("🧲 GRUDOU: ", collectible.name)
+		
+		if collectible in attracted_collectibles:
+			if "is_being_attracted" in collectible:
+				collectible.is_being_attracted = true
 			
-			collectible.global_position += direction_to_player * attraction_speed * delta
+			# DEBUG - vamos ver as posições
+			print("Player pos: ", global_position)
+			print("Collectible pos ANTES: ", collectible.global_position)
 			
-			print("🧲 Atraindo: ", collectible.name)
+			# Movimento direto
+			var target = global_position
+			var current = collectible.global_position
+			
+			# Move diretamente para o player
+			collectible.global_position = current.move_toward(target, 800.0 * delta)
+			
+			print("Collectible pos DEPOIS: ", collectible.global_position)
+			print("---")
