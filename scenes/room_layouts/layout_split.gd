@@ -95,7 +95,7 @@ func spawn_prize_randomly():
 	if randf() > 0.5:
 		return
 	
-	var prize_position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - 40)
+	var prize_position = Vector2(ROOM_WIDTH / 2.0, 80)
 	
 	# Prioridade: Metal Potion > Heart > Diamond
 	if GameManager.can_spawn_metal_potion():

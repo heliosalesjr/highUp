@@ -6,6 +6,7 @@ extends CharacterBody2D
 
 var speed = 0.0
 var direction = 1
+var is_being_freed = false  # ← NOVO
 
 @onready var animated_sprite = $AnimatedSprite2D
 
@@ -28,6 +29,10 @@ func _ready():
 		print("⚠️ AVISO: HitBox não encontrado na Slug!")
 
 func _physics_process(delta):
+	# Se está sendo libertado, não aplica física normal
+	if is_being_freed:
+		return
+	
 	velocity.x = direction * speed
 	
 	if not is_on_floor():
@@ -61,9 +66,9 @@ func _on_body_entered(body):
 			print("🐌 Slug ignorou player lançado")
 			return
 		
-		# Verifica se player está no modo metal  ← CORRIGIDO
+		# Verifica se player está no modo metal
 		if GameManager.metal_mode_active:
-			be_freed()  # Liberta o animal!
+			be_freed()
 			return
 		
 		# Dano normal
@@ -72,6 +77,10 @@ func _on_body_entered(body):
 
 func be_freed():
 	"""Animal é libertado pelo modo metal"""
+	if is_being_freed:
+		return
+	
+	is_being_freed = true
 	print("🦋 Slug sendo LIBERTADO!")
 	
 	GameManager.free_animal("Slug")
@@ -88,19 +97,27 @@ func be_freed():
 	liberation_effect()
 
 func liberation_effect():
-	"""Efeito visual de libertação"""
+	"""Efeito visual de libertação - SOBE e depois CORRE para fora da tela"""
 	var tween = create_tween()
-	tween.set_parallel(true)
 	
 	# Brilho dourado
 	tween.tween_property(animated_sprite, "modulate", Color(2.0, 2.0, 1.0), 0.3)
 	
-	# Voa para cima e para fora
-	tween.tween_property(self, "global_position:y", global_position.y - 200, 1.5)
-	tween.tween_property(self, "global_position:x", global_position.x + (direction * 150), 1.5)
+	# Fase 1: SOBE (pequeno pulo)
+	tween.tween_property(self, "global_position:y", global_position.y - 80, 0.4).set_ease(Tween.EASE_OUT)
 	
-	# Fade out
-	tween.chain().tween_property(self, "modulate:a", 0.0, 0.5)
+	# Calcula posição fora da tela (bem longe)
+	var room_width = 720
+	var exit_x = room_width + 100 if direction > 0 else -100  # Fora da tela
 	
-	# Remove da cena
-	tween.finished.connect(queue_free)
+	# Fase 2: CORRE para fora da tela
+	tween.set_parallel(true)
+	tween.tween_property(self, "global_position:y", global_position.y - 60, 2.0).set_ease(Tween.EASE_IN)  # Cai um pouco
+	tween.tween_property(self, "global_position:x", exit_x, 2.0).set_ease(Tween.EASE_IN)  # Corre até sair
+	
+	# SEM fade out - só remove quando terminar
+	tween.set_parallel(false)
+	tween.finished.connect(func():
+		print("🐌 Slug saiu da tela e foi removido")
+		queue_free()
+	)
