@@ -40,7 +40,7 @@ func spawn_extra_collectibles():
 	
 	for pos in positions:
 		if randf() > 0.3:  # 70% de chance de spawnar
-			if GameManager.should_spawn_heart() and randf() > 0.7:
+			if GameManager.can_spawn_heart() and randf() > 0.7:
 				var heart = heart_scene.instantiate()
 				heart.position = pos
 				add_child(heart)

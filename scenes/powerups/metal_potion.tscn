@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://ref1tkl6xc5a"]
+
+[ext_resource type="Script" uid="uid://13jqcrk43djh" path="res://scenes/powerups/metal_potion.gd" id="1_4wtda"]
+[ext_resource type="Texture2D" uid="uid://c58l402uxf2jn" path="res://assets/potion.png" id="2_aejug"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ddnx1"]
+radius = 13.038404
+
+[node name="MetalPotion" type="Area2D"]
+script = ExtResource("1_4wtda")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(1.9073486e-06, -15)
+scale = Vector2(0.15888554, 0.15888555)
+texture = ExtResource("2_aejug")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_ddnx1")

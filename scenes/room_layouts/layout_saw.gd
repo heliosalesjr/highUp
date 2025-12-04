@@ -37,7 +37,7 @@ func spawn_prize_randomly():
 	
 	var prize_position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0)
 	
-	if GameManager.should_spawn_heart():
+	if GameManager.can_spawn_heart():
 		var heart = heart_scene.instantiate()
 		heart.position = prize_position
 		add_child(heart)

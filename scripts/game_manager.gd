@@ -1,20 +1,19 @@
 # game_manager.gd
-# game_manager.gd
 extends Node
 
 signal rooms_changed(new_value)
 signal diamonds_changed(new_value)
 signal hearts_changed(filled_hearts)
 signal player_died()
-signal metal_mode_changed(is_active)  # ← NOVO
-signal animal_freed(animal_name)  # ← NOVO
+signal metal_mode_changed(is_active)
+signal animal_freed(animal_name)
 
 var rooms_count = 0
 var diamonds_count = 0
-var filled_hearts = 0
+var filled_hearts = 3
 var diamonds_since_last_heart = 0
-var metal_mode_active = false  # ← NOVO
-var animals_freed = 0  # ← NOVO
+var metal_mode_active = false
+var animals_freed = 0
 
 const DIAMONDS_BEFORE_HEART = 2
 const SAVE_FILE = "user://save_data.json"
@@ -24,24 +23,74 @@ var highest_room = 0
 
 func _ready():
 	load_stats()
+	filled_hearts = 3
+	hearts_changed.emit(filled_hearts)
+	print("🧪 TESTE: Começando com 3 corações")
+func add_room():
+	rooms_count += 1
+	rooms_changed.emit(rooms_count)
+	
+	if rooms_count > highest_room:
+		highest_room = rooms_count
+		save_stats()
+	
+	print("📊 Rooms: ", rooms_count)
 
-# ... (funções existentes permanecem iguais) ...
+func add_diamond():
+	diamonds_count += 1
+	total_diamonds += 1
+	diamonds_changed.emit(diamonds_count)
+	diamonds_since_last_heart += 1
+	save_stats()
+	
+	print("💎 Diamonds: ", diamonds_count, " | Total global: ", total_diamonds)
+
+func add_heart():
+	if filled_hearts < 3:
+		filled_hearts += 1
+		diamonds_since_last_heart = 0
+		hearts_changed.emit(filled_hearts)
+		print("❤️ Coração adicionado! Total: ", filled_hearts)
+	else:
+		print("❤️ Já tem 3 corações! (máximo)")
 
 func can_spawn_heart() -> bool:
 	"""Verifica se pode spawnar coração"""
-	# Não spawna coração se modo metal estiver ativo
-	if metal_mode_active:
+	# NÃO spawna se:
+	# - Já tem 3 corações OU
+	# - Modo metal está ativo OU
+	# - Ainda não coletou diamantes suficientes
+	if filled_hearts >= 3:
+		print("❌ Não spawna coração: já tem 3")
 		return false
 	
-	# Só spawna se tiver menos de 3 corações E já coletou 2+ diamantes
-	return filled_hearts < 3 and diamonds_since_last_heart >= DIAMONDS_BEFORE_HEART
+	if metal_mode_active:
+		print("❌ Não spawna coração: modo metal ativo")
+		return false
+	
+	if diamonds_since_last_heart < DIAMONDS_BEFORE_HEART:
+		print("❌ Não spawna coração: faltam diamantes")
+		return false
+	
+	print("✅ PODE spawnar coração!")
+	return true
 
 func can_spawn_metal_potion() -> bool:
 	"""Verifica se pode spawnar poção de metal"""
-	# Só spawna se:
-	# 1. Modo metal NÃO está ativo
-	# 2. Tem 3 corações cheios
-	return not metal_mode_active and filled_hearts >= 3
+	# SÓ spawna se:
+	# - Modo metal NÃO está ativo E
+	# - Tem EXATAMENTE 3 corações cheios
+	
+	if metal_mode_active:
+		print("❌ Não spawna poção: modo metal já ativo")
+		return false
+	
+	if filled_hearts < 3:
+		print("❌ Não spawna poção: faltam corações (tem ", filled_hearts, "/3)")
+		return false
+	
+	print("✅ PODE spawnar poção de metal!")
+	return true
 
 func activate_metal_mode():
 	"""Ativa o modo metal"""
@@ -69,10 +118,10 @@ func free_animal(animal_name: String):
 
 func take_damage() -> bool:
 	"""Player leva dano"""
-	# Se está no modo metal, só desativa o modo (não perde coração)
+	# Se está no modo metal, só desativa o modo (não perde coração)  ← CORRIGIDO
 	if metal_mode_active:
 		deactivate_metal_mode()
-		print("🛡️ Armadura destruída!")
+		print("🛡️ Armadura destruída por obstáculo!")
 		return true  # Sobreviveu
 	
 	# Lógica normal de dano
@@ -92,13 +141,12 @@ func reset():
 	diamonds_count = 0
 	filled_hearts = 0
 	diamonds_since_last_heart = 0
-	metal_mode_active = false  # ← NOVO
-	animals_freed = 0  # ← NOVO
+	metal_mode_active = false
+	animals_freed = 0
 	rooms_changed.emit(rooms_count)
 	diamonds_changed.emit(diamonds_count)
 	hearts_changed.emit(filled_hearts)
 	metal_mode_changed.emit(false)
-
 
 func save_stats():
 	"""Salva as estatísticas globais"""

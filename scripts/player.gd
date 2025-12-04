@@ -5,10 +5,12 @@ const INVULNERABILITY_TIME = 1.5
 var damaged_enemies = []
 var is_launched = false
 var launch_invulnerability = false
-var magnet_active = false  # ← NOVO
-var magnet_icon = null     # ← NOVO
-const MAGNET_RANGE = 300.0 # ← NOVO: Raio de atração
+var magnet_active = false
+var magnet_icon = null
+const MAGNET_RANGE = 300.0 
 var attracted_collectibles = []
+var metal_shader_material = null
+
 # Constantes de movimento
 const SPEED = 400.0
 const JUMP_VELOCITY = -600.0
@@ -38,8 +40,13 @@ var direction = 1
 @onready var animated_sprite = $AnimatedSprite2D
 
 func _ready():
+	add_to_group("player")
 	collision_layer = 1
 	collision_mask = 25 
+	
+	GameManager.metal_mode_changed.connect(_on_metal_mode_changed)
+	
+	prepare_metal_shader()
 	
 	var detection_area = get_node_or_null("DetectionArea")
 	if detection_area:
@@ -365,3 +372,56 @@ func attract_collectibles(delta):
 			
 			print("Collectible pos DEPOIS: ", collectible.global_position)
 			print("---")
+func prepare_metal_shader():
+	"""Prepara o material do shader metálico"""
+	metal_shader_material = ShaderMaterial.new()
+	var shader = load("res://shaders/metal_effect.gdshader")
+	metal_shader_material.shader = shader
+	metal_shader_material.set_shader_parameter("metal_intensity", 0.0)  # Começa desativado
+
+func _on_metal_mode_changed(is_active: bool):
+	"""Chamado quando o modo metal muda"""
+	if is_active:
+		activate_visual_metal_mode()
+	else:
+		deactivate_visual_metal_mode()
+
+func activate_visual_metal_mode():
+	"""Ativa efeito visual metálico"""
+	if animated_sprite and metal_shader_material:
+		animated_sprite.material = metal_shader_material
+		
+		# Anima a transição
+		var tween = create_tween()
+		tween.tween_method(
+			func(value): metal_shader_material.set_shader_parameter("metal_intensity", value),
+			0.0,
+			1.0,
+			0.5
+		)
+		
+		print("🛡️ Visual metálico ATIVADO")
+
+func deactivate_visual_metal_mode():
+	"""Desativa efeito visual metálico"""
+	if animated_sprite and metal_shader_material:
+		# Anima a transição de saída
+		var tween = create_tween()
+		tween.tween_method(
+			func(value): metal_shader_material.set_shader_parameter("metal_intensity", value),
+			1.0,
+			0.0,
+			0.5
+		)
+		
+		# Remove o shader depois
+		tween.finished.connect(func():
+			if animated_sprite:
+				animated_sprite.material = null
+		)
+		
+		print("🛡️ Visual metálico DESATIVADO")
+
+func activate_metal_mode():
+	"""Ativa modo metal (chamado ao coletar poção)"""
+	GameManager.activate_metal_mode()

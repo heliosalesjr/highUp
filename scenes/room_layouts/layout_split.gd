@@ -7,6 +7,7 @@ const WALL_THICKNESS = 4
 
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
+var metal_potion_scene = preload("res://scenes/powerups/metal_potion.tscn")
 
 func _ready():
 	create_label("SPLIT ROOM")
@@ -90,14 +91,19 @@ func _on_second_floor_reached(body):
 		get_node("SecondFloorDetector").queue_free()
 
 func spawn_prize_randomly():
-	"""50% de chance de spawnar um prêmio (diamante ou coração)"""
+	"""50% de chance de spawnar um prêmio"""
 	if randf() > 0.5:
 		return
 	
 	var prize_position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - 40)
 	
-	# Verifica se deve spawnar coração ou diamante
-	if GameManager.should_spawn_heart():
+	# Prioridade: Metal Potion > Heart > Diamond
+	if GameManager.can_spawn_metal_potion():
+		var potion = metal_potion_scene.instantiate()  # ← Adicione preload no topo
+		potion.position = prize_position
+		add_child(potion)
+		print("🛡️ Poção de Metal spawnada!")
+	elif GameManager.can_spawn_heart():
 		var heart = heart_scene.instantiate()
 		heart.position = prize_position
 		add_child(heart)
