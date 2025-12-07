@@ -13,6 +13,8 @@ var diamonds_count = 0
 var filled_hearts = 3
 var diamonds_since_last_heart = 0
 var metal_mode_active = false
+var slugs_freed = 0  # ← NOVO
+var birds_freed = 0  # ← NOVO
 var animals_freed = 0
 
 const DIAMONDS_BEFORE_HEART = 2
@@ -114,7 +116,12 @@ func free_animal(animal_name: String):
 	"""Registra que um animal foi libertado"""
 	animals_freed += 1
 	animal_freed.emit(animal_name)
-	print("🦋 Animal libertado: ", animal_name, " | Total: ", animals_freed)
+	if animal_name == "Slug":
+		slugs_freed += 1
+	elif animal_name == "Bird":
+		birds_freed += 1
+	print("🦋 Animal libertado: ", animal_name, " | Slugs: ", slugs_freed, " | Birds: ", birds_freed, " | Total: ", animals_freed)
+
 
 func take_damage() -> bool:
 	"""Player leva dano"""
@@ -143,6 +150,8 @@ func reset():
 	diamonds_since_last_heart = 0
 	metal_mode_active = false
 	animals_freed = 0
+	slugs_freed = 0  # ← NOVO
+	birds_freed = 0  # ← NOVO
 	rooms_changed.emit(rooms_count)
 	diamonds_changed.emit(diamonds_count)
 	hearts_changed.emit(filled_hearts)
