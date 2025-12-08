@@ -46,10 +46,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -150.0
-offset_right = 200.0
-offset_bottom = 150.0
+offset_left = -359.0
+offset_top = -175.0
+offset_right = 361.0
+offset_bottom = 319.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -69,15 +69,15 @@ horizontal_alignment = 1
 
 [node name="StatsContainer" type="VBoxContainer" parent="Panel"]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 0.532
 anchor_right = 0.5
-anchor_bottom = 0.5
+anchor_bottom = 0.532
 offset_left = -143.0
-offset_top = -50.0
+offset_top = -140.80801
 offset_right = 157.0
-offset_bottom = 50.0
+offset_bottom = 0.19198608
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -91,6 +91,35 @@ layout_mode = 2
 text = "Diamonds:0"
 label_settings = SubResource("LabelSettings_4583b")
 
+[node name="StatsContainer2" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -158.0
+offset_top = 12.0
+offset_right = 172.0
+offset_bottom = 174.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SlugsSavedLabel" type="Label" parent="Panel/StatsContainer2"]
+layout_mode = 2
+text = "Slugs saved:0"
+label_settings = SubResource("LabelSettings_o6b8n")
+
+[node name="BirdsSavedLabel" type="Label" parent="Panel/StatsContainer2"]
+layout_mode = 2
+text = "Birds saved:0"
+label_settings = SubResource("LabelSettings_4583b")
+
+[node name="TotalAnimalsSavedLabel" type="Label" parent="Panel/StatsContainer2"]
+layout_mode = 2
+text = "Total saved:0"
+label_settings = SubResource("LabelSettings_4583b")
+
 [node name="OkButton" type="Button" parent="Panel"]
 custom_minimum_size = Vector2(200, 60)
 layout_mode = 1
@@ -99,10 +128,10 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -103.0
-offset_top = -100.0
-offset_right = 97.0
-offset_bottom = -40.0
+offset_left = -87.0
+offset_top = 50.0
+offset_right = 113.0
+offset_bottom = 110.0
 grow_horizontal = 2
 grow_vertical = 0
 theme = SubResource("Theme_b6337")
