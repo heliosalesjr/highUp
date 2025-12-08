@@ -3,6 +3,7 @@ extends Control
 
 @onready var rooms_label = $Panel/StatsContainer/RoomsLabel
 @onready var diamonds_label = $Panel/StatsContainer/DiamondsLabel
+@onready var stats_container_2 = $Panel/StatsContainer2 
 @onready var slugs_saved_label = $Panel/StatsContainer2/SlugsSavedLabel  # ← NOVO
 @onready var birds_saved_label = $Panel/StatsContainer2/BirdsSavedLabel  # ← NOVO
 @onready var total_animals_saved_label = $Panel/StatsContainer2/TotalAnimalsSavedLabel  # ← NOVO
@@ -21,7 +22,14 @@ func update_stats():
 	slugs_saved_label.text = "Slugs saved: " + str(GameManager.slugs_freed)
 	birds_saved_label.text = "Birds saved: " + str(GameManager.birds_freed)
 	total_animals_saved_label.text = "Total animals saved: " + str(GameManager.animals_freed)
-	
+	if GameManager.animals_freed > 0:
+		slugs_saved_label.text = "Slugs saved: " + str(GameManager.slugs_freed)
+		birds_saved_label.text = "Birds saved: " + str(GameManager.birds_freed)
+		total_animals_saved_label.text = "Total animals saved: " + str(GameManager.animals_freed)
+		stats_container_2.visible = true
+	else:
+		stats_container_2.visible = false
+		
 	print("📊 Game Over")
 	print("  Rooms: ", GameManager.rooms_count)
 	print("  Diamonds: ", GameManager.diamonds_count)
