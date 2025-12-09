@@ -6,11 +6,11 @@
 
 [sub_resource type="LabelSettings" id="LabelSettings_hqnrr"]
 font = ExtResource("1_0mwgc")
-font_size = 36
+font_size = 18
 
 [sub_resource type="LabelSettings" id="LabelSettings_bo48s"]
 font = ExtResource("1_0mwgc")
-font_size = 36
+font_size = 18
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hqnrr")
@@ -23,18 +23,18 @@ offset_bottom = 40.0
 
 [node name="RoomsLabel" type="Label" parent="ScoreContainer"]
 layout_mode = 0
-offset_left = 87.0
-offset_top = 40.0
-offset_right = 264.0
-offset_bottom = 74.0
+offset_left = 16.0
+offset_top = 38.0
+offset_right = 193.0
+offset_bottom = 72.0
 text = "ROOMS: 0"
 label_settings = SubResource("LabelSettings_hqnrr")
 
 [node name="DiamondsLabel" type="Label" parent="ScoreContainer"]
 layout_mode = 0
-offset_left = 368.0
+offset_left = 194.0
 offset_top = 39.0
-offset_right = 615.0
+offset_right = 441.0
 offset_bottom = 73.0
 text = "DIAMONDS: 0"
 label_settings = SubResource("LabelSettings_bo48s")
@@ -47,24 +47,24 @@ offset_bottom = 40.0
 
 [node name="Heart1" type="TextureRect" parent="HeartsContainer"]
 layout_mode = 0
-offset_left = 289.0
-offset_top = 93.0
-offset_right = 329.0
-offset_bottom = 133.0
+offset_left = 91.0
+offset_top = 77.0
+offset_right = 131.0
+offset_bottom = 117.0
 texture = ExtResource("3_bo48s")
 
 [node name="Heart2" type="TextureRect" parent="HeartsContainer"]
 layout_mode = 0
-offset_left = 349.0
-offset_top = 90.0
-offset_right = 389.0
-offset_bottom = 130.0
+offset_left = 151.0
+offset_top = 74.0
+offset_right = 191.0
+offset_bottom = 114.0
 texture = ExtResource("3_bo48s")
 
 [node name="Heart3" type="TextureRect" parent="HeartsContainer"]
 layout_mode = 0
-offset_left = 413.0
-offset_top = 91.0
-offset_right = 453.0
-offset_bottom = 131.0
+offset_left = 215.0
+offset_top = 75.0
+offset_right = 255.0
+offset_bottom = 115.0
 texture = ExtResource("3_bo48s")

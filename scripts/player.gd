@@ -42,7 +42,7 @@ var direction = 1
 func _ready():
 	add_to_group("player")
 	collision_layer = 1
-	collision_mask = 25 
+	collision_mask = 27  # 1 + 2 + 8 + 16 (paredes, rocks, inimigos) 
 	
 	GameManager.metal_mode_changed.connect(_on_metal_mode_changed)
 	
@@ -249,8 +249,8 @@ func launch_from_cannon(launch_velocity: float):
 	
 	is_on_ladder = false
 	current_ladder = null
-	
-	collision_mask = 17
+
+	collision_mask = 17  # Durante lançamento: 1 + 16 (paredes sim, rocks não)
 	
 	start_camera_shake()
 	is_invulnerable = true
@@ -267,9 +267,9 @@ func end_launch():
 	"""Termina o estado de lançamento"""
 	print("🛬 Aterrissagem!")
 	is_launched = false
-	
-	# REABILITA COLISÃO COM INIMIGOS  ← NOVO
-	collision_mask = 25  # Volta ao normal: 1 + 8 + 16
+
+	# REABILITA COLISÃO COM INIMIGOS E ROCKS
+	collision_mask = 27  # Volta ao normal: 1 + 2 + 8 + 16
 	
 	# Pequeno delay antes de remover invulnerabilidade
 	await get_tree().create_timer(0.5).timeout

@@ -1,10 +1,7 @@
 # rock.gd
-extends Area2D
+extends StaticBody2D
 
 func _ready():
-	body_entered.connect(_on_body_entered)
-
-func _on_body_entered(body):
-	if body.has_method("reverse_direction"):
-		body.reverse_direction()
-		print("🪨 Bateu na pedra!")
+	# Configuração de colisão
+	collision_layer = 2  # Layer separada para rocks (diferente das paredes)
+	collision_mask = 0   # Não precisa detectar nada
