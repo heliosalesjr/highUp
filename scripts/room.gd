@@ -1,12 +1,12 @@
 # room.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
-const WALL_THICKNESS = 4
-const FLOOR_THICKNESS = 4
-const LADDER_START_HEIGHT = 200
-const LADDER_WIDTH = 30
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
+const WALL_THICKNESS = 2
+const FLOOR_THICKNESS = 2
+const LADDER_START_HEIGHT = 100
+const LADDER_WIDTH = 15
 
 enum LadderSide { LEFT, RIGHT }
 

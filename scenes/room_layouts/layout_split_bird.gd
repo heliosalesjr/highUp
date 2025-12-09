@@ -1,9 +1,9 @@
 # layout_split_bird.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
-const WALL_THICKNESS = 4
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
+const WALL_THICKNESS = 2
 
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
@@ -73,7 +73,7 @@ func create_bird_enemies():
 func spawn_bird_top():
 	"""Spawna bird na parte de cima (esquerda → direita)"""
 	var bird_y = ROOM_HEIGHT / 4.0  # Meio da parte superior
-	var spawn_x = 50  # Lado ESQUERDO
+	var spawn_x = 25  # Lado ESQUERDO
 	
 	var bird = bird_scene.instantiate()
 	bird.position = Vector2(spawn_x, bird_y)
@@ -95,7 +95,7 @@ func spawn_bird_top():
 func spawn_bird_bottom():
 	"""Spawna bird na parte de baixo (direita → esquerda)"""
 	var bird_y = ROOM_HEIGHT * 0.75  # Meio da parte inferior
-	var spawn_x = ROOM_WIDTH - 50  # Lado DIREITO
+	var spawn_x = ROOM_WIDTH - 25  # Lado DIREITO
 	
 	var bird = bird_scene.instantiate()
 	bird.position = Vector2(spawn_x, bird_y)

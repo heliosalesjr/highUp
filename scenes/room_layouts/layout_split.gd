@@ -1,9 +1,9 @@
 # layout_split.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
-const WALL_THICKNESS = 4
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
+const WALL_THICKNESS = 2
 
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
@@ -95,7 +95,7 @@ func spawn_prize_randomly():
 	if randf() > 0.5:
 		return
 	
-	var prize_position = Vector2(ROOM_WIDTH / 2.0, 80)
+	var prize_position = Vector2(ROOM_WIDTH / 2.0, 40)
 	
 	# Prioridade: Metal Potion > Heart > Diamond
 	if GameManager.can_spawn_metal_potion():

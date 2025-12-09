@@ -1,8 +1,8 @@
 # layout_simple_03.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
 
 var slug_scene = preload("res://scenes/enemies/slug.tscn")
 

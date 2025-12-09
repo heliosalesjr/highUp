@@ -1,9 +1,9 @@
 # layout_split_01.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
-const WALL_THICKNESS = 4
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
+const WALL_THICKNESS = 2
 
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")

@@ -9,12 +9,12 @@ var target_position = Vector2.ZERO
 var corners = []
 
 # Velocidades
-const SPEED_SLOW = 100.0
-const SPEED_MEDIUM = 200.0
-const SPEED_FAST = 350.0
+const SPEED_SLOW = 50.0
+const SPEED_MEDIUM = 100.0
+const SPEED_FAST = 175.0
 
 # Margens das paredes
-const MARGIN = 50
+const MARGIN = 25
 
 @onready var animated_sprite = $AnimatedSprite2D
 
@@ -43,8 +43,8 @@ func _ready():
 
 func setup_corners():
 	"""Define as posições dos 4 cantos da sala"""
-	var room_width = 720
-	var room_height = 320
+	var room_width = 360
+	var room_height = 160
 	
 	# Posições relativas à sala (local coordinates)
 	corners = [

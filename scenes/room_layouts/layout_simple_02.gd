@@ -1,8 +1,8 @@
 # layout_simple_02.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
 
 func _ready():
 	create_label("SIMPLE 02")
@@ -18,7 +18,7 @@ func create_label(text: String):
 	add_child(label)
 
 func create_obstacles():
-	create_spike(Vector2(150, ROOM_HEIGHT - 30))
+	create_spike(Vector2(75, ROOM_HEIGHT - 15))
 
 func create_spike(pos: Vector2):
 	var spike = Area2D.new()
@@ -28,14 +28,14 @@ func create_spike(pos: Vector2):
 	
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
-	shape.size = Vector2(20, 20)
+	shape.size = Vector2(10, 10)
 	collision.shape = shape
 	
 	var visual = Polygon2D.new()
 	visual.polygon = PackedVector2Array([
-		Vector2(-10, 10),
-		Vector2(10, 10),
-		Vector2(0, -10)
+		Vector2(-5, 5),
+		Vector2(5, 5),
+		Vector2(0, -5)
 	])
 	visual.color = Color(0.8, 0.1, 0.1)
 	

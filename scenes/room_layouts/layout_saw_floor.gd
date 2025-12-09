@@ -1,8 +1,8 @@
 # layout_saw_floor.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
 
 var sawblade_horizontal_scene = preload("res://scenes/obstacles/sawblade_horizontal.tscn")
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
@@ -28,7 +28,7 @@ func spawn_sawblade_floor():
 	
 	# Posição: lado esquerdo, exatamente na altura do chão
 	# O chão está em ROOM_HEIGHT (320), então colocamos a sawblade lá
-	sawblade.position = Vector2(100, ROOM_HEIGHT)  # Y = 320 = altura do chão
+	sawblade.position = Vector2(50, ROOM_HEIGHT)  # Y = 160 = altura do chão
 	
 	add_child(sawblade)
 	print("🪚 Sawblade horizontal spawnada no chão em: ", sawblade.position)

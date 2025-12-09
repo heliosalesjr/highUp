@@ -1,8 +1,8 @@
 # layout_simple_05.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
 
 var bird_scene = preload("res://scenes/enemies/bird.tscn")
 
@@ -22,7 +22,7 @@ func create_label(text: String):
 func create_enemies():
 	# Bird spawna no lado direito, no meio da altura
 	var bird_height = ROOM_HEIGHT / 2.0
-	var spawn_x = ROOM_WIDTH - 50  # Próximo à parede direita
+	var spawn_x = ROOM_WIDTH - 25  # Próximo à parede direita
 	create_bird(Vector2(spawn_x, bird_height))
 
 func create_bird(pos: Vector2):

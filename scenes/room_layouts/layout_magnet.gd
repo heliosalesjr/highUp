@@ -1,8 +1,8 @@
 # layout_magnet.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
 
 var magnet_scene = preload("res://scenes/powerups/magnet.tscn")
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
@@ -32,10 +32,10 @@ func spawn_magnet():
 func spawn_extra_collectibles():
 	"""Spawna diamantes/corações extras nos cantos"""
 	var positions = [
-		Vector2(100, 80),         # Canto superior esquerdo
-		Vector2(ROOM_WIDTH - 100, 80),  # Canto superior direito
-		Vector2(150, ROOM_HEIGHT - 80), # Canto inferior esquerdo
-		Vector2(ROOM_WIDTH - 150, ROOM_HEIGHT - 80)  # Canto inferior direito
+		Vector2(50, 40),         # Canto superior esquerdo
+		Vector2(ROOM_WIDTH - 50, 40),  # Canto superior direito
+		Vector2(75, ROOM_HEIGHT - 40), # Canto inferior esquerdo
+		Vector2(ROOM_WIDTH - 75, ROOM_HEIGHT - 40)  # Canto inferior direito
 	]
 	
 	for pos in positions:

@@ -1,8 +1,8 @@
 # layout_cannon.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
 
 var cannon_scene = preload("res://scenes/obstacles/cannon.tscn")
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
@@ -25,7 +25,7 @@ func create_label(text: String):
 func spawn_cannon():
 	"""Spawna o canhão no centro da sala"""
 	var cannon = cannon_scene.instantiate()
-	cannon.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT - 40)  # Centro, próximo ao chão
+	cannon.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT - 20)  # Centro, próximo ao chão
 	add_child(cannon)
 	print("🚀 Canhão spawnado em: ", cannon.position)
 
@@ -35,7 +35,7 @@ func spawn_prize_randomly():
 		return
 	
 	# Prêmio no topo para coletar durante o voo
-	var prize_position = Vector2(ROOM_WIDTH / 2.0, 50)
+	var prize_position = Vector2(ROOM_WIDTH / 2.0, 25)
 	
 	if GameManager.can_spawn_heart():
 		var heart = heart_scene.instantiate()

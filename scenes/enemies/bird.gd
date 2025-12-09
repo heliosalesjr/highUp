@@ -8,9 +8,9 @@ var direction = -1  # -1 = esquerda (direção inicial)
 var is_being_freed = false  # ← NOVO
 
 # Velocidades ajustadas
-const SPEED_MEDIUM = 200.0
-const SPEED_FAST = 350.0
-const SPEED_ULTRA_FAST = 500.0
+const SPEED_MEDIUM = 100.0
+const SPEED_FAST = 175.0
+const SPEED_ULTRA_FAST = 250.0
 
 @onready var animated_sprite = $AnimatedSprite2D
 
@@ -42,8 +42,8 @@ func _physics_process(delta):
 
 func check_boundaries():
 	"""Verifica se atingiu as paredes e inverte direção"""
-	var room_width = 720
-	var margin = 50
+	var room_width = 360
+	var margin = 25
 	
 	if global_position.x <= margin:
 		direction = 1
@@ -119,12 +119,12 @@ func liberation_effect():
 	tween.tween_property(animated_sprite, "modulate", Color(2.0, 2.0, 1.0), 0.3)
 	
 	# Fase 1: SOBE (pequeno impulso)
-	tween.tween_property(self, "global_position:y", global_position.y - 100, 0.4).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "global_position:y", global_position.y - 50, 0.4).set_ease(Tween.EASE_OUT)
 	
 	# Calcula posição fora da tela
-	var room_width = 720
-	var exit_x = room_width + 150 if direction > 0 else -150
-	var exit_y = global_position.y - 600  # Voa bem alto
+	var room_width = 360
+	var exit_x = room_width + 75 if direction > 0 else -75
+	var exit_y = global_position.y - 300  # Voa bem alto
 	
 	# Fase 2: VOA para fora da tela (para cima E para o lado)
 	tween.set_parallel(true)

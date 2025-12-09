@@ -3,7 +3,7 @@ extends Area2D
 
 signal player_launched(player)
 
-const LAUNCH_VELOCITY = -2400.0  # Velocidade para subir ~5 salas
+const LAUNCH_VELOCITY = -1200.0  # Velocidade para subir ~5 salas
 
 func _ready():
 	collision_layer = 4  # Layer de obstáculos

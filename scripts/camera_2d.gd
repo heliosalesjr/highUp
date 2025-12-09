@@ -5,10 +5,10 @@ extends Camera2D
 @export var smoothing_enabled = true
 @export var smoothing_speed = 5.0
 
-const ROOM_HEIGHT = 320
+const ROOM_HEIGHT = 160
 
-var fixed_x_position = 360
-var highest_y_reached = 1280
+var fixed_x_position = 180
+var highest_y_reached = 640
 
 # Shake variables
 var is_shaking = false
@@ -28,7 +28,7 @@ func _ready():
 	position_smoothing_enabled = smoothing_enabled
 	position_smoothing_speed = smoothing_speed
 	main_scene = get_parent()
-	global_position.y = 640
+	global_position.y = 320
 
 func _process(delta):
 	if not target:
@@ -41,8 +41,8 @@ func _process(delta):
 	var target_y = target.global_position.y
 	var camera_target_y = target_y
 	
-	if camera_target_y > 640:
-		camera_target_y = 640
+	if camera_target_y > 320:
+		camera_target_y = 320
 	
 	# Atualiza posição da câmera
 	global_position.y = camera_target_y
@@ -86,7 +86,7 @@ func shake(duration: float, intensity: float = 25.0):
 
 func check_and_generate_rooms():
 	"""Verifica se precisa gerar novas salas acima"""
-	var rooms_climbed = int(abs((highest_y_reached - 960) / ROOM_HEIGHT))
+	var rooms_climbed = int(abs((highest_y_reached - 480) / ROOM_HEIGHT))
 	
 	if main_scene and main_scene.has_method("generate_rooms_ahead"):
 		main_scene.generate_rooms_ahead(rooms_climbed)

@@ -1,8 +1,8 @@
 # layout_saw.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
 
 var sawblade_scene = preload("res://scenes/obstacles/sawblade.tscn")
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
@@ -26,7 +26,7 @@ func spawn_sawblade():
 	"""Spawna a sawblade no canto superior direito"""
 	var sawblade = sawblade_scene.instantiate()
 	# Posição inicial: canto superior direito
-	sawblade.position = Vector2(ROOM_WIDTH - 50, 50)
+	sawblade.position = Vector2(ROOM_WIDTH - 25, 25)
 	add_child(sawblade)
 	print("🪚 Sawblade spawnada em: ", sawblade.position)
 

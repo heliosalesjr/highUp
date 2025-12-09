@@ -7,13 +7,13 @@ var speed = 0.0
 var direction = 1  # 1 = direita, -1 = esquerda
 
 # Velocidades (todas rápidas)
-const SPEED_FAST = 250.0
-const SPEED_FASTER = 350.0
-const SPEED_FASTEST = 450.0
+const SPEED_FAST = 125.0
+const SPEED_FASTER = 175.0
+const SPEED_FASTEST = 225.0
 
 # Limites horizontais
-const MARGIN = 50
-const ROOM_WIDTH = 720
+const MARGIN = 25
+const ROOM_WIDTH = 360
 
 @onready var animated_sprite = $AnimatedSprite2D
 

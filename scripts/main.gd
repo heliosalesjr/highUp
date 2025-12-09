@@ -1,8 +1,8 @@
 # main.gd
 extends Node2D
 
-const ROOM_HEIGHT = 320
-const SCREEN_HEIGHT = 1280
+const ROOM_HEIGHT = 160
+const SCREEN_HEIGHT = 640
 const INITIAL_ROOMS = 5
 const ROOMS_AHEAD = 5
 const ROOMS_BEHIND = 3  # ← NOVO: Quantas salas manter atrás do player

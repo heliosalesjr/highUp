@@ -7,20 +7,20 @@ var is_launched = false
 var launch_invulnerability = false
 var magnet_active = false
 var magnet_icon = null
-const MAGNET_RANGE = 300.0 
+const MAGNET_RANGE = 150.0 
 var attracted_collectibles = []
 var metal_shader_material = null
 
 # Constantes de movimento
-const SPEED = 400.0
-const JUMP_VELOCITY = -600.0
-const ACCELERATION = 2000.0
-const FRICTION = 800.0
-const AIR_RESISTANCE = 100.0
-const JUMP_RELEASE_FORCE = -200.0
+const SPEED = 200.0
+const JUMP_VELOCITY = -300.0
+const ACCELERATION = 1000.0
+const FRICTION = 400.0
+const AIR_RESISTANCE = 50.0
+const JUMP_RELEASE_FORCE = -100.0
 
 # Escada
-const CLIMB_SPEED = 250.0
+const CLIMB_SPEED = 125.0
 var is_on_ladder = false
 var current_ladder: Area2D = null
 
@@ -146,7 +146,7 @@ func climb_ladder(_delta):
 	velocity.y = -CLIMB_SPEED
 	velocity.x = 0
 	
-	if current_ladder and global_position.y < current_ladder.global_position.y - 10:
+	if current_ladder and global_position.y < current_ladder.global_position.y - 5:
 		is_on_ladder = false
 		
 		var ladder_parent = current_ladder.get_parent()
@@ -318,7 +318,7 @@ func create_magnet_icon():
 	
 	magnet_icon = Sprite2D.new()
 	magnet_icon.texture = load("res://assets/powerups/magnet_icon.png")
-	magnet_icon.position = Vector2(0, -40)
+	magnet_icon.position = Vector2(0, -20)
 	add_child(magnet_icon)
 
 	# Inicia spin seguro (usa start_magnet_spin que já está seguro)
@@ -368,7 +368,7 @@ func attract_collectibles(delta):
 			var current = collectible.global_position
 			
 			# Move diretamente para o player
-			collectible.global_position = current.move_toward(target, 800.0 * delta)
+			collectible.global_position = current.move_toward(target, 400.0 * delta)
 			
 			print("Collectible pos DEPOIS: ", collectible.global_position)
 			print("---")

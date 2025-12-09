@@ -1,8 +1,8 @@
 # layout_simple_01.gd
 extends Node2D
 
-const ROOM_WIDTH = 720
-const ROOM_HEIGHT = 320
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
 
 var rock_scene = preload("res://scenes/obstacles/rock.tscn")
 

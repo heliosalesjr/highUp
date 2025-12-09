@@ -1,8 +1,8 @@
 # slug.gd
 extends CharacterBody2D
 
-@export var min_speed = 50.0
-@export var max_speed = 150.0
+@export var min_speed = 25.0
+@export var max_speed = 75.0
 
 var speed = 0.0
 var direction = 1
@@ -104,15 +104,15 @@ func liberation_effect():
 	tween.tween_property(animated_sprite, "modulate", Color(2.0, 2.0, 1.0), 0.3)
 	
 	# Fase 1: SOBE (pequeno pulo)
-	tween.tween_property(self, "global_position:y", global_position.y - 80, 0.4).set_ease(Tween.EASE_OUT)
-	
+	tween.tween_property(self, "global_position:y", global_position.y - 40, 0.4).set_ease(Tween.EASE_OUT)
+
 	# Calcula posição fora da tela (bem longe)
-	var room_width = 720
-	var exit_x = room_width + 100 if direction > 0 else -100  # Fora da tela
-	
+	var room_width = 360
+	var exit_x = room_width + 50 if direction > 0 else -50  # Fora da tela
+
 	# Fase 2: CORRE para fora da tela
 	tween.set_parallel(true)
-	tween.tween_property(self, "global_position:y", global_position.y - 60, 2.0).set_ease(Tween.EASE_IN)  # Cai um pouco
+	tween.tween_property(self, "global_position:y", global_position.y - 30, 2.0).set_ease(Tween.EASE_IN)  # Cai um pouco
 	tween.tween_property(self, "global_position:x", exit_x, 2.0).set_ease(Tween.EASE_IN)  # Corre até sair
 	
 	# SEM fade out - só remove quando terminar
