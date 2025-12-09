@@ -31,19 +31,24 @@ func _physics_process(delta):
 	# Se está sendo libertado, não aplica física normal
 	if is_being_freed:
 		return
-	
+
 	velocity.x = direction * speed
 	velocity.y = 0
-	
+
 	move_and_slide()
-	
+
+	# Detecta colisão com parede e inverte direção
+	if is_on_wall():
+		direction *= -1
+		print("🦅 Bird bateu na parede e inverteu direção")
+
 	check_boundaries()
 	update_sprite_flip()
 
 func check_boundaries():
 	"""Verifica se atingiu as paredes e inverte direção"""
 	var room_width = 360
-	var margin = 25
+	var margin = 5
 	
 	if global_position.x <= margin:
 		direction = 1

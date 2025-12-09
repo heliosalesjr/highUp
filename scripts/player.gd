@@ -12,15 +12,15 @@ var attracted_collectibles = []
 var metal_shader_material = null
 
 # Constantes de movimento
-const SPEED = 200.0
-const JUMP_VELOCITY = -300.0
+const SPEED = 400.0
+const JUMP_VELOCITY = -400.0
 const ACCELERATION = 1000.0
-const FRICTION = 400.0
+const FRICTION = 200.0
 const AIR_RESISTANCE = 50.0
-const JUMP_RELEASE_FORCE = -100.0
+const JUMP_RELEASE_FORCE = -250.0
 
 # Escada
-const CLIMB_SPEED = 125.0
+const CLIMB_SPEED = 250.0
 var is_on_ladder = false
 var current_ladder: Area2D = null
 
