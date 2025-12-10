@@ -4,6 +4,7 @@ extends CharacterBody2D
 var is_being_freed = false
 var player_in_room = false
 var direction = -1  # -1 = esquerda, 1 = direita
+var has_spit = false  # Controla se já cuspiu
 
 # Timer para cuspir
 var spit_timer = 0.0
@@ -39,20 +40,20 @@ func _physics_process(delta):
 	velocity.x = 0  # Spit não se move horizontalmente
 	move_and_slide()
 
-	# Sistema de cuspe
-	if player_in_room and not is_being_freed:
+	# Sistema de cuspe - APENAS UMA VEZ
+	if player_in_room and not is_being_freed and not has_spit:
 		spit_timer -= delta
 		if spit_timer <= 0:
 			shoot_projectile()
-			spit_timer = SPIT_INTERVAL
+			has_spit = true  # Marca que já cuspiu
 
 func set_direction(dir: int):
 	"""Define a direção do spit (1 = direita, -1 = esquerda)"""
 	direction = dir
 	if animated_sprite:
-		animated_sprite.flip_h = (direction > 0)
+		animated_sprite.flip_h = (direction < 0)
 	print("🐸 Spit virado para ", "direita" if direction > 0 else "esquerda")
-
+  
 func on_player_entered_room():
 	"""Chamado quando o player entra na room"""
 	player_in_room = true

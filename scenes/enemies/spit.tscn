@@ -96,7 +96,6 @@ size = Vector2(24, 28)
 
 [node name="Spit" type="CharacterBody2D"]
 collision_layer = 8
-collision_mask = 1
 script = ExtResource("1_spit_script")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
@@ -110,7 +109,6 @@ shape = SubResource("RectangleShape2D_vou8l")
 
 [node name="HitBox" type="Area2D" parent="."]
 collision_layer = 8
-collision_mask = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
 position = Vector2(0, 3)
