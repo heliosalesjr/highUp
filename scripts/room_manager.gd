@@ -11,7 +11,8 @@ var layouts = {
 		preload("res://scenes/room_layouts/layout_saw.tscn"),
 		preload("res://scenes/room_layouts/layout_saw_floor.tscn"),
 		preload("res://scenes/room_layouts/layout_cannon.tscn"),
-		preload("res://scenes/room_layouts/layout_magnet.tscn")
+		preload("res://scenes/room_layouts/layout_magnet.tscn"),
+		preload("res://scenes/room_layouts/layout_spit.tscn")
 	],
 	"split": [
 		preload("res://scenes/room_layouts/layout_split.tscn"),
@@ -25,16 +26,21 @@ const MAX_RECENT = 2
 
 func populate_room(room: Node2D, room_index: int):
 	print("  → Populando Room ", room_index)
-	
+
+	# PRIMEIRA ROOM (index 0) É SEMPRE VAZIA - sem layout
+	if room_index == 0:
+		print("  ✓ Room 0 (primeira) - VAZIA (sem layout)")
+		return
+
 	# Verifica se a sala já foi marcada como split
 	var layout_type = "split" if room.is_split_room else "simple"
-	
+
 	var layout_scene = _pick_random_layout(layout_type)
 	var layout_instance = layout_scene.instantiate()
 	layout_instance.name = "Layout"
-	
+
 	room.add_child(layout_instance)
-	
+
 	print("  ✓ Layout aplicado: ", layout_type)
 
 func _pick_random_layout(type: String):

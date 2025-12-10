@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dt7qgp8x5m3ao"]
+
+[ext_resource type="Script" path="res://scenes/room_layouts/layout_spit.gd" id="1_spit_layout"]
+
+[node name="layout_spit" type="Node2D"]
+script = ExtResource("1_spit_layout")
