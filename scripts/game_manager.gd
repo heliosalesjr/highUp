@@ -15,7 +15,9 @@ var diamonds_since_last_heart = 0
 var metal_mode_active = false
 var slugs_freed = 0  # ← NOVO
 var birds_freed = 0  # ← NOVO
+var spits_freed = 0
 var animals_freed = 0
+
 
 const DIAMONDS_BEFORE_HEART = 2
 const SAVE_FILE = "user://save_data.json"
@@ -120,7 +122,9 @@ func free_animal(animal_name: String):
 		slugs_freed += 1
 	elif animal_name == "Bird":
 		birds_freed += 1
-	print("🦋 Animal libertado: ", animal_name, " | Slugs: ", slugs_freed, " | Birds: ", birds_freed, " | Total: ", animals_freed)
+	elif animal_name == "Spit":
+		spits_freed += 1
+	print("🦋 Animal libertado: ", animal_name, " | Slugs: ", slugs_freed, " | Birds: ", birds_freed, " | Spits: ", spits_freed, " | Total: ", animals_freed)
 
 
 func take_damage() -> bool:
@@ -151,7 +155,8 @@ func reset():
 	metal_mode_active = false
 	animals_freed = 0
 	slugs_freed = 0  # ← NOVO
-	birds_freed = 0  # ← NOVO
+	birds_freed = 0 
+	spits_freed = 0 # ← NOVO
 	rooms_changed.emit(rooms_count)
 	diamonds_changed.emit(diamonds_count)
 	hearts_changed.emit(filled_hearts)

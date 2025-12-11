@@ -31,13 +31,19 @@ func _physics_process(delta):
 	if is_being_freed:
 		return
 
+	# Verifica se o player está muito próximo e empurra o Spit para o lado
+	check_player_proximity()
+
 	# Aplica gravidade para ficar no chão
 	if not is_on_floor():
 		velocity.y += ProjectSettings.get_setting("physics/2d/default_gravity") * delta
 	else:
 		velocity.y = 0
 
-	velocity.x = 0  # Spit não se move horizontalmente
+	# Aplica fricção na velocidade horizontal
+	if is_on_floor() and abs(velocity.x) > 0:
+		velocity.x = move_toward(velocity.x, 0, 300 * delta)
+
 	move_and_slide()
 
 	# Sistema de cuspe - APENAS UMA VEZ
@@ -46,6 +52,29 @@ func _physics_process(delta):
 		if spit_timer <= 0:
 			shoot_projectile()
 			has_spit = true  # Marca que já cuspiu
+
+func check_player_proximity():
+	"""Detecta se o player está muito próximo e empurra o Spit para o lado"""
+	var player = get_tree().get_first_node_in_group("player")
+	if not player or is_being_freed:
+		return
+
+	var distance_to_player = global_position.distance_to(player.global_position)
+	var horizontal_distance = abs(global_position.x - player.global_position.x)
+	var vertical_distance = global_position.y - player.global_position.y
+
+	# Se o player está muito próximo (especialmente acima do Spit)
+	if distance_to_player < 50 and vertical_distance > -20:
+		# Determina a direção para empurrar o Spit (lado oposto ao player)
+		var push_direction = -1 if player.global_position.x > global_position.x else 1
+
+		# Aplica impulso horizontal para afastar o Spit
+		velocity.x = push_direction * 200
+
+		# Se o player está praticamente em cima, também dá um pequeno impulso para cima
+		if vertical_distance > -10 and horizontal_distance < 15:
+			velocity.y = -150
+			print("🐸 Spit se afastando! Player está muito próximo!")
 
 func set_direction(dir: int):
 	"""Define a direção do spit (1 = direita, -1 = esquerda)"""

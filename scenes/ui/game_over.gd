@@ -6,6 +6,7 @@ extends Control
 @onready var stats_container_2 = $Panel/StatsContainer2 
 @onready var slugs_saved_label = $Panel/StatsContainer2/SlugsSavedLabel  # ← NOVO
 @onready var birds_saved_label = $Panel/StatsContainer2/BirdsSavedLabel  # ← NOVO
+@onready var spits_saved_label = $Panel/StatsContainer2/SpitsSavedLabel2  # ← NOVO
 @onready var total_animals_saved_label = $Panel/StatsContainer2/TotalAnimalsSavedLabel  # ← NOVO
 @onready var ok_button = $Panel/OkButton
 
@@ -21,10 +22,12 @@ func update_stats():
 	# Estatísticas de animais salvos  ← NOVO
 	slugs_saved_label.text = "Slugs saved: " + str(GameManager.slugs_freed)
 	birds_saved_label.text = "Birds saved: " + str(GameManager.birds_freed)
+	spits_saved_label.text = "Spits saved: " + str(GameManager.spits_freed)
 	total_animals_saved_label.text = "Total animals saved: " + str(GameManager.animals_freed)
 	if GameManager.animals_freed > 0:
 		slugs_saved_label.text = "Slugs saved: " + str(GameManager.slugs_freed)
 		birds_saved_label.text = "Birds saved: " + str(GameManager.birds_freed)
+		spits_saved_label.text = "Spits saved: " + str(GameManager.spits_freed)
 		total_animals_saved_label.text = "Total animals saved: " + str(GameManager.animals_freed)
 		stats_container_2.visible = true
 	else:
@@ -35,6 +38,7 @@ func update_stats():
 	print("  Diamonds: ", GameManager.diamonds_count)
 	print("  Slugs: ", GameManager.slugs_freed)
 	print("  Birds: ", GameManager.birds_freed)
+	print("  Spits: ", GameManager.spits_freed)
 	print("  Total Animals: ", GameManager.animals_freed)
 
 func _on_ok_pressed():

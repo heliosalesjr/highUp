@@ -115,6 +115,11 @@ layout_mode = 2
 text = "Birds saved:0"
 label_settings = SubResource("LabelSettings_4583b")
 
+[node name="SpitsSavedLabel2" type="Label" parent="Panel/StatsContainer2"]
+layout_mode = 2
+text = "Spits saved:0"
+label_settings = SubResource("LabelSettings_4583b")
+
 [node name="TotalAnimalsSavedLabel" type="Label" parent="Panel/StatsContainer2"]
 layout_mode = 2
 text = "Total saved:0"
@@ -125,13 +130,13 @@ custom_minimum_size = Vector2(200, 60)
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.80600005
+anchor_top = 0.93500006
 anchor_right = 0.5
-anchor_bottom = 0.80600005
+anchor_bottom = 0.93500006
 offset_left = -101.0
-offset_top = -30.164032
+offset_top = -29.890045
 offset_right = 99.0
-offset_bottom = 29.835968
+offset_bottom = 30.109955
 grow_horizontal = 2
 grow_vertical = 0
 theme = SubResource("Theme_b6337")
