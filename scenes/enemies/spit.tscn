@@ -94,22 +94,21 @@ size = Vector2(20, 26)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
 size = Vector2(24, 28)
 
-[node name="Spit" type="CharacterBody2D"]
-collision_layer = 8
+[node name="Spit" type="Node2D"]
 script = ExtResource("1_spit_script")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_hcbtd")
 autoplay = "default"
-frame_progress = 0.011684312
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 3)
-shape = SubResource("RectangleShape2D_vou8l")
 
 [node name="HitBox" type="Area2D" parent="."]
 collision_layer = 8
+collision_mask = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
 position = Vector2(0, 3)
 shape = SubResource("RectangleShape2D_hitbox")
+
+[node name="FloorDetector" type="RayCast2D" parent="."]
+target_position = Vector2(0, 1000)
+collision_mask = 1

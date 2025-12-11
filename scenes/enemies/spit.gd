@@ -1,5 +1,5 @@
 # spit.gd
-extends CharacterBody2D
+extends Node2D
 
 var is_being_freed = false
 var player_in_room = false
@@ -14,37 +14,37 @@ const SPIT_INTERVAL = 2.0  # Cuspe a cada 2 segundos
 var projectile_scene = preload("res://scenes/enemies/spit_projectile.tscn")
 
 @onready var animated_sprite = $AnimatedSprite2D
+@onready var floor_detector = $FloorDetector
+@onready var hitbox = $HitBox
 
 func _ready():
-	collision_layer = 0  # Sem colisão física (evita ser empurrado pelo player)
-	collision_mask = 1   # Colide com chão/paredes
+	# Posiciona o Spit no chão
+	snap_to_floor()
 
 	# Configurar HitBox
-	var hitbox = get_node_or_null("HitBox")
 	if hitbox:
 		hitbox.body_entered.connect(_on_body_entered)
-		print("🐸 Spit HitBox configurado")
+		print("🐸 Spit HitBox configurado (SEM colisão física - apenas detecção)")
 	else:
 		print("⚠️ AVISO: HitBox não encontrado no Spit!")
 
-func _physics_process(delta):
-	if is_being_freed:
+func snap_to_floor():
+	"""Posiciona o Spit no chão usando RayCast2D"""
+	if not floor_detector:
 		return
 
-	# Verifica se o player está muito próximo e empurra o Spit para o lado
-	check_player_proximity()
+	floor_detector.force_raycast_update()
 
-	# Aplica gravidade para ficar no chão
-	if not is_on_floor():
-		velocity.y += ProjectSettings.get_setting("physics/2d/default_gravity") * delta
+	if floor_detector.is_colliding():
+		var collision_point = floor_detector.get_collision_point()
+		global_position.y = collision_point.y - 13  # Ajusta para ficar em cima do chão (metade da altura do Spit)
+		print("🐸 Spit posicionado no chão em y=", global_position.y)
 	else:
-		velocity.y = 0
+		print("⚠️ Spit não encontrou chão abaixo!")
 
-	# Aplica fricção na velocidade horizontal
-	if is_on_floor() and abs(velocity.x) > 0:
-		velocity.x = move_toward(velocity.x, 0, 300 * delta)
-
-	move_and_slide()
+func _process(delta):
+	if is_being_freed:
+		return
 
 	# Sistema de cuspe - APENAS UMA VEZ
 	if player_in_room and not is_being_freed and not has_spit:
@@ -53,36 +53,13 @@ func _physics_process(delta):
 			shoot_projectile()
 			has_spit = true  # Marca que já cuspiu
 
-func check_player_proximity():
-	"""Detecta se o player está muito próximo e empurra o Spit para o lado"""
-	var player = get_tree().get_first_node_in_group("player")
-	if not player or is_being_freed:
-		return
-
-	var distance_to_player = global_position.distance_to(player.global_position)
-	var horizontal_distance = abs(global_position.x - player.global_position.x)
-	var vertical_distance = global_position.y - player.global_position.y
-
-	# Se o player está muito próximo (especialmente acima do Spit)
-	if distance_to_player < 50 and vertical_distance > -20:
-		# Determina a direção para empurrar o Spit (lado oposto ao player)
-		var push_direction = -1 if player.global_position.x > global_position.x else 1
-
-		# Aplica impulso horizontal para afastar o Spit
-		velocity.x = push_direction * 200
-
-		# Se o player está praticamente em cima, também dá um pequeno impulso para cima
-		if vertical_distance > -10 and horizontal_distance < 15:
-			velocity.y = -150
-			print("🐸 Spit se afastando! Player está muito próximo!")
-
 func set_direction(dir: int):
 	"""Define a direção do spit (1 = direita, -1 = esquerda)"""
 	direction = dir
 	if animated_sprite:
 		animated_sprite.flip_h = (direction < 0)
 	print("🐸 Spit virado para ", "direita" if direction > 0 else "esquerda")
-  
+
 func on_player_entered_room():
 	"""Chamado quando o player entra na room"""
 	player_in_room = true
@@ -135,13 +112,10 @@ func be_freed():
 
 	GameManager.free_animal("Spit")
 
-	# Desabilita colisão
-	collision_layer = 0
-	collision_mask = 0
-
-	var hitbox = get_node_or_null("HitBox")
+	# Desabilita HitBox (não há mais colisão física para desabilitar)
 	if hitbox:
 		hitbox.collision_mask = 0
+		hitbox.collision_layer = 0
 
 	# Efeito visual de libertação
 	liberation_effect()
