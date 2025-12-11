@@ -16,7 +16,7 @@ var projectile_scene = preload("res://scenes/enemies/spit_projectile.tscn")
 @onready var animated_sprite = $AnimatedSprite2D
 
 func _ready():
-	collision_layer = 8  # Layer de inimigos
+	collision_layer = 0  # Sem colisão física (evita ser empurrado pelo player)
 	collision_mask = 1   # Colide com chão/paredes
 
 	# Configurar HitBox
@@ -118,21 +118,37 @@ func be_freed():
 	liberation_effect()
 
 func liberation_effect():
-	"""Efeito visual de libertação - PULA e some"""
+	"""Efeito visual de libertação - TREME e SAI para o lado"""
 	var tween = create_tween()
+
+	# Determina para qual lado sair baseado na posição
+	# Se está do lado esquerdo da tela, sai para a direita (e vice-versa)
+	var room_width = 360
+	var escape_direction = 1 if global_position.x < room_width / 2 else -1
+
+	# Vira o sprite para a direção de fuga
+	if animated_sprite:
+		animated_sprite.flip_h = (escape_direction < 0)
+
+	print("🐸 Spit fugindo para ", "direita" if escape_direction > 0 else "esquerda")
 
 	# Brilho dourado
 	tween.tween_property(animated_sprite, "modulate", Color(2.0, 2.0, 1.0), 0.3)
 
-	# Pula para cima
-	tween.tween_property(self, "global_position:y", global_position.y - 100, 0.6).set_ease(Tween.EASE_OUT)
+	# Fase 1: TREMIDINHA (pequenos movimentos rápidos)
+	var shake_amount = 3
+	for i in range(6):  # 6 tremidas
+		var shake_x = shake_amount if i % 2 == 0 else -shake_amount
+		tween.tween_property(self, "global_position:x", global_position.x + shake_x, 0.05)
 
-	# Fade out
-	tween.set_parallel(true)
-	tween.tween_property(animated_sprite, "modulate:a", 0.0, 0.4)
+	# Calcula posição fora da tela
+	var exit_x = room_width + 50 if escape_direction > 0 else -50
 
-	tween.set_parallel(false)
+	# Fase 2: SAI CORRENDO para o lado
+	tween.tween_property(self, "global_position:x", exit_x, 1.5).set_ease(Tween.EASE_IN)
+
+	# Remove quando terminar
 	tween.finished.connect(func():
-		print("🐸 Spit libertado e removido")
+		print("🐸 Spit escapou e foi removido")
 		queue_free()
 	)
