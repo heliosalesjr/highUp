@@ -60,15 +60,10 @@ animations = [{
 "speed": 12.0
 }]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_w68w0"]
-size = Vector2(16, 8)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_nc3h4"]
 size = Vector2(49, 11)
 
-[node name="Slug" type="CharacterBody2D"]
-collision_layer = 128
-collision_mask = 2147516417
+[node name="Slug" type="Node2D"]
 script = ExtResource("1_nc3h4")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
@@ -76,15 +71,19 @@ position = Vector2(-1, -12.000001)
 scale = Vector2(0.7890625, 0.67333335)
 sprite_frames = SubResource("SpriteFrames_r1dv2")
 autoplay = "default"
-frame_progress = 0.92886513
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-1, -5)
-shape = SubResource("RectangleShape2D_w68w0")
 
 [node name="HitBox" type="Area2D" parent="."]
-collision_layer = 0
+collision_layer = 8
+collision_mask = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
 position = Vector2(-0.5, -4.5)
 shape = SubResource("RectangleShape2D_nc3h4")
+
+[node name="FloorDetector" type="RayCast2D" parent="."]
+target_position = Vector2(0, 20)
+collision_mask = 1
+
+[node name="WallDetector" type="RayCast2D" parent="."]
+target_position = Vector2(15, 0)
+collision_mask = 1
