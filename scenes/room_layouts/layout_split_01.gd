@@ -9,7 +9,7 @@ var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
 
 func _ready():
-	create_label("SPLIT 01")
+	# create_label("SPLIT 01")  # Hidden for now
 	create_middle_platform()
 	spawn_prize_randomly()
 	create_room_entry_detector()

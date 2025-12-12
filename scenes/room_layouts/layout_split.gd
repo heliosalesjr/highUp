@@ -10,7 +10,7 @@ var heart_scene = preload("res://scenes/prize/heart.tscn")
 var metal_potion_scene = preload("res://scenes/powerups/metal_potion.tscn")
 
 func _ready():
-	create_label("SPLIT ROOM")
+	# create_label("SPLIT ROOM")  # Hidden for now
 	create_middle_floor()
 	spawn_prize_randomly()
 	create_room_entry_detector()

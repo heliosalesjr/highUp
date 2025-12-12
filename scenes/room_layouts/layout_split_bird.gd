@@ -10,7 +10,7 @@ var heart_scene = preload("res://scenes/prize/heart.tscn")
 var bird_scene = preload("res://scenes/enemies/bird.tscn")
 
 func _ready():
-	create_label("SPLIT BIRD")
+	# create_label("SPLIT BIRD")  # Hidden for now
 	create_middle_floor()
 	spawn_prize_randomly()
 	create_bird_enemies()  # ← MUDOU

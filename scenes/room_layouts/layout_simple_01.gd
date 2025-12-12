@@ -7,7 +7,7 @@ const ROOM_HEIGHT = 160
 var rock_scene = preload("res://scenes/obstacles/rock.tscn")
 
 func _ready():
-	create_label("SIMPLE 01")
+	# create_label("SIMPLE 01")  # Hidden for now
 	create_obstacles()
 	create_room_entry_detector()
 

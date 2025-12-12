@@ -7,7 +7,7 @@ const ROOM_HEIGHT = 160
 var slug_scene = preload("res://scenes/enemies/slug.tscn")
 
 func _ready():
-	create_label("SIMPLE 03")
+	# create_label("SIMPLE 03")  # Hidden for now
 	create_invisible_floor_for_enemies()
 	create_enemies()
 	create_room_entry_detector()

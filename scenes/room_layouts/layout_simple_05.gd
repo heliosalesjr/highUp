@@ -7,7 +7,7 @@ const ROOM_HEIGHT = 160
 var bird_scene = preload("res://scenes/enemies/bird.tscn")
 
 func _ready():
-	create_label("SIMPLE 05")
+	# create_label("SIMPLE 05")  # Hidden for now
 	create_enemies()
 	create_room_entry_detector()
 

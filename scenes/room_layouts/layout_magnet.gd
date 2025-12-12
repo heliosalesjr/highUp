@@ -9,7 +9,7 @@ var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
 
 func _ready():
-	create_label("MAGNET ROOM")
+	# create_label("MAGNET ROOM")  # Hidden for now
 	spawn_magnet()
 	spawn_extra_collectibles()  # Spawna diamantes extras para aproveitar o ímã
 	create_room_entry_detector()
