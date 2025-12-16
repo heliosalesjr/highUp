@@ -4,6 +4,19 @@
 - **Viewport**: 360x640 pixels (mobile vertical)
 - **Cada sala**: 360x160 pixels
 
+## Parallax Background (4 Camadas)
+
+| Camada | Nome | Dimensões | Velocidade | Repetição |
+|--------|------|-----------|------------|-----------|
+| **1** | Sky (Céu) | 360×1280px | 0.1x | 1280px |
+| **2** | Far Trees (Distante) | 360×640px | 0.3x | 640px |
+| **3** | Mid Trees (Médio) | 360×480px | 0.6x | 480px |
+| **4** | Close Leaves (Frente) | 360×240px | 0.85x | 240px |
+
+**IMPORTANTE**: Todas as texturas devem ser **tileables verticalmente** (o topo deve conectar perfeitamente com a base).
+
+Para detalhes completos sobre o sistema de parallax, cores sugeridas e como criar texturas tileables, veja **[PARALLAX_GUIDE.md](PARALLAX_GUIDE.md)**.
+
 ## Dimensões dos Elementos
 
 ### Floor (Chão)

@@ -1,44 +1,48 @@
-[gd_scene load_steps=8 format=3 uid="uid://bpg4j1x65ggbu"]
+[gd_scene load_steps=6 format=3 uid="uid://bpg4j1x65ggbu"]
 
 [ext_resource type="Script" uid="uid://cslvhl78qjpb2" path="res://scripts/main.gd" id="1_0wfyh"]
-[ext_resource type="Texture2D" uid="uid://c3yvje1xyx3cd" path="res://assets/background_far.png" id="2_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://3h85qvgsayfs" path="res://scenes/player.tscn" id="2_sugp2"]
 [ext_resource type="Script" uid="uid://3agj62sb1q8p" path="res://scripts/camera_2d.gd" id="3_sugp2"]
-[ext_resource type="Texture2D" uid="uid://c1hdtaxqimtsi" path="res://assets/background_mid.png" id="3_tipki"]
-[ext_resource type="Texture2D" uid="uid://l82a725n07ua" path="res://assets/background_close.png" id="4_85g3d"]
 [ext_resource type="PackedScene" uid="uid://cc22gw35duc5" path="res://scenes/ui/hud.tscn" id="4_jyhfs"]
+[ext_resource type="Script" uid="uid://d1ltq1f7slkw7" path="res://scripts/parallax_background.gd" id="5_parallax"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_0wfyh")
 
-[node name="BG" type="Node2D" parent="."]
-visible = false
+[node name="ParallaxBackground" type="Node2D" parent="."]
+z_index = -100
+script = ExtResource("5_parallax")
 
-[node name="BackgroundFar" type="Parallax2D" parent="BG"]
-visible = false
-scroll_scale = Vector2(1, 0)
+[node name="Layer1_Sky" type="Parallax2D" parent="ParallaxBackground"]
+scroll_scale = Vector2(1, 0.1)
 repeat_size = Vector2(0, 1280)
+repeat_times = 20
 
-[node name="Sprite2D" type="Sprite2D" parent="BG/BackgroundFar"]
-texture = ExtResource("2_o6xl0")
+[node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/Layer1_Sky"]
 centered = false
 
-[node name="BackgroundMid" type="Parallax2D" parent="BG"]
+[node name="Layer2_FarTrees" type="Parallax2D" parent="ParallaxBackground"]
 scroll_scale = Vector2(1, 0.3)
-repeat_size = Vector2(0, 1280)
-repeat_times = 10
+repeat_size = Vector2(0, 640)
+repeat_times = 20
 
-[node name="Sprite2D" type="Sprite2D" parent="BG/BackgroundMid"]
-texture = ExtResource("3_tipki")
+[node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/Layer2_FarTrees"]
 centered = false
 
-[node name="BackgroundClose" type="Parallax2D" parent="BG"]
+[node name="Layer3_MidTrees" type="Parallax2D" parent="ParallaxBackground"]
 scroll_scale = Vector2(1, 0.6)
-repeat_size = Vector2(0, 1280)
-repeat_times = 10
+repeat_size = Vector2(0, 480)
+repeat_times = 20
 
-[node name="Sprite2D" type="Sprite2D" parent="BG/BackgroundClose"]
-texture = ExtResource("4_85g3d")
+[node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/Layer3_MidTrees"]
+centered = false
+
+[node name="Layer4_CloseLeaves" type="Parallax2D" parent="ParallaxBackground"]
+scroll_scale = Vector2(1, 0.85)
+repeat_size = Vector2(0, 240)
+repeat_times = 20
+
+[node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/Layer4_CloseLeaves"]
 centered = false
 
 [node name="Player" parent="." instance=ExtResource("2_sugp2")]
