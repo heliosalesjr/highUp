@@ -5,10 +5,19 @@ const ROOM_WIDTH = 360
 const ROOM_HEIGHT = 160
 const WALL_THICKNESS = 6  # ← Atualizado para pixel art (paredes laterais)
 const FLOOR_THICKNESS = 6  # ← Atualizado para pixel art
+const FLOOR_TILE_WIDTH = 16  # Largura de cada tile do piso
 
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
 var bird_scene = preload("res://scenes/enemies/bird.tscn")
+
+# Texturas do piso (carregadas uma vez)
+var floor_tiles = [
+	preload("res://assets/aseprite-floor/piso1.png"),
+	preload("res://assets/aseprite-floor/piso2.png"),
+	preload("res://assets/aseprite-floor/piso3.png"),
+	preload("res://assets/aseprite-floor/piso4.png")
+]
 
 func _ready():
 	# create_label("SPLIT BIRD")  # Hidden for now
@@ -42,14 +51,20 @@ func create_middle_floor():
 	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - FLOOR_THICKNESS / 2.0)
 	collision.one_way_collision = true
 
-	# SIMULAÇÃO VISUAL: Floor com cor única para referência de espessura
-	var visual = ColorRect.new()
-	visual.size = Vector2(floor_width, FLOOR_THICKNESS)
-	visual.color = Color(0.4, 0.25, 0.15)  # Marrom terra
-	visual.position = Vector2(floor_x, ROOM_HEIGHT / 2.0 - FLOOR_THICKNESS / 2.0)
+	# TILES ALEATÓRIOS: Criar tiles de 16x6px usando as 4 texturas
+	var num_tiles = ceil(float(floor_width) / FLOOR_TILE_WIDTH)
+	var floor_y = ROOM_HEIGHT / 2.0 - FLOOR_THICKNESS / 2.0
+
+	for i in range(num_tiles):
+		var tile = Sprite2D.new()
+		# Escolhe aleatoriamente uma das 4 texturas
+		tile.texture = floor_tiles[randi() % floor_tiles.size()]
+		tile.centered = false
+		# Posiciona cada tile sequencialmente
+		tile.position = Vector2(floor_x + i * FLOOR_TILE_WIDTH, floor_y)
+		middle_floor.add_child(tile)
 
 	middle_floor.add_child(collision)
-	middle_floor.add_child(visual)
 	add_child(middle_floor)
 
 func create_bird_enemies():

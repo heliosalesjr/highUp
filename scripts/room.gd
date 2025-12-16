@@ -7,8 +7,17 @@ const WALL_THICKNESS = 6  # ← Atualizado para pixel art (paredes laterais)
 const FLOOR_THICKNESS = 6  # ← Atualizado para pixel art
 const LADDER_START_HEIGHT = 100
 const LADDER_WIDTH = 15
+const FLOOR_TILE_WIDTH = 16  # Largura de cada tile do piso
 
 enum LadderSide { LEFT, RIGHT }
+
+# Texturas do piso (carregadas uma vez)
+var floor_tiles = [
+	preload("res://assets/aseprite-floor/piso1.png"),
+	preload("res://assets/aseprite-floor/piso2.png"),
+	preload("res://assets/aseprite-floor/piso3.png"),
+	preload("res://assets/aseprite-floor/piso4.png")
+]
 
 @export var ladder_side: LadderSide = LadderSide.RIGHT
 var is_split_room = false  # ← NOVA VARIÁVEL
@@ -37,14 +46,20 @@ func create_floor():
 	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT - FLOOR_THICKNESS)
 	collision.one_way_collision = true
 
-	# SIMULAÇÃO VISUAL: Floor com cor única para referência de espessura
-	var visual = ColorRect.new()
-	visual.size = Vector2(ROOM_WIDTH, FLOOR_THICKNESS)
-	visual.color = Color(0.4, 0.25, 0.15)  # Marrom terra
-	visual.position = Vector2(0, ROOM_HEIGHT - FLOOR_THICKNESS)
+	# TILES ALEATÓRIOS: Criar tiles de 16x6px usando as 4 texturas
+	var num_tiles = ceil(float(ROOM_WIDTH) / FLOOR_TILE_WIDTH)  # 23 tiles (22.5 arredondado)
+	var floor_y = ROOM_HEIGHT - FLOOR_THICKNESS
+
+	for i in range(num_tiles):
+		var tile = Sprite2D.new()
+		# Escolhe aleatoriamente uma das 4 texturas
+		tile.texture = floor_tiles[randi() % floor_tiles.size()]
+		tile.centered = false
+		# Posiciona cada tile sequencialmente
+		tile.position = Vector2(i * FLOOR_TILE_WIDTH, floor_y)
+		floor_body.add_child(tile)
 
 	floor_body.add_child(collision)
-	floor_body.add_child(visual)
 	add_child(floor_body)
 
 func create_walls():

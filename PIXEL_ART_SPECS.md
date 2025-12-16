@@ -24,6 +24,18 @@
   - `layout_split` e `layout_split_bird`: largura total da sala (348px, considerando paredes de 6px)
   - `layout_split_01`: plataforma de 120px (1/3 da largura da sala)
 
+## Dimensões Ideais para Sprites/Tiles
+
+| Elemento | Tamanho Tile | Repetição | Total Final |
+|----------|--------------|-----------|-------------|
+| **Piso** | 16×6px ou 32×6px | Horizontal | 360×6px |
+| **Paredes** | 6×16px ou 6×32px | Vertical | 6×160px |
+
+**Recomendação**: Usar tiles pequenos e repetíveis em vez de sprites únicas da largura/altura total
+- Arquivos menores
+- Fácil criar variações
+- Melhor para padrões e texturas
+
 ## Tema Visual
 - **Ambientação**: Floresta/Natureza
 - **Paleta de cores**:
@@ -44,9 +56,57 @@
 - **Motivo**: Garante que player e enemies fiquem alinhados na linha superior do piso, não flutuando
 - Todos os personagens detectam o topo do piso como "chão"
 
+## Como Adicionar/Modificar Tiles do Piso
+
+### Adicionar Novos Tiles
+
+1. **Criar as sprites**:
+   - Dimensão: 16×6px
+   - Salvar em: `assets/aseprite-floor/`
+   - Nomenclatura: `piso5.png`, `piso6.png`, etc.
+
+2. **Atualizar os arquivos de código** (adicione os novos preloads no array `floor_tiles`):
+   - `scripts/room.gd` (piso principal das salas)
+   - `scenes/room_layouts/layout_split.gd` (piso do meio - salas split)
+   - `scenes/room_layouts/layout_split_01.gd` (plataforma do meio - menor)
+   - `scenes/room_layouts/layout_split_bird.gd` (piso do meio - com birds)
+
+3. **Exemplo de modificação**:
+   ```gdscript
+   var floor_tiles = [
+       preload("res://assets/aseprite-floor/piso1.png"),
+       preload("res://assets/aseprite-floor/piso2.png"),
+       preload("res://assets/aseprite-floor/piso3.png"),
+       preload("res://assets/aseprite-floor/piso4.png"),
+       preload("res://assets/aseprite-floor/piso5.png"),  # <- ADICIONE AQUI
+       preload("res://assets/aseprite-floor/piso6.png"),  # <- E AQUI
+   ]
+   ```
+
+### Modificar Lógica de Criação dos Pisos
+
+**Arquivo principal**: `scripts/room.gd`
+- **Função**: `create_floor()` (linha ~36)
+- **Responsável por**: Criar o piso principal de todas as salas
+
+**Arquivos de salas split**:
+- `scenes/room_layouts/layout_split.gd` - função `create_middle_floor()`
+- `scenes/room_layouts/layout_split_01.gd` - função `create_middle_platform()`
+- `scenes/room_layouts/layout_split_bird.gd` - função `create_middle_floor()`
+
+**Constantes importantes**:
+- `FLOOR_TILE_WIDTH = 16` - Largura de cada tile
+- `FLOOR_THICKNESS = 6` - Altura do piso
+
+**Exemplos de modificações**:
+- Alterar tamanho dos tiles: modificar `FLOOR_TILE_WIDTH`
+- Mudar lógica de seleção: trocar `randi() % floor_tiles.size()` por outro algoritmo
+- Adicionar padrões específicos: criar lógica condicional na escolha dos tiles
+
 ## Status Atual
-- Simulação com cores sólidas implementada
-- Todas as salas (normais e split) atualizadas
+- Sistema de tiles aleatórios implementado (4 variações: piso1-4)
+- Tiles de 16×6px com seleção aleatória
+- Todas as salas (normais e split) usando sprites de pixel art
 - Paredes laterais adicionadas em todo o jogo
 - Floor e paredes com mesma espessura (6px) para harmonia visual
 - Collision do floor ajustada para 1px no topo (personagens alinhados corretamente)
