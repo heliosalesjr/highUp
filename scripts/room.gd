@@ -8,6 +8,7 @@ const FLOOR_THICKNESS = 6  # ← Atualizado para pixel art
 const LADDER_START_HEIGHT = 100
 const LADDER_WIDTH = 15
 const FLOOR_TILE_WIDTH = 16  # Largura de cada tile do piso
+const WALL_TILE_HEIGHT = 32  # Altura de cada tile da parede
 
 enum LadderSide { LEFT, RIGHT }
 
@@ -17,6 +18,14 @@ var floor_tiles = [
 	preload("res://assets/aseprite-floor/piso2.png"),
 	preload("res://assets/aseprite-floor/piso3.png"),
 	preload("res://assets/aseprite-floor/piso4.png")
+]
+
+# Texturas das paredes (carregadas uma vez)
+var wall_tiles = [
+	preload("res://assets/aseprite-walls/wall1.png"),
+	preload("res://assets/aseprite-walls/wall2.png"),
+	preload("res://assets/aseprite-walls/wall3.png"),
+	preload("res://assets/aseprite-walls/wall4.png")
 ]
 
 @export var ladder_side: LadderSide = LadderSide.RIGHT
@@ -73,22 +82,20 @@ func create_walls():
 	left_collision.shape = left_shape
 	left_collision.position = Vector2(WALL_THICKNESS / 2.0, ROOM_HEIGHT / 2.0)
 
-	# SIMULAÇÃO VISUAL: Textura de tronco de árvore (6px de largura)
-	# Base - marrom escuro
-	var left_base = ColorRect.new()
-	left_base.size = Vector2(WALL_THICKNESS, ROOM_HEIGHT)
-	left_base.color = Color(0.3, 0.2, 0.15)  # Marrom tronco base
-	left_base.position = Vector2(0, 0)
+	# TILES ALEATÓRIOS: Criar tiles de 6x32px usando as 4 texturas
+	var num_tiles = ceil(float(ROOM_HEIGHT) / WALL_TILE_HEIGHT)  # 5 tiles (160 ÷ 32 = 5)
 
-	# Highlight/Luz - 2px mais claro no meio
-	var left_highlight = ColorRect.new()
-	left_highlight.size = Vector2(2, ROOM_HEIGHT)
-	left_highlight.color = Color(0.45, 0.3, 0.2)  # Marrom mais claro
-	left_highlight.position = Vector2(2, 0)
+	for i in range(num_tiles):
+		var tile = Sprite2D.new()
+		# Escolhe aleatoriamente uma das 4 texturas
+		tile.texture = wall_tiles[randi() % wall_tiles.size()]
+		tile.centered = false
+		tile.flip_h = true  # Espelha horizontalmente a parede esquerda
+		# Posiciona cada tile sequencialmente (de cima para baixo)
+		tile.position = Vector2(0, i * WALL_TILE_HEIGHT)
+		left_wall.add_child(tile)
 
 	left_wall.add_child(left_collision)
-	left_wall.add_child(left_base)
-	left_wall.add_child(left_highlight)
 	add_child(left_wall)
 
 	# PAREDE DIREITA
@@ -101,22 +108,17 @@ func create_walls():
 	right_collision.shape = right_shape
 	right_collision.position = Vector2(ROOM_WIDTH - WALL_THICKNESS / 2.0, ROOM_HEIGHT / 2.0)
 
-	# SIMULAÇÃO VISUAL: Textura de tronco de árvore (6px de largura)
-	# Base - marrom escuro
-	var right_base = ColorRect.new()
-	right_base.size = Vector2(WALL_THICKNESS, ROOM_HEIGHT)
-	right_base.color = Color(0.3, 0.2, 0.15)  # Marrom tronco base
-	right_base.position = Vector2(ROOM_WIDTH - WALL_THICKNESS, 0)
-
-	# Highlight/Luz - 2px mais claro no meio
-	var right_highlight = ColorRect.new()
-	right_highlight.size = Vector2(2, ROOM_HEIGHT)
-	right_highlight.color = Color(0.45, 0.3, 0.2)  # Marrom mais claro
-	right_highlight.position = Vector2(ROOM_WIDTH - WALL_THICKNESS + 2, 0)
+	# TILES ALEATÓRIOS: Criar tiles de 6x32px usando as 4 texturas
+	for i in range(num_tiles):
+		var tile = Sprite2D.new()
+		# Escolhe aleatoriamente uma das 4 texturas
+		tile.texture = wall_tiles[randi() % wall_tiles.size()]
+		tile.centered = false
+		# Posiciona cada tile sequencialmente (de cima para baixo)
+		tile.position = Vector2(ROOM_WIDTH - WALL_THICKNESS, i * WALL_TILE_HEIGHT)
+		right_wall.add_child(tile)
 
 	right_wall.add_child(right_collision)
-	right_wall.add_child(right_base)
-	right_wall.add_child(right_highlight)
 	add_child(right_wall)
 
 func create_ladder():

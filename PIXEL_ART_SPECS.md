@@ -56,9 +56,9 @@
 - **Motivo**: Garante que player e enemies fiquem alinhados na linha superior do piso, não flutuando
 - Todos os personagens detectam o topo do piso como "chão"
 
-## Como Adicionar/Modificar Tiles do Piso
+## Como Adicionar/Modificar Tiles
 
-### Adicionar Novos Tiles
+### Adicionar Novos Tiles de Piso
 
 1. **Criar as sprites**:
    - Dimensão: 16×6px
@@ -83,10 +83,32 @@
    ]
    ```
 
+### Adicionar Novos Tiles de Parede
+
+1. **Criar as sprites**:
+   - Dimensão: 6×32px
+   - Salvar em: `assets/aseprite-walls/`
+   - Nomenclatura: `wall5.png`, `wall6.png`, etc.
+
+2. **Atualizar o arquivo de código** (adicione os novos preloads no array `wall_tiles`):
+   - `scripts/room.gd` (paredes laterais de todas as salas)
+
+3. **Exemplo de modificação**:
+   ```gdscript
+   var wall_tiles = [
+       preload("res://assets/aseprite-walls/wall1.png"),
+       preload("res://assets/aseprite-walls/wall2.png"),
+       preload("res://assets/aseprite-walls/wall3.png"),
+       preload("res://assets/aseprite-walls/wall4.png"),
+       preload("res://assets/aseprite-walls/wall5.png"),  # <- ADICIONE AQUI
+       preload("res://assets/aseprite-walls/wall6.png"),  # <- E AQUI
+   ]
+   ```
+
 ### Modificar Lógica de Criação dos Pisos
 
 **Arquivo principal**: `scripts/room.gd`
-- **Função**: `create_floor()` (linha ~36)
+- **Função**: `create_floor()` (linha ~44)
 - **Responsável por**: Criar o piso principal de todas as salas
 
 **Arquivos de salas split**:
@@ -95,18 +117,31 @@
 - `scenes/room_layouts/layout_split_bird.gd` - função `create_middle_floor()`
 
 **Constantes importantes**:
-- `FLOOR_TILE_WIDTH = 16` - Largura de cada tile
+- `FLOOR_TILE_WIDTH = 16` - Largura de cada tile do piso
 - `FLOOR_THICKNESS = 6` - Altura do piso
 
+### Modificar Lógica de Criação das Paredes
+
+**Arquivo principal**: `scripts/room.gd`
+- **Função**: `create_walls()` (linha ~74)
+- **Responsável por**: Criar as paredes laterais de todas as salas
+
+**Constantes importantes**:
+- `WALL_TILE_HEIGHT = 32` - Altura de cada tile da parede
+- `WALL_THICKNESS = 6` - Largura das paredes
+
 **Exemplos de modificações**:
-- Alterar tamanho dos tiles: modificar `FLOOR_TILE_WIDTH`
-- Mudar lógica de seleção: trocar `randi() % floor_tiles.size()` por outro algoritmo
+- Alterar tamanho dos tiles: modificar `FLOOR_TILE_WIDTH` ou `WALL_TILE_HEIGHT`
+- Mudar lógica de seleção: trocar `randi() % tiles.size()` por outro algoritmo
 - Adicionar padrões específicos: criar lógica condicional na escolha dos tiles
 
 ## Status Atual
-- Sistema de tiles aleatórios implementado (4 variações: piso1-4)
-- Tiles de 16×6px com seleção aleatória
-- Todas as salas (normais e split) usando sprites de pixel art
-- Paredes laterais adicionadas em todo o jogo
+- Sistema de tiles aleatórios implementado para **pisos** (4 variações: piso1-4)
+  - Tiles de 16×6px com seleção aleatória
+  - Todas as salas (normais e split) usando sprites de pixel art
+- Sistema de tiles aleatórios implementado para **paredes** (4 variações: wall1-4)
+  - Tiles de 6×32px com seleção aleatória
+  - 5 tiles por parede (160px ÷ 32px = 5)
+  - Cada parede tem combinação única de tiles
 - Floor e paredes com mesma espessura (6px) para harmonia visual
 - Collision do floor ajustada para 1px no topo (personagens alinhados corretamente)
