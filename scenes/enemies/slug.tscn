@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bl0xpnw4jsmml"]
+[gd_scene load_steps=12 format=3 uid="uid://bl0xpnw4jsmml"]
 
 [ext_resource type="Script" uid="uid://ciow81hw4d8ls" path="res://scenes/enemies/slug.gd" id="1_nc3h4"]
 [ext_resource type="Texture2D" uid="uid://i80f3dc1wxbf" path="res://assets/snake.png" id="2_nc3h4"]
@@ -67,23 +67,22 @@ size = Vector2(49, 11)
 script = ExtResource("1_nc3h4")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(-1, -12.000001)
+position = Vector2(-1, -8)
 scale = Vector2(0.7890625, 0.67333335)
 sprite_frames = SubResource("SpriteFrames_r1dv2")
 autoplay = "default"
+frame = 4
+frame_progress = 0.97577244
 
 [node name="HitBox" type="Area2D" parent="."]
 collision_layer = 8
-collision_mask = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
-position = Vector2(-0.5, -4.5)
+position = Vector2(-1, -1)
 shape = SubResource("RectangleShape2D_nc3h4")
 
 [node name="FloorDetector" type="RayCast2D" parent="."]
 target_position = Vector2(0, 20)
-collision_mask = 1
 
 [node name="WallDetector" type="RayCast2D" parent="."]
 target_position = Vector2(15, 0)
-collision_mask = 1

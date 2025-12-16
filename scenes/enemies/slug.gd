@@ -45,10 +45,11 @@ func _process(delta):
 		vertical_velocity += GRAVITY * delta
 		global_position.y += vertical_velocity * delta
 	else:
-		# Gruda no chão
+		# Gruda no chão (collision agora está no topo do piso)
 		vertical_velocity = 0
 		var collision_point = floor_detector.get_collision_point()
-		global_position.y = collision_point.y - 9  # Ajuste para ficar em cima do chão
+		# Como a collision está no topo, basta subtrair a altura do sprite/hitbox
+		global_position.y = collision_point.y - 8  # Ajustado para alinhar com o topo do piso
 
 	# Movimento horizontal
 	global_position.x += direction * speed * delta

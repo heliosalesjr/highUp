@@ -3,7 +3,8 @@ extends Node2D
 
 const ROOM_WIDTH = 360
 const ROOM_HEIGHT = 160
-const WALL_THICKNESS = 2
+const WALL_THICKNESS = 6  # ← Atualizado para pixel art (paredes laterais)
+const FLOOR_THICKNESS = 6  # ← Atualizado para pixel art
 
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
@@ -25,22 +26,26 @@ func create_label(text: String):
 
 func create_middle_platform():
 	var platform_width = ROOM_WIDTH / 3.0
-	
+	var platform_x = (ROOM_WIDTH - platform_width) / 2.0
+
 	var middle_platform = StaticBody2D.new()
 	middle_platform.name = "MiddlePlatform"
-	
+
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
-	shape.size = Vector2(platform_width, 4)
+	# Collision shape bem fina no TOPO do piso (1 pixel)
+	shape.size = Vector2(platform_width, 1)
 	collision.shape = shape
-	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0)
+	# Posiciona no topo do floor visual (linha mais alta)
+	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - FLOOR_THICKNESS / 2.0)
 	collision.one_way_collision = true
-	
+
+	# SIMULAÇÃO VISUAL: Floor com cor única para referência de espessura
 	var visual = ColorRect.new()
-	visual.size = Vector2(platform_width, 4)
-	visual.color = Color(0.5, 0.3, 0.2)
-	visual.position = Vector2((ROOM_WIDTH - platform_width) / 2.0, ROOM_HEIGHT / 2.0 - 2)
-	
+	visual.size = Vector2(platform_width, FLOOR_THICKNESS)
+	visual.color = Color(0.4, 0.25, 0.15)  # Marrom terra
+	visual.position = Vector2(platform_x, ROOM_HEIGHT / 2.0 - FLOOR_THICKNESS / 2.0)
+
 	middle_platform.add_child(collision)
 	middle_platform.add_child(visual)
 	add_child(middle_platform)

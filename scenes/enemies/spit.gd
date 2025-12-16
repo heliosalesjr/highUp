@@ -37,7 +37,8 @@ func snap_to_floor():
 
 	if floor_detector.is_colliding():
 		var collision_point = floor_detector.get_collision_point()
-		global_position.y = collision_point.y - 13  # Ajusta para ficar em cima do chão (metade da altura do Spit)
+		# Como a collision está no topo, basta subtrair a altura do sprite/hitbox
+		global_position.y = collision_point.y - 16  # Ajustado para alinhar com o topo do piso
 		print("🐸 Spit posicionado no chão em y=", global_position.y)
 	else:
 		print("⚠️ Spit não encontrou chão abaixo!")
