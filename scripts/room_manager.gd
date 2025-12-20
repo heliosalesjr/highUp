@@ -17,7 +17,8 @@ var layouts = {
 	"split": [
 		preload("res://scenes/room_layouts/layout_split.tscn"),
 		preload("res://scenes/room_layouts/layout_split_01.tscn"),
-		preload("res://scenes/room_layouts/layout_split_bird.tscn") 
+		preload("res://scenes/room_layouts/layout_split_bird.tscn"),
+		preload("res://scenes/room_layouts/layout_split_spike.tscn")
 	]
 }
 

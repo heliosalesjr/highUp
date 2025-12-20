@@ -1,0 +1,171 @@
+# layout_split_spike.gd
+extends Node2D
+
+const ROOM_WIDTH = 360
+const ROOM_HEIGHT = 160
+const WALL_THICKNESS = 6
+const FLOOR_THICKNESS = 6
+const FLOOR_TILE_WIDTH = 16
+
+var spike_scene = preload("res://scenes/obstacles/spike.tscn")
+var diamond_scene = preload("res://scenes/prize/diamond.tscn")
+var heart_scene = preload("res://scenes/prize/heart.tscn")
+var metal_potion_scene = preload("res://scenes/powerups/metal_potion.tscn")
+
+# Texturas do piso (carregadas uma vez)
+var floor_tiles = [
+	preload("res://assets/aseprite-floor/piso1.png"),
+	preload("res://assets/aseprite-floor/piso2.png"),
+	preload("res://assets/aseprite-floor/piso3.png"),
+	preload("res://assets/aseprite-floor/piso4.png")
+]
+
+# Variável para armazenar qual lado tem spikes
+var spike_side = ""  # "left" ou "right"
+
+func _ready():
+	# create_label("SPLIT SPIKE")  # Hidden for now
+	create_middle_floor()
+	spawn_wall_spikes()
+	spawn_prize_randomly()
+	create_room_entry_detector()
+	create_second_floor_detector()
+
+func create_label(text: String):
+	var label = Label.new()
+	label.text = text
+	label.position = Vector2(ROOM_WIDTH / 2.0 - 60, 20)
+	label.add_theme_font_size_override("font_size", 24)
+	label.add_theme_color_override("font_color", Color.RED)
+	add_child(label)
+
+func create_middle_floor():
+	var middle_floor = StaticBody2D.new()
+	middle_floor.name = "MiddleFloor"
+
+	var floor_width = ROOM_WIDTH - (WALL_THICKNESS * 2)
+	var floor_x = WALL_THICKNESS
+
+	var collision = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(floor_width, 1)
+	collision.shape = shape
+	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - FLOOR_THICKNESS / 2.0)
+	collision.one_way_collision = true
+
+	# TILES ALEATÓRIOS: Criar tiles de 16x6px usando as 4 texturas
+	var num_tiles = ceil(float(floor_width) / FLOOR_TILE_WIDTH)
+	var floor_y = ROOM_HEIGHT / 2.0 - FLOOR_THICKNESS / 2.0
+
+	for i in range(num_tiles):
+		var tile = Sprite2D.new()
+		tile.texture = floor_tiles[randi() % floor_tiles.size()]
+		tile.centered = false
+		tile.position = Vector2(floor_x + i * FLOOR_TILE_WIDTH, floor_y)
+		middle_floor.add_child(tile)
+
+	middle_floor.add_child(collision)
+	add_child(middle_floor)
+
+func spawn_wall_spikes():
+	"""
+	Spawna spikes em uma das paredes (esquerda OU direita, aleatoriamente)
+	Os spikes cobrem toda a altura da sala
+	"""
+	# Escolhe aleatoriamente o lado
+	spike_side = "left" if randf() > 0.5 else "right"
+
+	var spike_spacing = 25  # Espaçamento entre spikes (em pixels)
+	var num_spikes = int(ROOM_HEIGHT / spike_spacing)
+
+	for i in range(num_spikes):
+		var spike = spike_scene.instantiate()
+
+		# Posiciona na parede escolhida
+		if spike_side == "left":
+			spike.position = Vector2(WALL_THICKNESS + 10, i * spike_spacing + 12)
+			spike.flip_h = false  # Aponta para a direita (dentro da sala)
+		else:  # right
+			spike.position = Vector2(ROOM_WIDTH - WALL_THICKNESS - 10, i * spike_spacing + 12)
+			spike.flip_h = true  # Aponta para a esquerda (dentro da sala)
+
+		add_child(spike)
+
+	print("🔺 Spikes spawnados na parede ", spike_side.to_upper(), " (", num_spikes, " spikes)")
+
+func spawn_prize_randomly():
+	"""50% de chance de spawnar um prêmio"""
+	if randf() > 0.5:
+		return
+
+	# Prêmio no lado OPOSTO dos spikes para segurança
+	var prize_x = ROOM_WIDTH / 2.0
+	if spike_side == "left":
+		prize_x = ROOM_WIDTH - 80  # Lado direito
+	else:
+		prize_x = 80  # Lado esquerdo
+
+	var prize_position = Vector2(prize_x, 40)
+
+	# Prioridade: Metal Potion > Heart > Diamond
+	if GameManager.can_spawn_metal_potion():
+		var potion = metal_potion_scene.instantiate()
+		potion.position = prize_position
+		add_child(potion)
+		print("🛡️ Poção de Metal spawnada!")
+	elif GameManager.can_spawn_heart():
+		var heart = heart_scene.instantiate()
+		heart.position = prize_position
+		add_child(heart)
+		print("❤️ Coração spawnado!")
+	else:
+		var diamond = diamond_scene.instantiate()
+		diamond.position = prize_position
+		add_child(diamond)
+		print("💎 Diamante spawnado!")
+
+func create_room_entry_detector():
+	"""Detecta quando o player ENTRA na sala split"""
+	var detector = Area2D.new()
+	detector.name = "EntryDetector"
+	detector.collision_layer = 0
+	detector.collision_mask = 1
+
+	var collision = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(ROOM_WIDTH, 40)
+	collision.shape = shape
+	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT - 20)
+
+	detector.add_child(collision)
+	detector.body_entered.connect(_on_room_entered)
+	add_child(detector)
+
+func create_second_floor_detector():
+	"""Detecta quando o player alcança o piso do MEIO (segundo andar)"""
+	var detector = Area2D.new()
+	detector.name = "SecondFloorDetector"
+	detector.collision_layer = 0
+	detector.collision_mask = 1
+
+	var collision = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(ROOM_WIDTH - 100, 30)
+	collision.shape = shape
+	collision.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0 - 30)
+
+	detector.add_child(collision)
+	detector.body_entered.connect(_on_second_floor_reached)
+	add_child(detector)
+
+func _on_room_entered(body):
+	if body.name == "Player":
+		GameManager.add_room()
+		print("🎯 Sala split spike alcançada! (+1)")
+		get_node("EntryDetector").queue_free()
+
+func _on_second_floor_reached(body):
+	if body.name == "Player":
+		GameManager.add_room()
+		print("🎯 Segundo piso alcançado! (+1)")
+		get_node("SecondFloorDetector").queue_free()

@@ -225,16 +225,26 @@ func die():
 	"""Chamado quando o player morre"""
 	print("💀 GAME OVER")
 	set_physics_process(false)
-	
+
 	var tween = create_tween()
 	tween.tween_property(self, "modulate:a", 0.0, 0.5)
-	
-	await get_tree().create_timer(1.0).timeout
-	show_game_over()
+
+	# Guarda referência à tree antes do await
+	var tree = get_tree()
+	if tree:
+		await tree.create_timer(1.0).timeout
+		show_game_over()
 
 func show_game_over():
 	"""Carrega a tela de Game Over"""
-	get_tree().change_scene_to_file("res://scenes/ui/game_over.tscn")
+	# Verifica se ainda está na árvore antes de tentar mudar de cena
+	if is_inside_tree():
+		get_tree().change_scene_to_file("res://scenes/ui/game_over.tscn")
+	else:
+		# Se não está na árvore, acessa direto pelo SceneTree
+		var tree = Engine.get_main_loop() as SceneTree
+		if tree:
+			tree.change_scene_to_file("res://scenes/ui/game_over.tscn")
 
 func launch_from_cannon(launch_velocity: float):
 	"""Chamado quando o player é lançado pelo canhão"""
