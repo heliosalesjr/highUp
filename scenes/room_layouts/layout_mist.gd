@@ -10,7 +10,7 @@ var heart_scene = preload("res://scenes/prize/heart.tscn")
 
 func _ready():
 	spawn_mist()
-	spawn_extra_collectibles()  # Spawna diamantes extras
+	# NÃO spawna collectibles extras - apenas o mist aparece sozinho
 	create_room_entry_detector()
 
 func spawn_mist():

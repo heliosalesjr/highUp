@@ -23,6 +23,7 @@ var animals_freed = 0
 
 
 const DIAMONDS_BEFORE_HEART = 2
+const MIST_DURATION = 10.0
 const SAVE_FILE = "user://save_data.json"
 
 var total_diamonds = 0
@@ -87,16 +88,27 @@ func can_spawn_metal_potion() -> bool:
 	# SÓ spawna se:
 	# - Modo metal NÃO está ativo E
 	# - Tem EXATAMENTE 3 corações cheios
-	
+
 	if metal_mode_active:
 		print("❌ Não spawna poção: modo metal já ativo")
 		return false
-	
+
 	if filled_hearts < 3:
 		print("❌ Não spawna poção: faltam corações (tem ", filled_hearts, "/3)")
 		return false
-	
+
 	print("✅ PODE spawnar poção de metal!")
+	return true
+
+func can_spawn_mist() -> bool:
+	"""Verifica se pode spawnar mist powerup"""
+	# SÓ spawna se modo mist NÃO está ativo
+
+	if mist_mode_active:
+		print("❌ Não spawna mist: modo mist já ativo")
+		return false
+
+	print("✅ PODE spawnar mist!")
 	return true
 
 func activate_metal_mode():
