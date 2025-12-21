@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://cn36vwdwo21pe"]
+
+[ext_resource type="Script" uid="uid://vjkuegysbu7r" path="res://scenes/powerups/mist.gd" id="1_mist"]
+[ext_resource type="Texture2D" uid="uid://13aj4jm8qbtl" path="res://assets/png/skull.png" id="2_7upeb"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_mist"]
+radius = 12.0
+
+[node name="Mist" type="Area2D"]
+script = ExtResource("1_mist")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.8, 0.8, 0.8, 0.7)
+scale = Vector2(1.9444445, 1.9444445)
+texture = ExtResource("2_7upeb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+shape = SubResource("CircleShape2D_mist")

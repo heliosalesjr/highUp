@@ -6,6 +6,7 @@ signal diamonds_changed(new_value)
 signal hearts_changed(filled_hearts)
 signal player_died()
 signal metal_mode_changed(is_active)
+signal mist_mode_changed(is_active)
 signal animal_freed(animal_name)
 
 var rooms_count = 0
@@ -13,6 +14,8 @@ var diamonds_count = 0
 var filled_hearts = 3
 var diamonds_since_last_heart = 0
 var metal_mode_active = false
+var mist_mode_active = false
+var mist_timer: Timer = null
 var slugs_freed = 0  # ← NOVO
 var birds_freed = 0  # ← NOVO
 var spits_freed = 0
@@ -109,10 +112,38 @@ func deactivate_metal_mode():
 	"""Desativa o modo metal"""
 	if not metal_mode_active:
 		return
-	
+
 	metal_mode_active = false
 	metal_mode_changed.emit(false)
 	print("🛡️ Modo metal DESATIVADO!")
+
+func activate_mist_mode():
+	"""Ativa o modo neblina por 10 segundos"""
+	if mist_mode_active:
+		return
+
+	mist_mode_active = true
+	mist_mode_changed.emit(true)
+	print("🌫️ MODO MIST ATIVADO!")
+
+	# Cria timer se não existe
+	if not mist_timer:
+		mist_timer = Timer.new()
+		mist_timer.one_shot = true
+		add_child(mist_timer)
+		mist_timer.timeout.connect(deactivate_mist_mode)
+
+	# Inicia timer de 10 segundos
+	mist_timer.start(10.0)
+
+func deactivate_mist_mode():
+	"""Desativa o modo neblina"""
+	if not mist_mode_active:
+		return
+
+	mist_mode_active = false
+	mist_mode_changed.emit(false)
+	print("🌫️ Modo mist DESATIVADO!")
 
 func free_animal(animal_name: String):
 	"""Registra que um animal foi libertado"""
@@ -153,14 +184,16 @@ func reset():
 	filled_hearts = 0
 	diamonds_since_last_heart = 0
 	metal_mode_active = false
+	mist_mode_active = false
 	animals_freed = 0
 	slugs_freed = 0  # ← NOVO
-	birds_freed = 0 
+	birds_freed = 0
 	spits_freed = 0 # ← NOVO
 	rooms_changed.emit(rooms_count)
 	diamonds_changed.emit(diamonds_count)
 	hearts_changed.emit(filled_hearts)
 	metal_mode_changed.emit(false)
+	mist_mode_changed.emit(false)
 
 func save_stats():
 	"""Salva as estatísticas globais"""
