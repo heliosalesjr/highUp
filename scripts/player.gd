@@ -190,20 +190,29 @@ func take_damage(enemy):
 	"""Chamado quando o player leva dano"""
 	if is_invulnerable or launch_invulnerability or is_launched:
 		return
-	
+
 	if enemy in damaged_enemies:
 		return
-	
+
+	# Camera shake ao tocar inimigo
+	trigger_hit_camera_shake()
+
 	var survived = GameManager.take_damage()
-	
+
 	if survived:
 		# Desativa o ímã ao tomar dano  ← NOVO
 		deactivate_magnet()
-		
+
 		damaged_enemies.append(enemy)
 		start_invulnerability()
 	else:
 		die()
+
+func trigger_hit_camera_shake():
+	"""Ativa camera shake ao levar hit de inimigo"""
+	var camera = get_tree().get_first_node_in_group("camera")
+	if camera and camera.has_method("shake"):
+		camera.shake(0.2, 10.0)  # Duração: 0.2s, intensidade: 10 (sutil)
 
 func start_invulnerability():
 	"""Ativa invulnerabilidade temporária"""

@@ -111,7 +111,16 @@ func be_freed():
 	is_being_freed = true
 	print("🐸 Spit sendo LIBERTADO!")
 
+	# Camera shake ao libertar
+	trigger_camera_shake()
+
 	GameManager.free_animal("Spit")
+
+func trigger_camera_shake():
+	"""Ativa camera shake ao acertar inimigo (modo metal)"""
+	var camera = get_tree().get_first_node_in_group("camera")
+	if camera and camera.has_method("shake"):
+		camera.shake(0.2, 10.0)  # Duração: 0.2s, intensidade: 10 (sutil)
 
 	# Desabilita HitBox (não há mais colisão física para desabilitar)
 	if hitbox:

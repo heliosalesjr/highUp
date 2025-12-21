@@ -56,30 +56,26 @@ func process_shake(delta):
 	"""Processa o shake da câmera"""
 	if is_shaking:
 		shake_time_remaining -= delta
-		
+
 		if shake_time_remaining > 0:
 			# Aplica shake no offset
 			offset = Vector2(
 				randf_range(-shake_intensity, shake_intensity),
 				randf_range(-shake_intensity, shake_intensity)
 			)
-			
+
 			# Diminui intensidade gradualmente
 			shake_intensity = lerp(shake_intensity, 0.0, delta * 3.0)
-			
-			print("📹 Shaking - Intensity: ", shake_intensity, " Time: ", shake_time_remaining)
 		else:
 			# Termina o shake
 			is_shaking = false
 			offset = Vector2.ZERO
 			shake_intensity = 0.0
-			print("📹 Shake terminado")
 	else:
 		offset = Vector2.ZERO
 
 func shake(duration: float, intensity: float = 25.0):
 	"""Inicia o shake da câmera"""
-	print("📹 SHAKE INICIADO! Duração: ", duration, " Intensidade: ", intensity)
 	is_shaking = true
 	shake_time_remaining = duration
 	shake_intensity = intensity
