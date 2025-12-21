@@ -145,8 +145,8 @@ func activate_mist_mode():
 		add_child(mist_timer)
 		mist_timer.timeout.connect(deactivate_mist_mode)
 
-	# Inicia timer de 10 segundos
-	mist_timer.start(10.0)
+	# Inicia timer com duração definida
+	mist_timer.start(MIST_DURATION)
 
 func deactivate_mist_mode():
 	"""Desativa o modo neblina"""
@@ -156,6 +156,14 @@ func deactivate_mist_mode():
 	mist_mode_active = false
 	mist_mode_changed.emit(false)
 	print("🌫️ Modo mist DESATIVADO!")
+
+func get_mist_progress() -> float:
+	"""Retorna o progresso do mist timer (0.0 a 1.0)"""
+	if not mist_mode_active or not mist_timer:
+		return 0.0
+
+	var time_left = mist_timer.time_left
+	return time_left / MIST_DURATION
 
 func free_animal(animal_name: String):
 	"""Registra que um animal foi libertado"""

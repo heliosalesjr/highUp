@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=3 uid="uid://djce6ohvf4iyx"]
+
+[ext_resource type="Script" uid="uid://cy3hjlcw16b8m" path="res://scenes/ui/mist_indicator.gd" id="1_indicator"]
+[ext_resource type="Texture2D" uid="uid://13aj4jm8qbtl" path="res://assets/png/skull.png" id="2_skull"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.2, 0.2, 0.2, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill"]
+bg_color = Color(0.8, 0.8, 0.8, 0.9)
+
+[node name="MistIndicator" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 200.0
+offset_bottom = 40.0
+script = ExtResource("1_indicator")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 40.0
+theme_override_constants/separation = 8
+
+[node name="MistIcon" type="Sprite2D" parent="HBoxContainer"]
+modulate = Color(0.8, 0.8, 0.8, 0.7)
+position = Vector2(-17, 3)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_skull")
+centered = false
+
+[node name="ProgressBar" type="ProgressBar" parent="HBoxContainer"]
+custom_minimum_size = Vector2(100, 20)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_fill")
+max_value = 1.0
+value = 1.0
+show_percentage = false

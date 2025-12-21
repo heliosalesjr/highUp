@@ -15,6 +15,11 @@ func _ready():
 
 func spawn_mist():
 	"""Spawna o powerup de mist no centro da sala"""
+	# Verifica se pode spawnar mist
+	if not GameManager.can_spawn_mist():
+		print("🌫️ Não spawnou mist: modo já ativo")
+		return
+
 	var mist = mist_scene.instantiate()
 	mist.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0)
 	add_child(mist)

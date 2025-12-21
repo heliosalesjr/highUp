@@ -14,6 +14,10 @@ var heart_full_texture = preload("res://assets/heart_full.png")    # Ajuste o ca
 # Fog overlay
 var mist_overlay: ColorRect = null
 
+# Mist indicator (cena separada)
+var mist_indicator: Control = null
+var mist_indicator_scene = preload("res://scenes/ui/mist_indicator.tscn")
+
 func _ready():
 	# Conecta aos sinais do GameManager
 	GameManager.rooms_changed.connect(_on_rooms_changed)
@@ -23,6 +27,11 @@ func _ready():
 
 	# Cria o overlay de neblina
 	create_mist_overlay()
+
+	# Instancia a cena do indicador de mist
+	mist_indicator = mist_indicator_scene.instantiate()
+	mist_indicator.position = Vector2(80, 10)  # Posição inicial (pode ser ajustada no editor depois)
+	add_child(mist_indicator)
 
 	# Atualiza valores iniciais
 	_on_rooms_changed(GameManager.rooms_count)
@@ -81,3 +90,5 @@ func _on_mist_mode_changed(is_active: bool):
 			print("🌫️ Neblina VISÍVEL!")
 		else:
 			print("🌫️ Neblina OCULTA!")
+
+	# O indicador se mostra/esconde sozinho (veja mist_indicator.gd)
