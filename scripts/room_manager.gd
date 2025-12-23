@@ -23,6 +23,9 @@ var layouts = {
 	]
 }
 
+# Referência ao layout mist para filtragem
+var layout_mist_scene = preload("res://scenes/room_layouts/layout_mist.tscn")
+
 var last_layouts = []
 const MAX_RECENT = 2
 
@@ -47,19 +50,25 @@ func populate_room(room: Node2D, room_index: int):
 
 func _pick_random_layout(type: String):
 	var available = layouts[type].duplicate()
-	
+
+	# Remove layout_mist se o modo mist estiver ativo
+	if type == "simple" and GameManager.mist_mode_active:
+		if layout_mist_scene in available:
+			available.erase(layout_mist_scene)
+			print("🌫️ Layout mist removido (modo mist ativo)")
+
 	if type == "simple" and available.size() > 1:
 		for recent in last_layouts:
 			if recent in available:
 				available.erase(recent)
-	
+
 	if available.is_empty():
 		available = layouts[type].duplicate()
-	
+
 	var chosen = available[randi() % available.size()]
-	
+
 	last_layouts.append(chosen)
 	if last_layouts.size() > MAX_RECENT:
 		last_layouts.pop_front()
-	
+
 	return chosen
