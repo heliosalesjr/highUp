@@ -7,6 +7,7 @@ signal hearts_changed(filled_hearts)
 signal player_died()
 signal metal_mode_changed(is_active)
 signal mist_mode_changed(is_active)
+signal magnet_mode_changed(is_active)
 signal animal_freed(animal_name)
 
 var rooms_count = 0
@@ -16,6 +17,7 @@ var diamonds_since_last_heart = 0
 var metal_mode_active = false
 var mist_mode_active = false
 var mist_timer: Timer = null
+var magnet_active = false
 var slugs_freed = 0  # ← NOVO
 var birds_freed = 0  # ← NOVO
 var spits_freed = 0
@@ -111,6 +113,17 @@ func can_spawn_mist() -> bool:
 	print("✅ PODE spawnar mist!")
 	return true
 
+func can_spawn_magnet() -> bool:
+	"""Verifica se pode spawnar magnet powerup"""
+	# SÓ spawna se modo magnet NÃO está ativo
+
+	if magnet_active:
+		print("❌ Não spawna magnet: modo magnet já ativo")
+		return false
+
+	print("✅ PODE spawnar magnet!")
+	return true
+
 func activate_metal_mode():
 	"""Ativa o modo metal"""
 	if metal_mode_active:
@@ -165,6 +178,24 @@ func get_mist_progress() -> float:
 	var time_left = mist_timer.time_left
 	return time_left / MIST_DURATION
 
+func activate_magnet_mode():
+	"""Ativa o modo magnet"""
+	if magnet_active:
+		return
+
+	magnet_active = true
+	magnet_mode_changed.emit(true)
+	print("🧲 MODO MAGNET ATIVADO!")
+
+func deactivate_magnet_mode():
+	"""Desativa o modo magnet"""
+	if not magnet_active:
+		return
+
+	magnet_active = false
+	magnet_mode_changed.emit(false)
+	print("🧲 Modo magnet DESATIVADO!")
+
 func free_animal(animal_name: String):
 	"""Registra que um animal foi libertado"""
 	animals_freed += 1
@@ -205,6 +236,7 @@ func reset():
 	diamonds_since_last_heart = 0
 	metal_mode_active = false
 	mist_mode_active = false
+	magnet_active = false
 	animals_freed = 0
 	slugs_freed = 0  # ← NOVO
 	birds_freed = 0
@@ -214,6 +246,7 @@ func reset():
 	hearts_changed.emit(filled_hearts)
 	metal_mode_changed.emit(false)
 	mist_mode_changed.emit(false)
+	magnet_mode_changed.emit(false)
 
 func save_stats():
 	"""Salva as estatísticas globais"""

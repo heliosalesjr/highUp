@@ -5,7 +5,6 @@ const INVULNERABILITY_TIME = 1.5
 var damaged_enemies = []
 var is_launched = false
 var launch_invulnerability = false
-var magnet_active = false
 var magnet_icon = null
 const MAGNET_RANGE = 150.0 
 var attracted_collectibles = []
@@ -308,24 +307,18 @@ func start_camera_shake():
 
 func activate_magnet():
 	"""Ativa o poder do ímã"""
-	if magnet_active:
-		return
-
-	magnet_active = true
+	# Usa GameManager agora
+	GameManager.activate_magnet_mode()
 	attracted_collectibles.clear()
-	print("🧲 Ímã ATIVADO!")
 	create_magnet_icon()
 
 
 func deactivate_magnet():
 	"""Desativa o poder do ímã"""
-	if not magnet_active:
-		return
-	
-	magnet_active = false
-	attracted_collectibles.clear()  # ← NOVO
-	print("🧲 Ímã DESATIVADO!")
-	
+	# Usa GameManager agora
+	GameManager.deactivate_magnet_mode()
+	attracted_collectibles.clear()
+
 	if magnet_icon:
 		magnet_icon.queue_free()
 		magnet_icon = null
@@ -359,7 +352,7 @@ func start_magnet_spin():
 
 func attract_collectibles(delta):
 	"""Atrai diamantes e corações - VERSÃO DEBUG"""
-	if not magnet_active:
+	if not GameManager.magnet_active:
 		return
 	
 	var collectibles = get_tree().get_nodes_in_group("collectible")

@@ -23,8 +23,9 @@ var layouts = {
 	]
 }
 
-# Referência ao layout mist para filtragem
+# Referências aos layouts especiais para filtragem
 var layout_mist_scene = preload("res://scenes/room_layouts/layout_mist.tscn")
+var layout_magnet_scene = preload("res://scenes/room_layouts/layout_magnet.tscn")
 
 var last_layouts = []
 const MAX_RECENT = 2
@@ -51,11 +52,15 @@ func populate_room(room: Node2D, room_index: int):
 func _pick_random_layout(type: String):
 	var available = layouts[type].duplicate()
 
-	# Remove layout_mist se o modo mist estiver ativo
-	if type == "simple" and GameManager.mist_mode_active:
-		if layout_mist_scene in available:
+	# Remove layouts especiais se seus modos estiverem ativos
+	if type == "simple":
+		if GameManager.mist_mode_active and layout_mist_scene in available:
 			available.erase(layout_mist_scene)
 			print("🌫️ Layout mist removido (modo mist ativo)")
+
+		if GameManager.magnet_active and layout_magnet_scene in available:
+			available.erase(layout_magnet_scene)
+			print("🧲 Layout magnet removido (modo magnet ativo)")
 
 	if type == "simple" and available.size() > 1:
 		for recent in last_layouts:

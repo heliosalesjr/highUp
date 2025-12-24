@@ -24,6 +24,11 @@ func create_label(text: String):
 
 func spawn_magnet():
 	"""Spawna o ímã no centro da sala"""
+	# Verifica se pode spawnar magnet
+	if not GameManager.can_spawn_magnet():
+		print("🧲 Não spawnou magnet: modo já ativo")
+		return
+
 	var magnet = magnet_scene.instantiate()
 	magnet.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0)
 	add_child(magnet)
