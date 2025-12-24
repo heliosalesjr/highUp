@@ -39,6 +39,12 @@ func _on_body_entered(body):
 			print("💧 Projétil ignorou player protegido")
 			return
 
+		# Ignora se player está no modo invincible
+		if GameManager.invincible_mode_active:
+			print("💧 Projétil ignorou player invencível!")
+			queue_free()  # Projétil se destrói ao tocar player invencível
+			return
+
 		# Causa dano
 		body.take_damage(self)
 		print("💧 Projétil acertou o player!")

@@ -2,13 +2,13 @@
 extends Area2D
 
 func _ready():
-	add_to_group("collectible")  # Para o magnet funcionar
+	# NÃO adiciona ao grupo collectible - powerups especiais não devem ser atraídos
 	collision_layer = 64
 	collision_mask = 1
-	
+
 	body_entered.connect(_on_body_entered)
 	create_idle_animation()
-	
+
 	print("🛡️ Metal Potion criada!")
 
 func _on_body_entered(body):

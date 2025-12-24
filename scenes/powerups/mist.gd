@@ -2,7 +2,7 @@
 extends Area2D
 
 func _ready():
-	add_to_group("collectible")  # Para o magnet funcionar
+	# NÃO adiciona ao grupo collectible - powerups especiais não devem ser atraídos
 	collision_layer = 64
 	collision_mask = 1
 
