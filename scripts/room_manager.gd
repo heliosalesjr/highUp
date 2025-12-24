@@ -13,6 +13,7 @@ var layouts = {
 		preload("res://scenes/room_layouts/layout_cannon.tscn"),
 		preload("res://scenes/room_layouts/layout_magnet.tscn"),
 		preload("res://scenes/room_layouts/layout_mist.tscn"),
+		preload("res://scenes/room_layouts/layout_invincible.tscn"),
 		preload("res://scenes/room_layouts/layout_spit.tscn")
 	],
 	"split": [
@@ -26,6 +27,7 @@ var layouts = {
 # Referências aos layouts especiais para filtragem
 var layout_mist_scene = preload("res://scenes/room_layouts/layout_mist.tscn")
 var layout_magnet_scene = preload("res://scenes/room_layouts/layout_magnet.tscn")
+var layout_invincible_scene = preload("res://scenes/room_layouts/layout_invincible.tscn")
 
 var last_layouts = []
 const MAX_RECENT = 2
@@ -61,6 +63,10 @@ func _pick_random_layout(type: String):
 		if GameManager.magnet_active and layout_magnet_scene in available:
 			available.erase(layout_magnet_scene)
 			print("🧲 Layout magnet removido (modo magnet ativo)")
+
+		if GameManager.invincible_mode_active and layout_invincible_scene in available:
+			available.erase(layout_invincible_scene)
+			print("💪 Layout invincible removido (modo invincible ativo)")
 
 	if type == "simple" and available.size() > 1:
 		for recent in last_layouts:

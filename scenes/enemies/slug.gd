@@ -86,8 +86,8 @@ func _on_body_entered(body):
 			print("🐌 Slug ignorou player lançado")
 			return
 
-		# Verifica se player está no modo metal
-		if GameManager.metal_mode_active:
+		# Verifica se player está no modo metal OU invincible
+		if GameManager.metal_mode_active or GameManager.invincible_mode_active:
 			be_freed()
 			return
 

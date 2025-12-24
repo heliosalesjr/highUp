@@ -18,6 +18,10 @@ var mist_overlay: ColorRect = null
 var mist_indicator: Control = null
 var mist_indicator_scene = preload("res://scenes/ui/mist_indicator.tscn")
 
+# Invincible indicator (cena separada)
+var invincible_indicator: Control = null
+var invincible_indicator_scene = preload("res://scenes/ui/invincible_indicator.tscn")
+
 func _ready():
 	# Conecta aos sinais do GameManager
 	GameManager.rooms_changed.connect(_on_rooms_changed)
@@ -32,6 +36,11 @@ func _ready():
 	mist_indicator = mist_indicator_scene.instantiate()
 	mist_indicator.position = Vector2(80, 10)  # Posição inicial (pode ser ajustada no editor depois)
 	add_child(mist_indicator)
+
+	# Instancia a cena do indicador de invincible
+	invincible_indicator = invincible_indicator_scene.instantiate()
+	invincible_indicator.position = Vector2(80, 40)  # Abaixo do mist indicator
+	add_child(invincible_indicator)
 
 	# Atualiza valores iniciais
 	_on_rooms_changed(GameManager.rooms_count)

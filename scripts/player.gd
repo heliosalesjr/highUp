@@ -6,9 +6,10 @@ var damaged_enemies = []
 var is_launched = false
 var launch_invulnerability = false
 var magnet_icon = null
-const MAGNET_RANGE = 150.0 
+const MAGNET_RANGE = 150.0
 var attracted_collectibles = []
 var metal_shader_material = null
+var sparkle_particles: GPUParticles2D = null
 
 # Constantes de movimento
 const SPEED = 400.0
@@ -41,11 +42,13 @@ var direction = 1
 func _ready():
 	add_to_group("player")
 	collision_layer = 1
-	collision_mask = 27  # 1 + 2 + 8 + 16 (paredes, rocks, inimigos) 
-	
+	collision_mask = 27  # 1 + 2 + 8 + 16 (paredes, rocks, inimigos)
+
 	GameManager.metal_mode_changed.connect(_on_metal_mode_changed)
-	
+	GameManager.invincible_mode_changed.connect(_on_invincible_mode_changed)
+
 	prepare_metal_shader()
+	create_sparkle_particles()
 	
 	var detection_area = get_node_or_null("DetectionArea")
 	if detection_area:
@@ -437,3 +440,85 @@ func deactivate_visual_metal_mode():
 func activate_metal_mode():
 	"""Ativa modo metal (chamado ao coletar poção)"""
 	GameManager.activate_metal_mode()
+
+func _on_invincible_mode_changed(is_active: bool):
+	"""Chamado quando o modo invincible muda"""
+	if is_active:
+		activate_visual_invincible_mode()
+	else:
+		deactivate_visual_invincible_mode()
+
+func activate_visual_invincible_mode():
+	"""Ativa efeito visual invincible - dourado com rastro de brilhos"""
+	if animated_sprite:
+		# Modulate dourado brilhante
+		var tween = create_tween()
+		tween.tween_property(animated_sprite, "modulate", Color(2.0, 1.5, 0.2), 0.3)
+
+	# Ativa partículas de brilho
+	if sparkle_particles:
+		sparkle_particles.emitting = true
+
+	print("💪 Visual invincible ATIVADO")
+
+func deactivate_visual_invincible_mode():
+	"""Desativa efeito visual invincible - volta ao normal"""
+	if animated_sprite:
+		# Volta à cor normal
+		var tween = create_tween()
+		tween.tween_property(animated_sprite, "modulate", Color(1.0, 1.0, 1.0), 0.3)
+
+	# Desativa partículas de brilho
+	if sparkle_particles:
+		sparkle_particles.emitting = false
+
+	print("💪 Visual invincible DESATIVADO")
+
+func create_sparkle_particles():
+	"""Cria sistema de partículas de brilhos"""
+	sparkle_particles = GPUParticles2D.new()
+	sparkle_particles.name = "SparkleParticles"
+
+	# Configurações básicas
+	sparkle_particles.amount = 30
+	sparkle_particles.lifetime = 0.6
+	sparkle_particles.emitting = false
+	sparkle_particles.one_shot = false
+	sparkle_particles.explosiveness = 0.0
+
+	# Cria o material de partículas
+	var particle_material = ParticleProcessMaterial.new()
+
+	# Direção e velocidade
+	particle_material.direction = Vector3(-1, 0, 0)  # Para trás
+	particle_material.spread = 15.0
+	particle_material.initial_velocity_min = 20.0
+	particle_material.initial_velocity_max = 50.0
+
+	# Gravidade e damping
+	particle_material.gravity = Vector3(0, 50, 0)
+	particle_material.damping_min = 5.0
+	particle_material.damping_max = 10.0
+
+	# Escala
+	particle_material.scale_min = 0.5
+	particle_material.scale_max = 1.5
+
+	# Cor dourada brilhante
+	particle_material.color = Color(1.0, 0.85, 0.0, 1.0)
+
+	# Fade out
+	var gradient = Gradient.new()
+	gradient.add_point(0.0, Color(1, 1, 1, 1))
+	gradient.add_point(1.0, Color(1, 1, 1, 0))
+	var gradient_texture = GradientTexture1D.new()
+	gradient_texture.gradient = gradient
+	particle_material.color_ramp = gradient_texture
+
+	sparkle_particles.process_material = particle_material
+
+	# Posição atrás do player
+	sparkle_particles.position = Vector2(0, 0)
+
+	add_child(sparkle_particles)
+	print("✨ Sistema de partículas de brilho criado!")

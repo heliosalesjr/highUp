@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://cu85fmc4xonyi"]
+
+[ext_resource type="Script" uid="uid://bc3yrg3gdtvx" path="res://scenes/powerups/invincible.gd" id="1_invincible"]
+[ext_resource type="Texture2D" uid="uid://c58l402uxf2jn" path="res://assets/potion.png" id="2_placeholder"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_invincible"]
+radius = 12.0
+
+[node name="Invincible" type="Area2D"]
+script = ExtResource("1_invincible")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(2, 1.5, 0.2, 1)
+position = Vector2(0, -4)
+scale = Vector2(0.05948795, 0.051310822)
+texture = ExtResource("2_placeholder")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_invincible")

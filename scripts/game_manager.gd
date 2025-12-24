@@ -8,6 +8,7 @@ signal player_died()
 signal metal_mode_changed(is_active)
 signal mist_mode_changed(is_active)
 signal magnet_mode_changed(is_active)
+signal invincible_mode_changed(is_active)
 signal animal_freed(animal_name)
 
 var rooms_count = 0
@@ -18,6 +19,8 @@ var metal_mode_active = false
 var mist_mode_active = false
 var mist_timer: Timer = null
 var magnet_active = false
+var invincible_mode_active = false
+var invincible_timer: Timer = null
 var slugs_freed = 0  # ← NOVO
 var birds_freed = 0  # ← NOVO
 var spits_freed = 0
@@ -26,6 +29,7 @@ var animals_freed = 0
 
 const DIAMONDS_BEFORE_HEART = 2
 const MIST_DURATION = 10.0
+const INVINCIBLE_DURATION = 10.0
 const SAVE_FILE = "user://save_data.json"
 
 var total_diamonds = 0
@@ -124,6 +128,17 @@ func can_spawn_magnet() -> bool:
 	print("✅ PODE spawnar magnet!")
 	return true
 
+func can_spawn_invincible() -> bool:
+	"""Verifica se pode spawnar invincible powerup"""
+	# SÓ spawna se modo invincible NÃO está ativo
+
+	if invincible_mode_active:
+		print("❌ Não spawna invincible: modo invincible já ativo")
+		return false
+
+	print("✅ PODE spawnar invincible!")
+	return true
+
 func activate_metal_mode():
 	"""Ativa o modo metal"""
 	if metal_mode_active:
@@ -196,6 +211,42 @@ func deactivate_magnet_mode():
 	magnet_mode_changed.emit(false)
 	print("🧲 Modo magnet DESATIVADO!")
 
+func activate_invincible_mode():
+	"""Ativa o modo invincible por 10 segundos"""
+	if invincible_mode_active:
+		return
+
+	invincible_mode_active = true
+	invincible_mode_changed.emit(true)
+	print("💪 MODO INVINCIBLE ATIVADO!")
+
+	# Cria timer se não existe
+	if not invincible_timer:
+		invincible_timer = Timer.new()
+		invincible_timer.one_shot = true
+		add_child(invincible_timer)
+		invincible_timer.timeout.connect(deactivate_invincible_mode)
+
+	# Inicia timer com duração definida
+	invincible_timer.start(INVINCIBLE_DURATION)
+
+func deactivate_invincible_mode():
+	"""Desativa o modo invincible"""
+	if not invincible_mode_active:
+		return
+
+	invincible_mode_active = false
+	invincible_mode_changed.emit(false)
+	print("💪 Modo invincible DESATIVADO!")
+
+func get_invincible_progress() -> float:
+	"""Retorna o progresso do invincible timer (0.0 a 1.0)"""
+	if not invincible_mode_active or not invincible_timer:
+		return 0.0
+
+	var time_left = invincible_timer.time_left
+	return time_left / INVINCIBLE_DURATION
+
 func free_animal(animal_name: String):
 	"""Registra que um animal foi libertado"""
 	animals_freed += 1
@@ -237,6 +288,7 @@ func reset():
 	metal_mode_active = false
 	mist_mode_active = false
 	magnet_active = false
+	invincible_mode_active = false
 	animals_freed = 0
 	slugs_freed = 0  # ← NOVO
 	birds_freed = 0
@@ -247,6 +299,7 @@ func reset():
 	metal_mode_changed.emit(false)
 	mist_mode_changed.emit(false)
 	magnet_mode_changed.emit(false)
+	invincible_mode_changed.emit(false)
 
 func save_stats():
 	"""Salva as estatísticas globais"""

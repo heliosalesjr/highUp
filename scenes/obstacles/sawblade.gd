@@ -92,5 +92,10 @@ func randomize_speed():
 func _on_body_entered(body):
 	"""Detecta colisão com o player"""
 	if body.name == "Player" and body.has_method("take_damage"):
+		# Ignora se player está invencível
+		if GameManager.invincible_mode_active:
+			print("🪚 Sawblade ignorou player invencível!")
+			return
+
 		body.take_damage(self)
 		print("🪚 Sawblade atingiu o player!")
