@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://bpg4j1x65ggbu"]
+[gd_scene load_steps=7 format=3 uid="uid://bpg4j1x65ggbu"]
 
 [ext_resource type="Script" uid="uid://cslvhl78qjpb2" path="res://scripts/main.gd" id="1_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://3h85qvgsayfs" path="res://scenes/player.tscn" id="2_sugp2"]
 [ext_resource type="Script" uid="uid://3agj62sb1q8p" path="res://scripts/camera_2d.gd" id="3_sugp2"]
+[ext_resource type="Texture2D" uid="uid://b1sqlf5mldiq7" path="res://assets/bg_sky_clouds_v_01.png" id="3_tefeu"]
 [ext_resource type="PackedScene" uid="uid://cc22gw35duc5" path="res://scenes/ui/hud.tscn" id="4_jyhfs"]
 [ext_resource type="Script" uid="uid://d1ltq1f7slkw7" path="res://scripts/parallax_background.gd" id="5_parallax"]
 
@@ -19,6 +20,7 @@ repeat_size = Vector2(0, 1280)
 repeat_times = 20
 
 [node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/Layer1_Sky"]
+texture = ExtResource("3_tefeu")
 centered = false
 
 [node name="Layer2_FarTrees" type="Parallax2D" parent="ParallaxBackground"]
