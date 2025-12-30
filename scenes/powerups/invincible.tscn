@@ -11,8 +11,8 @@ script = ExtResource("1_invincible")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(2, 1.5, 0.2, 1)
-position = Vector2(0, -4)
-scale = Vector2(0.05948795, 0.051310822)
+position = Vector2(0.99999976, -5.103446)
+scale = Vector2(0.084337346, 0.072587)
 texture = ExtResource("2_placeholder")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

@@ -3,12 +3,12 @@ extends Area2D
 
 @export_enum("mist", "magnet", "invincible", "metal") var powerup_type: String = "mist"
 
-# Sprites dos powerups para mostrar no chest
-var powerup_icons = {
-	"mist": preload("res://assets/png/skull.png"),
-	"magnet": preload("res://assets/powerups/magnet_icon.png"),
-	"invincible": preload("res://assets/potion.png"),
-	"metal": preload("res://assets/potion.png")
+# Cenas dos powerups para mostrar no chest (já vêm com escala correta)
+var powerup_scenes = {
+	"mist": preload("res://scenes/powerups/mist.tscn"),
+	"magnet": preload("res://scenes/powerups/magnet.tscn"),
+	"invincible": preload("res://scenes/powerups/invincible.tscn"),
+	"metal": preload("res://scenes/powerups/metal_potion.tscn")
 }
 
 var is_opened = false
@@ -65,8 +65,8 @@ func apply_pause_and_shake():
 
 func show_powerup_icon():
 	"""Mostra o ícone do powerup de forma instantânea"""
-	if not powerup_icons.has(powerup_type):
-		print("❌ Powerup icon inválido: ", powerup_type)
+	if not powerup_scenes.has(powerup_type):
+		print("❌ Powerup scene inválido: ", powerup_type)
 		activate_powerup()
 		queue_free()
 		return
@@ -74,14 +74,23 @@ func show_powerup_icon():
 	# Pega a posição exata do chest no mundo
 	var chest_world_pos = global_position
 
-	# Cria sprite do ícone exatamente onde o chest está
-	var icon = Sprite2D.new()
-	icon.texture = powerup_icons[powerup_type]
+	# Instancia a cena do powerup (já vem com sprite e escala corretos)
+	var icon = powerup_scenes[powerup_type].instantiate()
 	icon.global_position = chest_world_pos  # EXATAMENTE onde o chest estava
 	icon.modulate.a = 0.0  # Começa invisível
-	icon.scale = Vector2(1.5, 1.5)
+
+	# Remove o script para que não execute lógica de colisão/animação
+	icon.set_script(null)
+
+	# Desabilita colisão (só visual)
+	if icon is Area2D:
+		icon.collision_layer = 0
+		icon.collision_mask = 0
 
 	get_parent().add_child(icon)
+
+	# Pega a escala original do powerup
+	var original_scale = icon.scale
 
 	# Animação SUPER rápida: aparece e sobe um pouco
 	var tween = create_tween()
@@ -93,10 +102,10 @@ func show_powerup_icon():
 	# Sobe só um pouco, como se "pulasse" do chest
 	tween.tween_property(icon, "global_position:y", chest_world_pos.y - 25, 0.2).set_ease(Tween.EASE_OUT)
 
-	# Scale pulse curtíssimo
+	# Scale pulse curtíssimo (baseado na escala original)
 	tween.set_parallel(false)
-	tween.tween_property(icon, "scale", Vector2(1.8, 1.8), 0.08).set_ease(Tween.EASE_OUT)
-	tween.tween_property(icon, "scale", Vector2(1.5, 1.5), 0.06).set_ease(Tween.EASE_IN)
+	tween.tween_property(icon, "scale", original_scale * 1.2, 0.08).set_ease(Tween.EASE_OUT)
+	tween.tween_property(icon, "scale", original_scale, 0.06).set_ease(Tween.EASE_IN)
 
 	# Aguarda um tempo muito curto
 	await get_tree().create_timer(0.35).timeout
