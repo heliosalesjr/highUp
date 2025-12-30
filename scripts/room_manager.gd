@@ -14,6 +14,7 @@ var layouts = {
 		preload("res://scenes/room_layouts/layout_magnet.tscn"),
 		preload("res://scenes/room_layouts/layout_mist.tscn"),
 		preload("res://scenes/room_layouts/layout_invincible.tscn"),
+		preload("res://scenes/room_layouts/layout_metal.tscn"),
 		preload("res://scenes/room_layouts/layout_spit.tscn")
 	],
 	"split": [
@@ -28,6 +29,7 @@ var layouts = {
 var layout_mist_scene = preload("res://scenes/room_layouts/layout_mist.tscn")
 var layout_magnet_scene = preload("res://scenes/room_layouts/layout_magnet.tscn")
 var layout_invincible_scene = preload("res://scenes/room_layouts/layout_invincible.tscn")
+var layout_metal_scene = preload("res://scenes/room_layouts/layout_metal.tscn")
 
 var last_layouts = []
 const MAX_RECENT = 2
@@ -67,6 +69,11 @@ func _pick_random_layout(type: String):
 		if GameManager.invincible_mode_active and layout_invincible_scene in available:
 			available.erase(layout_invincible_scene)
 			print("💪 Layout invincible removido (modo invincible ativo)")
+
+		# Metal precisa de 3 corações cheios E modo não ativo
+		if not GameManager.can_spawn_metal_potion() and layout_metal_scene in available:
+			available.erase(layout_metal_scene)
+			print("🛡️ Layout metal removido (requisitos não atendidos)")
 
 	if type == "simple" and available.size() > 1:
 		for recent in last_layouts:

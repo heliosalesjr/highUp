@@ -33,75 +33,77 @@ func _on_body_entered(body):
 		open_chest()
 
 func open_chest():
-	"""Abre o chest com efeito visual melhorado"""
+	"""Abre o chest com efeito visual instantâneo"""
 	is_opened = true
 
 	# Desabilita colisão
 	collision_layer = 0
 	collision_mask = 0
 
-	# Tudo acontece durante a pausa!
+	# Tudo acontece DURANTE a pausa
 	apply_pause_and_shake()
 
-	# Chest some rapidamente (durante a pausa)
+	# Chest some INSTANTANEAMENTE
 	if sprite_node:
-		var chest_tween = create_tween()
-		chest_tween.tween_property(sprite_node, "modulate:a", 0.0, 0.08)
+		sprite_node.visible = false
 
-	# Ícone aparece quase instantaneamente
+	# Ícone aparece instantaneamente
 	show_powerup_icon()
 
 func apply_pause_and_shake():
-	"""Pausa breve + camera shake sutil"""
-	# Pausa breve
-	Engine.time_scale = 0.2
-	get_tree().create_timer(0.12, true, false, true).timeout.connect(func():
+	"""Pausa super breve + camera shake discreto"""
+	# Pausa curtíssima
+	Engine.time_scale = 0.15
+	get_tree().create_timer(0.08, true, false, true).timeout.connect(func():
 		Engine.time_scale = 1.0
 	)
 
-	# Camera shake sutil
+	# Camera shake discreto
 	var camera = get_viewport().get_camera_2d()
 	if camera and camera.has_method("apply_shake"):
-		camera.apply_shake(4.0, 0.12)  # Intensidade 4, duração 0.12s
+		camera.apply_shake(2.5, 0.1)  # Bem sutil
 
 func show_powerup_icon():
-	"""Mostra o ícone do powerup rapidamente"""
+	"""Mostra o ícone do powerup de forma instantânea"""
 	if not powerup_icons.has(powerup_type):
 		print("❌ Powerup icon inválido: ", powerup_type)
 		activate_powerup()
 		queue_free()
 		return
 
-	# Cria sprite do ícone
+	# Pega a posição exata do chest no mundo
+	var chest_world_pos = global_position
+
+	# Cria sprite do ícone exatamente onde o chest está
 	var icon = Sprite2D.new()
 	icon.texture = powerup_icons[powerup_type]
-	icon.global_position = global_position + Vector2(0, -10)  # Começa um pouco acima
+	icon.global_position = chest_world_pos  # EXATAMENTE onde o chest estava
 	icon.modulate.a = 0.0  # Começa invisível
 	icon.scale = Vector2(1.5, 1.5)
 
 	get_parent().add_child(icon)
 
-	# Animação rápida: aparece e sobe
+	# Animação SUPER rápida: aparece e sobe um pouco
 	var tween = create_tween()
 	tween.set_parallel(true)
 
-	# Fade in super rápido
-	tween.tween_property(icon, "modulate:a", 1.0, 0.1)
+	# Fade in instantâneo
+	tween.tween_property(icon, "modulate:a", 1.0, 0.05)
 
-	# Sobe rapidamente como se saísse do chest
-	tween.tween_property(icon, "global_position:y", global_position.y - 35, 0.35).set_ease(Tween.EASE_OUT)
+	# Sobe só um pouco, como se "pulasse" do chest
+	tween.tween_property(icon, "global_position:y", chest_world_pos.y - 25, 0.2).set_ease(Tween.EASE_OUT)
 
-	# Scale pulse rápido
+	# Scale pulse curtíssimo
 	tween.set_parallel(false)
-	tween.tween_property(icon, "scale", Vector2(2.0, 2.0), 0.12).set_ease(Tween.EASE_OUT)
-	tween.tween_property(icon, "scale", Vector2(1.8, 1.8), 0.08).set_ease(Tween.EASE_IN)
+	tween.tween_property(icon, "scale", Vector2(1.8, 1.8), 0.08).set_ease(Tween.EASE_OUT)
+	tween.tween_property(icon, "scale", Vector2(1.5, 1.5), 0.06).set_ease(Tween.EASE_IN)
 
-	# Aguarda brevemente para o player ver (reduzido)
-	await get_tree().create_timer(0.5).timeout
+	# Aguarda um tempo muito curto
+	await get_tree().create_timer(0.35).timeout
 
 	# Fade out rápido
 	var fade_tween = create_tween()
-	fade_tween.tween_property(icon, "modulate:a", 0.0, 0.2)
+	fade_tween.tween_property(icon, "modulate:a", 0.0, 0.15)
 	await fade_tween.finished
 
 	# Ativa o powerup
