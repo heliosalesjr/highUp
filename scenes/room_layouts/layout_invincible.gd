@@ -4,23 +4,25 @@ extends Node2D
 const ROOM_WIDTH = 360
 const ROOM_HEIGHT = 160
 
-var invincible_scene = preload("res://scenes/powerups/invincible.tscn")
+var chest_scene = preload("res://scenes/obstacles/chest.tscn")
 
 func _ready():
-	spawn_invincible()
+	spawn_invincible_chest()
 	create_room_entry_detector()
 
-func spawn_invincible():
-	"""Spawna o powerup de invincible no centro da sala"""
+func spawn_invincible_chest():
+	"""Spawna o chest com powerup de invincible no chão da sala"""
 	# Verifica se pode spawnar invincible
 	if not GameManager.can_spawn_invincible():
-		print("💪 Não spawnou invincible: modo já ativo")
+		print("💪 Não spawnou chest de invincible: modo já ativo")
 		return
 
-	var invincible = invincible_scene.instantiate()
-	invincible.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0)
-	add_child(invincible)
-	print("💪 Invincible powerup spawnado!")
+	var chest = chest_scene.instantiate()
+	chest.powerup_type = "invincible"
+	# Posiciona no chão, centro horizontal
+	chest.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT - 25)
+	add_child(chest)
+	print("📦 Chest de Invincible spawnado!")
 
 func create_room_entry_detector():
 	"""Detecta quando o player entra na sala"""

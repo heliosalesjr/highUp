@@ -4,13 +4,13 @@ extends Node2D
 const ROOM_WIDTH = 360
 const ROOM_HEIGHT = 160
 
-var magnet_scene = preload("res://scenes/powerups/magnet.tscn")
+var chest_scene = preload("res://scenes/obstacles/chest.tscn")
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
 
 func _ready():
 	# create_label("MAGNET ROOM")  # Hidden for now
-	spawn_magnet()
+	spawn_magnet_chest()
 	spawn_extra_collectibles()  # Spawna diamantes extras para aproveitar o ímã
 	create_room_entry_detector()
 
@@ -22,17 +22,19 @@ func create_label(text: String):
 	label.add_theme_color_override("font_color", Color.MAGENTA)
 	add_child(label)
 
-func spawn_magnet():
-	"""Spawna o ímã no centro da sala"""
+func spawn_magnet_chest():
+	"""Spawna o chest com ímã no chão da sala"""
 	# Verifica se pode spawnar magnet
 	if not GameManager.can_spawn_magnet():
-		print("🧲 Não spawnou magnet: modo já ativo")
+		print("🧲 Não spawnou chest de magnet: modo já ativo")
 		return
 
-	var magnet = magnet_scene.instantiate()
-	magnet.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0)
-	add_child(magnet)
-	print("🧲 Ímã spawnado!")
+	var chest = chest_scene.instantiate()
+	chest.powerup_type = "magnet"
+	# Posiciona no chão, centro horizontal
+	chest.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT - 25)
+	add_child(chest)
+	print("📦 Chest de Magnet spawnado!")
 
 func spawn_extra_collectibles():
 	"""Spawna diamantes/corações extras nos cantos"""

@@ -4,26 +4,28 @@ extends Node2D
 const ROOM_WIDTH = 360
 const ROOM_HEIGHT = 160
 
-var mist_scene = preload("res://scenes/powerups/mist.tscn")
+var chest_scene = preload("res://scenes/obstacles/chest.tscn")
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
 
 func _ready():
-	spawn_mist()
-	# NÃO spawna collectibles extras - apenas o mist aparece sozinho
+	spawn_mist_chest()
+	# NÃO spawna collectibles extras - apenas o chest aparece sozinho
 	create_room_entry_detector()
 
-func spawn_mist():
-	"""Spawna o powerup de mist no centro da sala"""
+func spawn_mist_chest():
+	"""Spawna o chest com powerup de mist no chão da sala"""
 	# Verifica se pode spawnar mist
 	if not GameManager.can_spawn_mist():
-		print("🌫️ Não spawnou mist: modo já ativo")
+		print("🌫️ Não spawnou chest de mist: modo já ativo")
 		return
 
-	var mist = mist_scene.instantiate()
-	mist.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0)
-	add_child(mist)
-	print("🌫️ Mist powerup spawnado!")
+	var chest = chest_scene.instantiate()
+	chest.powerup_type = "mist"
+	# Posiciona no chão, centro horizontal
+	chest.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT - 25)
+	add_child(chest)
+	print("📦 Chest de Mist spawnado!")
 
 func spawn_extra_collectibles():
 	"""Spawna diamantes/corações extras nos cantos"""
