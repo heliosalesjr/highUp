@@ -36,9 +36,9 @@ func open_chest():
 	"""Abre o chest com efeito visual instantâneo"""
 	is_opened = true
 
-	# Desabilita colisão
-	collision_layer = 0
-	collision_mask = 0
+	# Desabilita colisão (usa deferred pois estamos em callback de colisão)
+	set_deferred("collision_layer", 0)
+	set_deferred("collision_mask", 0)
 
 	# Tudo acontece DURANTE a pausa
 	apply_pause_and_shake()
@@ -82,15 +82,21 @@ func show_powerup_icon():
 	# Remove o script para que não execute lógica de colisão/animação
 	icon.set_script(null)
 
-	# Desabilita colisão (só visual)
+	# Desabilita colisão e monitoring ANTES de adicionar (só visual)
 	if icon is Area2D:
+		icon.monitoring = false
+		icon.monitorable = false
 		icon.collision_layer = 0
 		icon.collision_mask = 0
 
-	get_parent().add_child(icon)
-
 	# Pega a escala original do powerup
 	var original_scale = icon.scale
+
+	# Adiciona à árvore usando call_deferred para evitar conflitos durante callback de colisão
+	get_parent().call_deferred("add_child", icon)
+
+	# Aguarda 1 frame para garantir que o icon foi adicionado à árvore
+	await get_tree().process_frame
 
 	# Animação SUPER rápida: aparece e sobe um pouco
 	var tween = create_tween()
@@ -119,7 +125,8 @@ func show_powerup_icon():
 	activate_powerup()
 
 	# Remove o ícone e o chest
-	icon.queue_free()
+	if is_instance_valid(icon):
+		icon.queue_free()
 	queue_free()
 
 func activate_powerup():
