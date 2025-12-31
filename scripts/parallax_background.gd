@@ -94,7 +94,7 @@ func create_placeholder_pattern(container: Node2D, height: int, color: Color, la
 		container.add_child(bg)
 
 		# Adiciona nuvens/faixas claras
-		for i in range(int(height / 200)):
+		for i in range(int(height / 200.0)):
 			var stripe = ColorRect.new()
 			stripe.size = Vector2(SCREEN_WIDTH, 30)
 			stripe.position = Vector2(0, i * 200 + 50)
@@ -103,7 +103,7 @@ func create_placeholder_pattern(container: Node2D, height: int, color: Color, la
 
 	elif "Far" in layer_name:
 		# Layer 2 - Árvores distantes: Triângulos/montanhas
-		for i in range(int(height / 150)):
+		for i in range(int(height / 150.0)):
 			var triangle_y = i * 150
 			# Triângulo simples (simulando montanha/árvore)
 			var poly = Polygon2D.new()
@@ -127,7 +127,7 @@ func create_placeholder_pattern(container: Node2D, height: int, color: Color, la
 
 	elif "Mid" in layer_name:
 		# Layer 3 - Árvores médias: Retângulos verticais (troncos)
-		for i in range(int(height / 100)):
+		for i in range(int(height / 100.0)):
 			var trunk_y = i * 100
 
 			# Tronco esquerdo
@@ -146,7 +146,7 @@ func create_placeholder_pattern(container: Node2D, height: int, color: Color, la
 
 	elif "Close" in layer_name:
 		# Layer 4 - Primeiro plano: Círculos/folhas esparsas
-		for i in range(int(height / 60)):
+		for i in range(int(height / 60.0)):
 			var leaf_y = i * 60
 
 			# Folha esquerda

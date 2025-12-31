@@ -15,8 +15,12 @@ func _ready():
 	body_entered.connect(_on_body_entered)
 
 	# Aplica flip se configurado
-	if sprite and flip_h:
-		sprite.flip_h = true
+	# Sprite rotacionado: 90° = aponta direita, -90° = aponta esquerda
+	if sprite:
+		if flip_h:
+			sprite.rotation = -1.5707964  # -90 graus (aponta esquerda)
+		else:
+			sprite.rotation = 1.5707964   # 90 graus (aponta direita)
 
 	print("🔺 Spike criado em: ", global_position, " | Flip: ", flip_h)
 
