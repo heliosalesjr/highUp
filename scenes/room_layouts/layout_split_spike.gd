@@ -10,7 +10,6 @@ const FLOOR_TILE_WIDTH = 16
 var spike_scene = preload("res://scenes/obstacles/spike.tscn")
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
-var metal_potion_scene = preload("res://scenes/powerups/metal_potion.tscn")
 
 # Texturas do piso (carregadas uma vez)
 var floor_tiles = [
@@ -94,7 +93,7 @@ func spawn_wall_spikes():
 	print("🔺 Spikes spawnados na parede ", spike_side.to_upper(), " (", num_spikes, " spikes)")
 
 func spawn_prize_randomly():
-	"""50% de chance de spawnar um prêmio"""
+	"""50% de chance de spawnar um prêmio (apenas heart ou diamond)"""
 	if randf() > 0.5:
 		return
 
@@ -107,13 +106,8 @@ func spawn_prize_randomly():
 
 	var prize_position = Vector2(prize_x, 40)
 
-	# Prioridade: Metal Potion > Heart > Diamond
-	if GameManager.can_spawn_metal_potion():
-		var potion = metal_potion_scene.instantiate()
-		potion.position = prize_position
-		add_child(potion)
-		print("🛡️ Poção de Metal spawnada!")
-	elif GameManager.can_spawn_heart():
+	# Prioridade: Heart > Diamond (metal potion só aparece em chests)
+	if GameManager.can_spawn_heart():
 		var heart = heart_scene.instantiate()
 		heart.position = prize_position
 		add_child(heart)

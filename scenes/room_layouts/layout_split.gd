@@ -9,7 +9,6 @@ const FLOOR_TILE_WIDTH = 16  # Largura de cada tile do piso
 
 var diamond_scene = preload("res://scenes/prize/diamond.tscn")
 var heart_scene = preload("res://scenes/prize/heart.tscn")
-var metal_potion_scene = preload("res://scenes/powerups/metal_potion.tscn")
 
 # Texturas do piso (carregadas uma vez)
 var floor_tiles = [
@@ -113,19 +112,14 @@ func _on_second_floor_reached(body):
 		get_node("SecondFloorDetector").queue_free()
 
 func spawn_prize_randomly():
-	"""50% de chance de spawnar um prêmio"""
+	"""50% de chance de spawnar um prêmio (apenas heart ou diamond)"""
 	if randf() > 0.5:
 		return
-	
+
 	var prize_position = Vector2(ROOM_WIDTH / 2.0, 40)
-	
-	# Prioridade: Metal Potion > Heart > Diamond
-	if GameManager.can_spawn_metal_potion():
-		var potion = metal_potion_scene.instantiate()  # ← Adicione preload no topo
-		potion.position = prize_position
-		add_child(potion)
-		print("🛡️ Poção de Metal spawnada!")
-	elif GameManager.can_spawn_heart():
+
+	# Prioridade: Heart > Diamond (metal potion só aparece em chests)
+	if GameManager.can_spawn_heart():
 		var heart = heart_scene.instantiate()
 		heart.position = prize_position
 		add_child(heart)
