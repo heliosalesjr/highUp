@@ -80,12 +80,12 @@ func spawn_wall_spikes():
 	for i in range(num_spikes):
 		var spike = spike_scene.instantiate()
 
-		# Posiciona na parede escolhida
+		# Posiciona na parede escolhida (bem próximo à parede)
 		if spike_side == "left":
-			spike.position = Vector2(WALL_THICKNESS + 10, i * spike_spacing + 12)
+			spike.position = Vector2(WALL_THICKNESS + 4, i * spike_spacing + 12)
 			spike.flip_h = false  # Aponta para a direita (dentro da sala)
 		else:  # right
-			spike.position = Vector2(ROOM_WIDTH - WALL_THICKNESS - 10, i * spike_spacing + 12)
+			spike.position = Vector2(ROOM_WIDTH - WALL_THICKNESS - 4, i * spike_spacing + 12)
 			spike.flip_h = true  # Aponta para a esquerda (dentro da sala)
 
 		add_child(spike)
