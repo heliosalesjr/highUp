@@ -13,6 +13,7 @@ var rooms = []
 var room_manager
 var highest_room_created = -1
 var player = null  # ← NOVO: Referência ao player
+var last_room_was_split = false  # Rastreia se a última sala foi split
 
 func _ready():
 	print("=== MAIN READY ===")
@@ -106,16 +107,26 @@ func create_rooms():
 
 func create_room(index: int):
 	"""Cria uma sala específica"""
-	
+
 	print("→ Criando Room ", index)
-	
+
 	var room = room_scene.instantiate()
-	
+
 	var is_split = false
-	if room_manager and index > 0 and index % 5 == 0:
-		is_split = true
+	if room_manager and index > 0:
+		# Split a cada 5 salas OU 50% de chance se a anterior foi split
+		if index % 5 == 0:
+			is_split = true
+			print("  ! Sala ", index, " marcada como SPLIT (a cada 5 salas)")
+		elif last_room_was_split and randf() < 0.5:
+			is_split = true
+			print("  ! Sala ", index, " marcada como SPLIT (50% chance - sala anterior era split)")
+
+	if is_split:
 		room.is_split_room = true
-		print("  ! Sala ", index, " marcada como SPLIT (sem escada)")
+
+	# Atualiza o rastreamento para a próxima sala
+	last_room_was_split = is_split
 	
 	if not is_split:
 		if index % 2 == 0:
