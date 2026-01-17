@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://capy_enemy_scene"]
+
+[ext_resource type="Script" path="res://scenes/enemies/capy.gd" id="1_capy"]
+
+[node name="Capy" type="Node2D"]
+script = ExtResource("1_capy")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -8)
+
+[node name="HitBox" type="Area2D" parent="."]
+collision_layer = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
+position = Vector2(0, -4)
+
+[node name="FloorDetector" type="RayCast2D" parent="."]
+target_position = Vector2(0, 12)
+
+[node name="WallDetector" type="RayCast2D" parent="."]
+target_position = Vector2(15, 0)
