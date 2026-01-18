@@ -37,8 +37,8 @@ func create_invisible_floor_for_enemies():
 	add_child(enemy_floor)
 
 func create_enemies():
-	var slug_height = 20
-	var spawn_y = ROOM_HEIGHT - slug_height - 5
+	# Posição Y para ficar no chão (ROOM_HEIGHT - offset para alinhar com o floor)
+	var spawn_y = ROOM_HEIGHT - 8
 	create_slug(Vector2(ROOM_WIDTH / 2.0, spawn_y))
 
 func create_slug(pos: Vector2):

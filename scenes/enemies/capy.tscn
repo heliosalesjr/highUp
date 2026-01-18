@@ -87,8 +87,5 @@ collision_layer = 8
 position = Vector2(0, -1)
 shape = SubResource("RectangleShape2D_kfgqb")
 
-[node name="FloorDetector" type="RayCast2D" parent="."]
-target_position = Vector2(0, 12)
-
 [node name="WallDetector" type="RayCast2D" parent="."]
 target_position = Vector2(34, 0)

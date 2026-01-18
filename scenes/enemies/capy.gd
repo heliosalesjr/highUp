@@ -7,17 +7,17 @@ extends Node2D
 var speed = 0.0
 var direction = 1
 var is_being_freed = false
-var vertical_velocity = 0.0  # Para simular gravidade
-
-const GRAVITY = 980.0
+var fixed_y = 0.0  # Posição Y fixa (sem gravidade)
 
 @onready var animated_sprite = $AnimatedSprite2D
 @onready var hitbox = $HitBox
-@onready var floor_detector = $FloorDetector
 @onready var wall_detector = $WallDetector
 
 func _ready():
 	randomize_speed()
+
+	# Salva a posição Y do spawn - vai ficar fixa
+	fixed_y = global_position.y
 
 	if randf() > 0.5:
 		direction = -1
@@ -36,24 +36,14 @@ func _process(delta):
 	if is_being_freed:
 		return
 
-	# Atualiza RayCasts
-	floor_detector.force_raycast_update()
-	wall_detector.force_raycast_update()
-
-	# Aplica "gravidade" se não está no chão
-	if not floor_detector.is_colliding():
-		vertical_velocity += GRAVITY * delta
-		global_position.y += vertical_velocity * delta
-	else:
-		# Gruda no chão
-		vertical_velocity = 0
-		var collision_point = floor_detector.get_collision_point()
-		global_position.y = collision_point.y - 8  # Ajuste conforme tamanho do sprite
+	# Mantém posição Y fixa (preso ao chão)
+	global_position.y = fixed_y
 
 	# Movimento horizontal
 	global_position.x += direction * speed * delta
 
-	# Detecta parede e inverte direção
+	# Atualiza RayCast e detecta parede
+	wall_detector.force_raycast_update()
 	if wall_detector.is_colliding():
 		reverse_direction()
 
