@@ -123,26 +123,27 @@ func trigger_camera_shake():
 	liberation_effect()
 
 func liberation_effect():
-	"""Efeito visual de libertação - SOBE e depois CORRE para fora da tela"""
+	"""Efeito visual de libertação - tremidinha e corre para fora da tela"""
 	var tween = create_tween()
 
 	# Brilho dourado
 	tween.tween_property(animated_sprite, "modulate", Color(2.0, 2.0, 1.0), 0.3)
 
-	# Fase 1: SOBE (pequeno pulo)
-	tween.tween_property(self, "global_position:y", global_position.y - 40, 0.4).set_ease(Tween.EASE_OUT)
+	# Tremidinha (shake horizontal)
+	var original_x = global_position.x
+	tween.tween_property(self, "global_position:x", original_x + 3, 0.05)
+	tween.tween_property(self, "global_position:x", original_x - 3, 0.05)
+	tween.tween_property(self, "global_position:x", original_x + 2, 0.05)
+	tween.tween_property(self, "global_position:x", original_x - 2, 0.05)
+	tween.tween_property(self, "global_position:x", original_x, 0.05)
 
-	# Calcula posição fora da tela (bem longe)
+	# Calcula posição fora da tela
 	var room_width = 360
-	var exit_x = room_width + 50 if direction > 0 else -50  # Fora da tela
+	var exit_x = room_width + 50 if direction > 0 else -50
 
-	# Fase 2: CORRE para fora da tela
-	tween.set_parallel(true)
-	tween.tween_property(self, "global_position:y", global_position.y - 30, 2.0).set_ease(Tween.EASE_IN)  # Cai um pouco
-	tween.tween_property(self, "global_position:x", exit_x, 2.0).set_ease(Tween.EASE_IN)  # Corre até sair
+	# Corre para fora da tela (só eixo X)
+	tween.tween_property(self, "global_position:x", exit_x, 1.5).set_ease(Tween.EASE_IN)
 
-	# SEM fade out - só remove quando terminar
-	tween.set_parallel(false)
 	tween.finished.connect(func():
 		print("🐌 Slug saiu da tela e foi removido")
 		queue_free()
