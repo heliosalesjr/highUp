@@ -7,17 +7,17 @@ extends Node2D
 var speed = 0.0
 var direction = 1
 var is_being_freed = false
-var vertical_velocity = 0.0  # Para simular gravidade
-
-const GRAVITY = 980.0
+var fixed_y = 0.0  # Posição Y fixa (sem gravidade)
 
 @onready var animated_sprite = $AnimatedSprite2D
 @onready var hitbox = $HitBox
-@onready var floor_detector = $FloorDetector
 @onready var wall_detector = $WallDetector
 
 func _ready():
 	randomize_speed()
+
+	# Salva a posição Y do spawn - vai ficar fixa
+	fixed_y = global_position.y
 
 	if randf() > 0.5:
 		direction = -1
@@ -27,7 +27,7 @@ func _ready():
 
 	if hitbox:
 		hitbox.body_entered.connect(_on_body_entered)
-		print("🐌 Slug HitBox configurado (SEM colisão física - apenas detecção)")
+		print("🐌 Slug HitBox configurado")
 	else:
 		print("⚠️ AVISO: HitBox não encontrado na Slug!")
 
@@ -36,25 +36,14 @@ func _process(delta):
 	if is_being_freed:
 		return
 
-	# Atualiza RayCasts
-	floor_detector.force_raycast_update()
-	wall_detector.force_raycast_update()
-
-	# Aplica "gravidade" se não está no chão
-	if not floor_detector.is_colliding():
-		vertical_velocity += GRAVITY * delta
-		global_position.y += vertical_velocity * delta
-	else:
-		# Gruda no chão (collision agora está no topo do piso)
-		vertical_velocity = 0
-		var collision_point = floor_detector.get_collision_point()
-		# Como a collision está no topo, basta subtrair a altura do sprite/hitbox
-		global_position.y = collision_point.y - 8  # Ajustado para alinhar com o topo do piso
+	# Mantém posição Y fixa (preso ao chão)
+	global_position.y = fixed_y
 
 	# Movimento horizontal
 	global_position.x += direction * speed * delta
 
-	# Detecta parede e inverte direção
+	# Atualiza RayCast e detecta parede
+	wall_detector.force_raycast_update()
 	if wall_detector.is_colliding():
 		reverse_direction()
 
@@ -123,26 +112,27 @@ func trigger_camera_shake():
 	liberation_effect()
 
 func liberation_effect():
-	"""Efeito visual de libertação - SOBE e depois CORRE para fora da tela"""
+	"""Efeito visual de libertação - tremidinha e corre para fora da tela"""
 	var tween = create_tween()
 
 	# Brilho dourado
 	tween.tween_property(animated_sprite, "modulate", Color(2.0, 2.0, 1.0), 0.3)
 
-	# Fase 1: SOBE (pequeno pulo)
-	tween.tween_property(self, "global_position:y", global_position.y - 40, 0.4).set_ease(Tween.EASE_OUT)
+	# Tremidinha (shake horizontal)
+	var original_x = global_position.x
+	tween.tween_property(self, "global_position:x", original_x + 3, 0.05)
+	tween.tween_property(self, "global_position:x", original_x - 3, 0.05)
+	tween.tween_property(self, "global_position:x", original_x + 2, 0.05)
+	tween.tween_property(self, "global_position:x", original_x - 2, 0.05)
+	tween.tween_property(self, "global_position:x", original_x, 0.05)
 
-	# Calcula posição fora da tela (bem longe)
+	# Calcula posição fora da tela
 	var room_width = 360
-	var exit_x = room_width + 50 if direction > 0 else -50  # Fora da tela
+	var exit_x = room_width + 50 if direction > 0 else -50
 
-	# Fase 2: CORRE para fora da tela
-	tween.set_parallel(true)
-	tween.tween_property(self, "global_position:y", global_position.y - 30, 2.0).set_ease(Tween.EASE_IN)  # Cai um pouco
-	tween.tween_property(self, "global_position:x", exit_x, 2.0).set_ease(Tween.EASE_IN)  # Corre até sair
+	# Corre para fora da tela (só eixo X)
+	tween.tween_property(self, "global_position:x", exit_x, 1.5).set_ease(Tween.EASE_IN)
 
-	# SEM fade out - só remove quando terminar
-	tween.set_parallel(false)
 	tween.finished.connect(func():
 		print("🐌 Slug saiu da tela e foi removido")
 		queue_free()
