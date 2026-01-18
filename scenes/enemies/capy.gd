@@ -67,11 +67,11 @@ func reverse_direction():
 func update_wall_detector_direction():
 	"""Atualiza a direção do RayCast de parede baseado na direção do movimento"""
 	if wall_detector:
-		wall_detector.target_position = Vector2(15 * direction, 0)
+		wall_detector.target_position = Vector2(30 * direction, 0)
 
 func update_sprite_flip():
 	if animated_sprite:
-		animated_sprite.flip_h = direction > 0
+		animated_sprite.flip_h = direction < 0
 
 func randomize_speed():
 	speed = randf_range(min_speed, max_speed)

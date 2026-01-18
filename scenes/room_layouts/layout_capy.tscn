@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://capy_room_layout"]
+
+[ext_resource type="Script" path="res://scenes/room_layouts/layout_capy.gd" id="1_capy"]
+
+[node name="layout_capy" type="Node2D"]
+script = ExtResource("1_capy")
