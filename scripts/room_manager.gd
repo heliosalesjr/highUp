@@ -15,7 +15,8 @@ var layouts = {
 		preload("res://scenes/room_layouts/layout_mist.tscn"),
 		preload("res://scenes/room_layouts/layout_invincible.tscn"),
 		preload("res://scenes/room_layouts/layout_metal.tscn"),
-		preload("res://scenes/room_layouts/layout_spit.tscn")
+		preload("res://scenes/room_layouts/layout_spit.tscn"),
+		preload("res://scenes/room_layouts/layout_capy.tscn")
 	],
 	"split": [
 		preload("res://scenes/room_layouts/layout_split.tscn"),

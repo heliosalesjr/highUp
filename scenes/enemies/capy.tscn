@@ -1,0 +1,94 @@
+[gd_scene load_steps=13 format=3 uid="uid://dhbqxr72tjpg5"]
+
+[ext_resource type="Script" uid="uid://bcet3y0to5m4n" path="res://scenes/enemies/capy.gd" id="1_capy"]
+[ext_resource type="Texture2D" uid="uid://bx5ba4pih7a2j" path="res://assets/capy.png" id="2_7oljs"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8kaw5"]
+atlas = ExtResource("2_7oljs")
+region = Rect2(0, 512, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1u1da"]
+atlas = ExtResource("2_7oljs")
+region = Rect2(64, 512, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k5ex3"]
+atlas = ExtResource("2_7oljs")
+region = Rect2(128, 512, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8vpbe"]
+atlas = ExtResource("2_7oljs")
+region = Rect2(192, 512, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ps74x"]
+atlas = ExtResource("2_7oljs")
+region = Rect2(256, 512, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_badpj"]
+atlas = ExtResource("2_7oljs")
+region = Rect2(320, 512, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qe5ex"]
+atlas = ExtResource("2_7oljs")
+region = Rect2(384, 512, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gicla"]
+atlas = ExtResource("2_7oljs")
+region = Rect2(448, 512, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_nhik2"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8kaw5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1u1da")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k5ex3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8vpbe")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ps74x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_badpj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qe5ex")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gicla")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kfgqb"]
+size = Vector2(54, 26)
+
+[node name="Capy" type="Node2D"]
+script = ExtResource("1_capy")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -10.5)
+scale = Vector2(1, 0.921875)
+sprite_frames = SubResource("SpriteFrames_nhik2")
+autoplay = "default"
+frame_progress = 0.5167108
+
+[node name="HitBox" type="Area2D" parent="."]
+collision_layer = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
+position = Vector2(0, -1)
+shape = SubResource("RectangleShape2D_kfgqb")
+
+[node name="FloorDetector" type="RayCast2D" parent="."]
+target_position = Vector2(0, 12)
+
+[node name="WallDetector" type="RayCast2D" parent="."]
+target_position = Vector2(34, 0)

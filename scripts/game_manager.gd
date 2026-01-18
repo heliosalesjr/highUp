@@ -24,6 +24,7 @@ var invincible_timer: Timer = null
 var slugs_freed = 0  # ← NOVO
 var birds_freed = 0  # ← NOVO
 var spits_freed = 0
+var capys_freed = 0
 var animals_freed = 0
 
 
@@ -257,7 +258,9 @@ func free_animal(animal_name: String):
 		birds_freed += 1
 	elif animal_name == "Spit":
 		spits_freed += 1
-	print("🦋 Animal libertado: ", animal_name, " | Slugs: ", slugs_freed, " | Birds: ", birds_freed, " | Spits: ", spits_freed, " | Total: ", animals_freed)
+	elif animal_name == "Capy":
+		capys_freed += 1
+	print("🦋 Animal libertado: ", animal_name, " | Slugs: ", slugs_freed, " | Birds: ", birds_freed, " | Spits: ", spits_freed, " | Capys: ", capys_freed, " | Total: ", animals_freed)
 
 
 func take_damage() -> bool:
@@ -293,6 +296,7 @@ func reset():
 	slugs_freed = 0  # ← NOVO
 	birds_freed = 0
 	spits_freed = 0 # ← NOVO
+	capys_freed = 0
 	rooms_changed.emit(rooms_count)
 	diamonds_changed.emit(diamonds_count)
 	hearts_changed.emit(filled_hearts)
