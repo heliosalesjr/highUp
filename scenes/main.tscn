@@ -1,11 +1,12 @@
-[gd_scene load_steps=8 format=3 uid="uid://bpg4j1x65ggbu"]
+[gd_scene load_steps=9 format=3 uid="uid://bpg4j1x65ggbu"]
 
 [ext_resource type="Script" uid="uid://cslvhl78qjpb2" path="res://scripts/main.gd" id="1_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://3h85qvgsayfs" path="res://scenes/player.tscn" id="2_sugp2"]
 [ext_resource type="Texture2D" uid="uid://b1757if23lrwx" path="res://assets/city/far_sky_city_bluwhit.png" id="3_o6xl0"]
 [ext_resource type="Script" uid="uid://3agj62sb1q8p" path="res://scripts/camera_2d.gd" id="3_sugp2"]
 [ext_resource type="PackedScene" uid="uid://cc22gw35duc5" path="res://scenes/ui/hud.tscn" id="4_jyhfs"]
-[ext_resource type="Texture2D" uid="uid://dmft35tytn8sa" path="res://assets/city/far_city_city_buildings.png" id="4_o6xl0"]
+[ext_resource type="Texture2D" uid="uid://brpekl2sa2hs7" path="res://assets/city/far_4_city.png" id="4_tipki"]
+[ext_resource type="Texture2D" uid="uid://c2sqj12xs1gtg" path="res://assets/city/far_3_city.png" id="5_85g3d"]
 [ext_resource type="Script" uid="uid://d1ltq1f7slkw7" path="res://scripts/parallax_background.gd" id="5_parallax"]
 
 [node name="Main" type="Node2D"]
@@ -30,16 +31,16 @@ repeat_size = Vector2(0, 640)
 repeat_times = 20
 
 [node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/Layer2_FarTrees"]
-texture = ExtResource("4_o6xl0")
+texture = ExtResource("4_tipki")
 centered = false
 
 [node name="Layer3_MidTrees" type="Parallax2D" parent="ParallaxBackground"]
-visible = false
 scroll_scale = Vector2(1, 0.6)
 repeat_size = Vector2(0, 480)
 repeat_times = 20
 
 [node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/Layer3_MidTrees"]
+texture = ExtResource("5_85g3d")
 centered = false
 
 [node name="Layer4_CloseLeaves" type="Parallax2D" parent="ParallaxBackground"]
