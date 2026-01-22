@@ -12,6 +12,7 @@ var powerup_scenes = {
 }
 
 var is_opened = false
+var is_hidden = false  # Escondido porque o modo já está ativo
 var sprite_node: Sprite2D = null
 
 func _ready():
@@ -22,7 +23,63 @@ func _ready():
 	# Pega referência ao sprite
 	sprite_node = get_node("Sprite2D")
 
+	# Conecta aos sinais do GameManager para reagir quando modos mudarem
+	_connect_mode_signals()
+
+	# Verifica se já deve começar escondido
+	_check_if_should_hide()
+
 	print("📦 Chest criado com powerup: ", powerup_type)
+
+func _connect_mode_signals():
+	"""Conecta aos sinais de mudança de modo"""
+	if powerup_type == "mist":
+		GameManager.mist_mode_changed.connect(_on_mode_changed)
+	elif powerup_type == "magnet":
+		GameManager.magnet_mode_changed.connect(_on_mode_changed)
+	elif powerup_type == "invincible":
+		GameManager.invincible_mode_changed.connect(_on_mode_changed)
+
+func _check_if_should_hide():
+	"""Verifica se o chest deve começar escondido"""
+	var should_hide = false
+
+	if powerup_type == "mist" and GameManager.mist_mode_active:
+		should_hide = true
+	elif powerup_type == "magnet" and GameManager.magnet_active:
+		should_hide = true
+	elif powerup_type == "invincible" and GameManager.invincible_mode_active:
+		should_hide = true
+
+	if should_hide:
+		_hide_chest()
+
+func _on_mode_changed(is_active: bool):
+	"""Reage quando o modo correspondente muda"""
+	if is_active:
+		_hide_chest()
+	else:
+		_show_chest()
+
+func _hide_chest():
+	"""Esconde o chest (invisível e sem colisão)"""
+	if is_hidden or is_opened:
+		return
+
+	is_hidden = true
+	visible = false
+	collision_mask = 0
+	print("📦 Chest escondido (modo ", powerup_type, " ativo)")
+
+func _show_chest():
+	"""Mostra o chest novamente"""
+	if not is_hidden or is_opened:
+		return
+
+	is_hidden = false
+	visible = true
+	collision_mask = 1
+	print("📦 Chest visível novamente (modo ", powerup_type, " desativado)")
 
 func _on_body_entered(body):
 	if is_opened:
