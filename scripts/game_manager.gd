@@ -10,6 +10,7 @@ signal mist_mode_changed(is_active)
 signal magnet_mode_changed(is_active)
 signal invincible_mode_changed(is_active)
 signal animal_freed(animal_name)
+signal boss_fight_triggered
 
 var rooms_count = 0
 var diamonds_count = 0
@@ -26,9 +27,10 @@ var birds_freed = 0  # ← NOVO
 var spits_freed = 0
 var capys_freed = 0
 var animals_freed = 0
-
+var boss_defeated = false
 
 const DIAMONDS_BEFORE_HEART = 2
+const BOSS_ROOM_NUMBER = 10
 const MIST_DURATION = 10.0
 const INVINCIBLE_DURATION = 10.0
 const SAVE_FILE = "user://save_data.json"
@@ -44,11 +46,15 @@ func _ready():
 func add_room():
 	rooms_count += 1
 	rooms_changed.emit(rooms_count)
-	
+
 	if rooms_count > highest_room:
 		highest_room = rooms_count
 		save_stats()
-	
+
+	if rooms_count == BOSS_ROOM_NUMBER and not boss_defeated:
+		boss_fight_triggered.emit()
+		print("🏟️ BOSS FIGHT TRIGGERED!")
+
 	print("📊 Rooms: ", rooms_count)
 
 func add_diamond():
@@ -297,6 +303,7 @@ func reset():
 	birds_freed = 0
 	spits_freed = 0 # ← NOVO
 	capys_freed = 0
+	boss_defeated = false
 	rooms_changed.emit(rooms_count)
 	diamonds_changed.emit(diamonds_count)
 	hearts_changed.emit(filled_hearts)
