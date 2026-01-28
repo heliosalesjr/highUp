@@ -14,6 +14,8 @@ var room_manager
 var highest_room_created = -1
 var player = null  # ← NOVO: Referência ao player
 var last_room_was_split = false  # Rastreia se a última sala foi split
+var is_boss_fight = false
+var boss_arena = null
 
 func _ready():
 	print("=== MAIN READY ===")
@@ -25,10 +27,12 @@ func _ready():
 		print("AVISO: RoomManager não encontrado como Autoload")
 	
 	create_rooms()
-	
+
 	# Encontra o player
 	await get_tree().process_frame  # Aguarda tudo estar pronto
 	find_player()
+
+	GameManager.boss_fight_triggered.connect(start_boss_fight)
 
 func find_player():
 	"""Encontra o player na cena"""
@@ -56,6 +60,9 @@ func _process(delta):
 
 func manage_rooms():
 	"""Gerencia criação e destruição de salas baseado na posição do player"""
+	if is_boss_fight:
+		return
+
 	var current_room_index = get_current_room_index()
 	
 	# Gera salas à frente
@@ -149,9 +156,88 @@ func create_room(index: int):
 
 func generate_rooms_ahead(current_room_index: int):
 	"""Gera salas à frente do player conforme necessário"""
-	
+
 	var target_room = current_room_index + ROOMS_AHEAD
-	
+
 	for i in range(highest_room_created + 1, target_room + 1):
 		create_room(i)
 		print("→ Gerando sala ", i, " proceduralmente (player na sala ~", current_room_index, ")")
+
+func start_boss_fight():
+	"""Inicia a boss fight"""
+	print("🏟️ INICIANDO BOSS FIGHT!")
+	is_boss_fight = true
+
+	# Hide player
+	if player:
+		player.visible = false
+		player.set_physics_process(false)
+
+	# Lock camera
+	var camera = get_tree().get_first_node_in_group("camera")
+	if camera:
+		camera.is_locked = true
+
+	# Create arena at camera position
+	var arena_script = load("res://scripts/boss_arena.gd")
+	boss_arena = Node2D.new()
+	boss_arena.set_script(arena_script)
+
+	if camera:
+		boss_arena.global_position = Vector2(camera.global_position.x - 180, camera.global_position.y - 320)
+	else:
+		boss_arena.global_position = Vector2(0, 0)
+
+	add_child(boss_arena)
+
+	# Connect signals
+	boss_arena.boss_defeated.connect(_on_boss_defeated)
+	boss_arena.boss_failed.connect(_on_boss_failed)
+
+func _on_boss_defeated():
+	"""Boss derrotado - continua o jogo"""
+	print("🎉 Boss derrotado! Continuando o jogo...")
+	end_boss_fight()
+
+func _on_boss_failed():
+	"""Boss venceu - game over"""
+	print("💀 Boss venceu! Game Over!")
+	# Clean up arena
+	if boss_arena:
+		boss_arena.queue_free()
+		boss_arena = null
+	is_boss_fight = false
+
+	# Trigger game over via player
+	if player:
+		player.visible = true
+		player.set_physics_process(true)
+		player.die()
+
+func end_boss_fight():
+	"""Termina a boss fight e restaura o jogo normal"""
+	var arena_pos_y = 0.0
+	if boss_arena:
+		arena_pos_y = boss_arena.global_position.y
+		boss_arena.queue_free()
+		boss_arena = null
+
+	# Restore player
+	if player:
+		player.visible = true
+		player.set_physics_process(true)
+		# Reposition player at the top of where the arena was
+		player.global_position = Vector2(180, arena_pos_y + 100)
+		player.velocity = Vector2.ZERO
+
+	# Unlock camera
+	var camera = get_tree().get_first_node_in_group("camera")
+	if camera:
+		camera.is_locked = false
+
+	is_boss_fight = false
+	GameManager.boss_defeated = true
+
+	# Generate rooms ahead so the game can continue
+	var current_room_index = get_current_room_index()
+	generate_rooms_ahead(current_room_index)

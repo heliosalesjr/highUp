@@ -16,6 +16,8 @@ var shake_intensity = 0.0
 var shake_time_remaining = 0.0
 var original_offset = Vector2.ZERO
 
+var is_locked = false
+
 # Referência para a Main
 var main_scene: Node2D
 
@@ -33,10 +35,14 @@ func _ready():
 func _process(delta):
 	if not target:
 		return
-	
+
+	if is_locked:
+		process_shake(delta)
+		return
+
 	# SHAKE primeiro
 	process_shake(delta)
-	
+
 	# Segue o player apenas no eixo Y
 	var target_y = target.global_position.y
 	var camera_target_y = target_y
