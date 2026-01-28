@@ -173,21 +173,23 @@ func start_boss_fight():
 		player.visible = false
 		player.set_physics_process(false)
 
-	# Lock camera
+	# Lock camera at current position
 	var camera = get_tree().get_first_node_in_group("camera")
 	if camera:
 		camera.is_locked = true
 
-	# Create arena at camera position
+	# Create boss room centered on camera view
+	# Arena is 360x320, camera center = viewport center
+	# Arena top-left at (0, cam_y - 160) so it's vertically centered
 	var arena_script = load("res://scripts/boss_arena.gd")
 	boss_arena = Node2D.new()
 	boss_arena.set_script(arena_script)
 
+	var cam_y = 320.0
 	if camera:
-		boss_arena.global_position = Vector2(camera.global_position.x - 180, camera.global_position.y - 320)
-	else:
-		boss_arena.global_position = Vector2(0, 0)
-
+		cam_y = camera.global_position.y
+	# Set position BEFORE add_child so _ready() has correct global_position
+	boss_arena.position = Vector2(0, cam_y - 160)
 	add_child(boss_arena)
 
 	# Connect signals
@@ -202,17 +204,12 @@ func _on_boss_defeated():
 func _on_boss_failed():
 	"""Boss venceu - game over"""
 	print("💀 Boss venceu! Game Over!")
-	# Clean up arena
 	if boss_arena:
 		boss_arena.queue_free()
 		boss_arena = null
 	is_boss_fight = false
-
-	# Trigger game over via player
-	if player:
-		player.visible = true
-		player.set_physics_process(true)
-		player.die()
+	# Go directly to game over screen
+	get_tree().change_scene_to_file("res://scenes/ui/game_over.tscn")
 
 func end_boss_fight():
 	"""Termina a boss fight e restaura o jogo normal"""
@@ -222,12 +219,11 @@ func end_boss_fight():
 		boss_arena.queue_free()
 		boss_arena = null
 
-	# Restore player
+	# Restore player at top of where arena was
 	if player:
 		player.visible = true
 		player.set_physics_process(true)
-		# Reposition player at the top of where the arena was
-		player.global_position = Vector2(180, arena_pos_y + 100)
+		player.global_position = Vector2(180, arena_pos_y + 50)
 		player.velocity = Vector2.ZERO
 
 	# Unlock camera

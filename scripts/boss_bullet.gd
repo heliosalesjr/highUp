@@ -3,12 +3,11 @@ extends Area2D
 
 const BULLET_SPEED = 500.0
 const LIFETIME = 2.0
-
 const BULLET_WIDTH = 4
 const BULLET_HEIGHT = 8
 
 func _ready():
-	collision_layer = 0
+	collision_layer = 32  # Dedicated boss bullet layer (bit 5)
 	collision_mask = 0
 	monitoring = false
 	monitorable = true

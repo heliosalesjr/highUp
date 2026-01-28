@@ -13,9 +13,8 @@ const BOX_HEIGHT = 24
 const SPEED_INCREASE_RATE = 0.5  # px/s increase per second alive
 
 func _ready():
-	# No collision layers - we use area_entered manually
 	collision_layer = 0
-	collision_mask = 0
+	collision_mask = 33  # 32 (boss bullets) + 1 (car body)
 	monitoring = true
 	monitorable = true
 
@@ -35,8 +34,9 @@ func _ready():
 	add_child(collision)
 
 	area_entered.connect(_on_area_entered)
+	body_entered.connect(_on_body_entered)
 
-func _process(delta):
+func _physics_process(delta):
 	time_alive += delta
 	var current_speed = descent_speed + (SPEED_INCREASE_RATE * time_alive)
 	global_position.y += current_speed * delta
@@ -49,6 +49,10 @@ func _on_area_entered(area: Area2D):
 	if area.is_in_group("boss_bullet"):
 		area.queue_free()
 		_hit_flash()
+
+func _on_body_entered(body):
+	if body.is_in_group("boss_car"):
+		box_reached_floor.emit()
 
 func _hit_flash():
 	var visual = get_node_or_null("Visual")

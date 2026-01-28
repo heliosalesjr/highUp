@@ -13,6 +13,7 @@ var arena: Node2D = null  # Reference to boss_arena to add bullets as children
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
 func _ready():
+	add_to_group("boss_car")
 	collision_layer = 1
 	collision_mask = 1  # Collide with walls
 
@@ -47,8 +48,8 @@ func _physics_process(delta):
 	if shoot_timer > 0:
 		shoot_timer -= delta
 
-	# Shoot on jump input
-	if Input.is_action_just_pressed("ui_accept") and shoot_timer <= 0:
+	# Shoot on jump input (space bar = "jump" action)
+	if Input.is_action_just_pressed("jump") and shoot_timer <= 0:
 		shoot()
 		shoot_timer = SHOOT_COOLDOWN
 
@@ -56,9 +57,13 @@ func shoot():
 	var bullet_script = load("res://scripts/boss_bullet.gd")
 	var bullet = Area2D.new()
 	bullet.set_script(bullet_script)
-	bullet.global_position = Vector2(global_position.x, global_position.y - CAR_HEIGHT)
+
+	var spawn_pos = Vector2(global_position.x, global_position.y - CAR_HEIGHT)
 
 	if arena:
 		arena.add_child(bullet)
 	else:
 		get_parent().add_child(bullet)
+
+	# Set position AFTER adding to tree (global_position only works in tree)
+	bullet.global_position = spawn_pos

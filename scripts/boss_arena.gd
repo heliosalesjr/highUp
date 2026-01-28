@@ -5,15 +5,16 @@ signal boss_defeated
 signal boss_failed
 
 const ARENA_WIDTH = 360
-const ARENA_HEIGHT = 640
-const WALL_THICKNESS = 10
-const FLOOR_Y = 620
+const ARENA_HEIGHT = 320  # 2x room height (160 * 2)
+const WALL_THICKNESS = 6  # Match room.gd
+const FLOOR_Y = 300  # Near bottom of arena
 const TOTAL_BOXES = 10
 const BOX_DESCENT_SPEED = 10.0
 const BOX_SPEED_INCREASE = 0.5
 
 var boxes_remaining = TOTAL_BOXES
 var car: CharacterBody2D = null
+var fight_over = false
 
 func _ready():
 	create_background()
@@ -23,10 +24,11 @@ func _ready():
 	print("🏟️ Boss Arena criada! Caixas: ", boxes_remaining)
 
 func create_background():
+	# Cover full viewport (640px) so regular rooms behind are hidden
 	var bg = ColorRect.new()
-	bg.size = Vector2(ARENA_WIDTH, ARENA_HEIGHT)
-	bg.position = Vector2(0, 0)
-	bg.color = Color(0.08, 0.08, 0.12)
+	bg.size = Vector2(ARENA_WIDTH, 640)
+	bg.position = Vector2(0, -160)  # Extend 160px above and below the 320px room
+	bg.color = Color(0.05, 0.05, 0.1)
 	bg.z_index = -10
 	add_child(bg)
 
@@ -52,7 +54,7 @@ func create_walls():
 
 	# Left wall
 	var left_wall = StaticBody2D.new()
-	left_wall.position = Vector2(0, ARENA_HEIGHT / 2.0)
+	left_wall.position = Vector2(WALL_THICKNESS / 2.0, ARENA_HEIGHT / 2.0)
 	var left_col = CollisionShape2D.new()
 	var left_shape = RectangleShape2D.new()
 	left_shape.size = Vector2(WALL_THICKNESS, ARENA_HEIGHT)
@@ -62,9 +64,16 @@ func create_walls():
 	left_wall.collision_mask = 0
 	add_child(left_wall)
 
+	# Left wall visual
+	var left_visual = ColorRect.new()
+	left_visual.size = Vector2(WALL_THICKNESS, ARENA_HEIGHT)
+	left_visual.position = Vector2(0, 0)
+	left_visual.color = Color(0.3, 0.3, 0.35)
+	add_child(left_visual)
+
 	# Right wall
 	var right_wall = StaticBody2D.new()
-	right_wall.position = Vector2(ARENA_WIDTH, ARENA_HEIGHT / 2.0)
+	right_wall.position = Vector2(ARENA_WIDTH - WALL_THICKNESS / 2.0, ARENA_HEIGHT / 2.0)
 	var right_col = CollisionShape2D.new()
 	var right_shape = RectangleShape2D.new()
 	right_shape.size = Vector2(WALL_THICKNESS, ARENA_HEIGHT)
@@ -74,7 +83,14 @@ func create_walls():
 	right_wall.collision_mask = 0
 	add_child(right_wall)
 
-	# Ceiling (visual only, no physics needed)
+	# Right wall visual
+	var right_visual = ColorRect.new()
+	right_visual.size = Vector2(WALL_THICKNESS, ARENA_HEIGHT)
+	right_visual.position = Vector2(ARENA_WIDTH - WALL_THICKNESS, 0)
+	right_visual.color = Color(0.3, 0.3, 0.35)
+	add_child(right_visual)
+
+	# Ceiling visual
 	var ceiling_visual = ColorRect.new()
 	ceiling_visual.size = Vector2(ARENA_WIDTH, WALL_THICKNESS)
 	ceiling_visual.position = Vector2(0, 0)
@@ -85,7 +101,7 @@ func create_car():
 	var car_script = load("res://scripts/boss_car.gd")
 	car = CharacterBody2D.new()
 	car.set_script(car_script)
-	car.position = Vector2(ARENA_WIDTH / 2.0, FLOOR_Y - 13)  # Slightly above floor
+	car.position = Vector2(ARENA_WIDTH / 2.0, FLOOR_Y - 13)
 	car.arena = self
 	add_child(car)
 
@@ -93,12 +109,9 @@ func create_boxes():
 	var box_script = load("res://scripts/boss_box.gd")
 
 	# Layout: inverted pyramid 3-4-3
-	# Line 1 (top): 3 boxes
-	# Line 2: 4 boxes
-	# Line 3: 3 boxes
-	var box_spacing_x = 70
-	var start_y = 60
-	var line_spacing_y = 50
+	var box_spacing_x = 60
+	var start_y = 40
+	var line_spacing_y = 40
 	var center_x = ARENA_WIDTH / 2.0
 
 	var layout = [
@@ -130,10 +143,14 @@ func _on_box_destroyed():
 	boxes_remaining -= 1
 	print("📦 Caixa destruida! Restam: ", boxes_remaining)
 
-	if boxes_remaining <= 0:
+	if boxes_remaining <= 0 and not fight_over:
+		fight_over = true
 		print("🎉 BOSS DERROTADO!")
 		boss_defeated.emit()
 
 func _on_box_reached_floor():
+	if fight_over:
+		return
+	fight_over = true
 	print("💀 Caixa chegou ao chao! GAME OVER!")
 	boss_failed.emit()
