@@ -12,11 +12,15 @@ const BOX_WIDTH = 32
 const BOX_HEIGHT = 24
 const SPEED_INCREASE_RATE = 0.5  # px/s increase per second alive
 
+var active = false
+
 func _ready():
 	collision_layer = 0
 	collision_mask = 33  # 32 (boss bullets) + 1 (car body)
 	monitoring = true
 	monitorable = true
+	visible = false
+	set_physics_process(false)
 
 	# Visual: brown box
 	var visual = ColorRect.new()
@@ -35,6 +39,11 @@ func _ready():
 
 	area_entered.connect(_on_area_entered)
 	body_entered.connect(_on_body_entered)
+
+func activate():
+	active = true
+	visible = true
+	set_physics_process(true)
 
 func _physics_process(delta):
 	time_alive += delta
