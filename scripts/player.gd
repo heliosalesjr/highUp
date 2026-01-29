@@ -11,6 +11,13 @@ var attracted_collectibles = []
 var metal_shader_material = null
 var sparkle_particles: GPUParticles2D = null
 
+# Boss fight
+var boss_fight_mode = false
+var boss_car: Node2D = null
+var boss_room: Node2D = null
+var boss_shoot_cooldown = 0.0
+const BOSS_SHOOT_COOLDOWN = 0.3
+
 # Constantes de movimento
 const SPEED = 400.0
 const JUMP_VELOCITY = -400.0
@@ -62,6 +69,11 @@ func _ready():
 
 func _physics_process(delta):
 	attract_collectibles(delta)
+
+	if boss_fight_mode:
+		process_boss_fight(delta)
+		return
+
 	# Verifica se terminou o lançamento
 	if is_launched and velocity.y >= 0 and is_on_floor():
 		end_launch()
@@ -165,8 +177,8 @@ func climb_ladder(_delta):
 		current_ladder = null
 
 func _on_area_entered(area: Area2D):
-	# Ignora escadas durante o lançamento
-	if is_launched:
+	# Ignora escadas durante boss fight ou lançamento
+	if boss_fight_mode or is_launched:
 		return
 	
 	if area.name == "Ladder":
@@ -175,8 +187,8 @@ func _on_area_entered(area: Area2D):
 		print("Entrando na escada!")
 
 func _on_area_exited(area: Area2D):
-	# Ignora escadas durante o lançamento
-	if is_launched:
+	# Ignora escadas durante boss fight ou lançamento
+	if boss_fight_mode or is_launched:
 		return
 	
 	if area.name == "Ladder":
@@ -522,3 +534,65 @@ func create_sparkle_particles():
 
 	add_child(sparkle_particles)
 	print("✨ Sistema de partículas de brilho criado!")
+
+# === BOSS FIGHT ===
+
+func enter_boss_fight(car: Node2D, room: Node2D):
+	boss_fight_mode = true
+	boss_car = car
+	boss_room = room
+	boss_shoot_cooldown = 0.0
+	is_on_ladder = false
+	current_ladder = null
+	velocity = Vector2.ZERO
+	# Disable player collision so it doesn't push the car through the floor
+	collision_layer = 0
+	collision_mask = 0
+	print("🏟️ Player entrou no boss fight!")
+
+func exit_boss_fight():
+	boss_fight_mode = false
+	boss_car = null
+	boss_room = null
+	boss_shoot_cooldown = 0.0
+	# Restore player collision
+	collision_layer = 1
+	collision_mask = 27  # 1 + 2 + 8 + 16
+	print("🏟️ Player saiu do boss fight!")
+
+func process_boss_fight(delta):
+	if boss_car and is_instance_valid(boss_car):
+		# Snap player to car position (ride on top)
+		global_position.x = boss_car.global_position.x
+		global_position.y = boss_car.global_position.y - 16
+
+		# Face car direction
+		if "direction" in boss_car:
+			direction = boss_car.direction
+
+	# Shoot cooldown
+	if boss_shoot_cooldown > 0:
+		boss_shoot_cooldown -= delta
+
+	# Jump input = shoot bullet upward
+	if Input.is_action_just_pressed("ui_accept") and boss_shoot_cooldown <= 0:
+		shoot_boss_bullet()
+		boss_shoot_cooldown = BOSS_SHOOT_COOLDOWN
+
+	update_animation()
+
+func shoot_boss_bullet():
+	var bullet_script = load("res://scenes/boss/boss_bullet.gd")
+	var bullet = Area2D.new()
+	bullet.set_script(bullet_script)
+
+	var spawn_pos = global_position + Vector2(0, -12)
+
+	if boss_room:
+		boss_room.add_child(bullet)
+	else:
+		get_parent().add_child(bullet)
+
+	# Set position AFTER adding to tree
+	bullet.global_position = spawn_pos
+	print("💥 Tiro!")

@@ -17,6 +17,7 @@ z_index = -100
 script = ExtResource("5_parallax")
 
 [node name="Layer1_Sky" type="Parallax2D" parent="ParallaxBackground"]
+visible = false
 scroll_scale = Vector2(1, 0.1)
 repeat_size = Vector2(0, 1280)
 repeat_times = 20
