@@ -129,7 +129,7 @@ func create_room(index: int):
 		if index % 5 == 0:
 			is_split = true
 			print("  ! Sala ", index, " marcada como SPLIT (a cada 5 salas)")
-		elif last_room_was_split and randf() < 0.5:
+		elif last_room_was_split and randf() < 0.4:
 			is_split = true
 			print("  ! Sala ", index, " marcada como SPLIT (50% chance - sala anterior era split)")
 
