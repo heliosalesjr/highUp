@@ -109,6 +109,16 @@ func create_rooms():
 func create_room(index: int):
 	"""Cria uma sala específica"""
 
+	# Boss 2 room takes 2 slots - skip the second slot
+	if index == GameManager.BOSS_2_ROOM_NUMBER + 1 and highest_room_created >= GameManager.BOSS_2_ROOM_NUMBER:
+		highest_room_created = max(highest_room_created, index)
+		return
+
+	# Create boss 2 room instead of normal room (checked first for testing)
+	if index == GameManager.BOSS_2_ROOM_NUMBER and not GameManager.boss_2_defeated:
+		create_boss2_room(index)
+		return
+
 	# Boss room takes 2 slots - skip the second slot
 	if index == GameManager.BOSS_ROOM_NUMBER + 1 and highest_room_created >= GameManager.BOSS_ROOM_NUMBER:
 		highest_room_created = max(highest_room_created, index)
@@ -178,6 +188,26 @@ func create_boss_room(index: int):
 	highest_room_created = max(highest_room_created, index + 1)
 
 	print("  ✓ BOSS Room ", index, " criada em Y=", y_pos)
+
+func create_boss2_room(index: int):
+	"""Cria a sala do boss 2 fight (2x altura)"""
+	print("→ Criando BOSS 2 Room ", index)
+
+	var boss2_room_script = load("res://scenes/boss/boss2_room.gd")
+	var room = Node2D.new()
+	room.set_script(boss2_room_script)
+
+	# Position: 160px higher than normal room to cover 2 slots
+	var y_pos = (SCREEN_HEIGHT - ROOM_HEIGHT) - (index * ROOM_HEIGHT) - ROOM_HEIGHT
+	room.position = Vector2(0, y_pos)
+	room.name = "Room_" + str(index)
+
+	add_child(room)
+	rooms.append(room)
+	# Mark both slots as created (boss room covers 2 room heights)
+	highest_room_created = max(highest_room_created, index + 1)
+
+	print("  ✓ BOSS 2 Room ", index, " criada em Y=", y_pos)
 
 func generate_rooms_ahead(current_room_index: int):
 	"""Gera salas à frente do player conforme necessário"""

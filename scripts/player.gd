@@ -18,6 +18,16 @@ var boss_room: Node2D = null
 var boss_shoot_cooldown = 0.0
 const BOSS_SHOOT_COOLDOWN = 0.3
 
+# Boss 2 fight (reflect)
+var boss2_fight_mode = false
+var boss2_room: Node2D = null
+var boss2_shield_active = false
+var boss2_shield_cooldown = 0.0
+const BOSS2_SHIELD_DURATION = 1.0
+const BOSS2_SHIELD_COOLDOWN = 0.2
+var boss2_shield_visual: ColorRect = null
+var boss2_projectile_detector: Area2D = null
+
 # Constantes de movimento
 const SPEED = 400.0
 const JUMP_VELOCITY = -400.0
@@ -72,6 +82,10 @@ func _physics_process(delta):
 
 	if boss_fight_mode:
 		process_boss_fight(delta)
+		return
+
+	if boss2_fight_mode:
+		process_boss2_fight(delta)
 		return
 
 	# Verifica se terminou o lançamento
@@ -178,7 +192,7 @@ func climb_ladder(_delta):
 
 func _on_area_entered(area: Area2D):
 	# Ignora escadas durante boss fight ou lançamento
-	if boss_fight_mode or is_launched:
+	if boss_fight_mode or boss2_fight_mode or is_launched:
 		return
 	
 	if area.name == "Ladder":
@@ -188,7 +202,7 @@ func _on_area_entered(area: Area2D):
 
 func _on_area_exited(area: Area2D):
 	# Ignora escadas durante boss fight ou lançamento
-	if boss_fight_mode or is_launched:
+	if boss_fight_mode or boss2_fight_mode or is_launched:
 		return
 	
 	if area.name == "Ladder":
@@ -596,3 +610,113 @@ func shoot_boss_bullet():
 	# Set position AFTER adding to tree
 	bullet.global_position = spawn_pos
 	print("💥 Tiro!")
+
+# === BOSS 2 FIGHT (REFLECT) ===
+
+func enter_boss2_fight(room: Node2D):
+	boss2_fight_mode = true
+	boss2_room = room
+	boss2_shield_active = false
+	boss2_shield_cooldown = 0.0
+	is_on_ladder = false
+	current_ladder = null
+
+	# Create shield visual (hidden initially)
+	boss2_shield_visual = ColorRect.new()
+	boss2_shield_visual.size = Vector2(20, 24)
+	boss2_shield_visual.position = Vector2(-10, -12)
+	boss2_shield_visual.color = Color(0.0, 1.0, 1.0, 0.6)
+	boss2_shield_visual.visible = false
+	add_child(boss2_shield_visual)
+
+	# Create projectile detector (Area2D, collision_mask = 64)
+	boss2_projectile_detector = Area2D.new()
+	boss2_projectile_detector.name = "Boss2ProjectileDetector"
+	boss2_projectile_detector.collision_layer = 0
+	boss2_projectile_detector.collision_mask = 64  # Detect boss 2 projectiles
+	boss2_projectile_detector.monitoring = true
+
+	var detect_collision = CollisionShape2D.new()
+	var detect_shape = RectangleShape2D.new()
+	detect_shape.size = Vector2(14, 20)
+	detect_collision.shape = detect_shape
+	boss2_projectile_detector.add_child(detect_collision)
+
+	boss2_projectile_detector.area_entered.connect(_on_boss2_projectile_hit)
+	add_child(boss2_projectile_detector)
+
+	print("🏟️ Player entrou no boss 2 fight!")
+
+func exit_boss2_fight():
+	boss2_fight_mode = false
+	boss2_room = null
+	boss2_shield_active = false
+	boss2_shield_cooldown = 0.0
+
+	if boss2_shield_visual and is_instance_valid(boss2_shield_visual):
+		boss2_shield_visual.queue_free()
+		boss2_shield_visual = null
+
+	if boss2_projectile_detector and is_instance_valid(boss2_projectile_detector):
+		boss2_projectile_detector.queue_free()
+		boss2_projectile_detector = null
+
+	print("🏟️ Player saiu do boss 2 fight!")
+
+func process_boss2_fight(delta):
+	# Normal physics: gravity, auto_walk, move_and_slide, wall_collision
+	apply_gravity(delta)
+	auto_walk(delta)
+	move_and_slide()
+	check_wall_collision()
+	update_animation()
+
+	# Shield cooldown
+	if boss2_shield_cooldown > 0:
+		boss2_shield_cooldown -= delta
+
+	# Jump input = activate shield
+	if Input.is_action_just_pressed("ui_accept") and not boss2_shield_active and boss2_shield_cooldown <= 0:
+		activate_boss2_shield()
+
+func activate_boss2_shield():
+	boss2_shield_active = true
+	if boss2_shield_visual:
+		boss2_shield_visual.visible = true
+	print("🛡️ Escudo ativado!")
+
+	# Deactivate after duration
+	await get_tree().create_timer(BOSS2_SHIELD_DURATION).timeout
+	if is_instance_valid(self):
+		boss2_shield_active = false
+		if boss2_shield_visual and is_instance_valid(boss2_shield_visual):
+			boss2_shield_visual.visible = false
+		boss2_shield_cooldown = BOSS2_SHIELD_COOLDOWN
+
+func _on_boss2_projectile_hit(area):
+	if not area.is_in_group("boss2_projectile"):
+		return
+
+	# Reflected projectile doesn't hurt player
+	if area.is_reflected:
+		return
+
+	# Shield active: reflect the projectile
+	if boss2_shield_active:
+		area.reflect()
+		print("🛡️ Projetil refletido!")
+		return
+
+	# Invulnerable: ignore
+	if is_invulnerable:
+		return
+
+	# No shield: take damage (lose heart)
+	area.queue_free()
+	trigger_hit_camera_shake()
+	var survived = GameManager.take_damage()
+	if survived:
+		start_invulnerability()
+		print("💔 Atingido sem escudo! Perdeu coracao!")
+	else:
+		die()
