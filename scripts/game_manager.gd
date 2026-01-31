@@ -28,9 +28,11 @@ var spits_freed = 0
 var capys_freed = 0
 var animals_freed = 0
 var boss_defeated = false
+var boss_2_defeated = false
 
 const DIAMONDS_BEFORE_HEART = 2
 const BOSS_ROOM_NUMBER = 10
+const BOSS_2_ROOM_NUMBER = 10  # Temporario: mesmo que boss 1 para teste
 const MIST_DURATION = 10.0
 const INVINCIBLE_DURATION = 10.0
 const SAVE_FILE = "user://save_data.json"
@@ -304,6 +306,7 @@ func reset():
 	spits_freed = 0 # ← NOVO
 	capys_freed = 0
 	boss_defeated = false
+	boss_2_defeated = false
 	rooms_changed.emit(rooms_count)
 	diamonds_changed.emit(diamonds_count)
 	hearts_changed.emit(filled_hearts)

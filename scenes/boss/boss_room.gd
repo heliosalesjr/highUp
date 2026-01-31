@@ -26,6 +26,7 @@ var wall_tiles = [
 	preload("res://assets/aseprite-walls/wall4.png")
 ]
 
+var ladder_side = 0  # Player exits to the right after climbing victory ladder
 var boxes_remaining = TOTAL_BOXES
 var car = null
 var fight_active = false

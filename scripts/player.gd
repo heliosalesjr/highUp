@@ -18,6 +18,11 @@ var boss_room: Node2D = null
 var boss_shoot_cooldown = 0.0
 const BOSS_SHOOT_COOLDOWN = 0.3
 
+# Boss 2 fight (color match)
+var boss2_fight_mode = false
+var boss2_room: Node2D = null
+var boss2_target_detector: Area2D = null
+
 # Constantes de movimento
 const SPEED = 400.0
 const JUMP_VELOCITY = -400.0
@@ -72,6 +77,10 @@ func _physics_process(delta):
 
 	if boss_fight_mode:
 		process_boss_fight(delta)
+		return
+
+	if boss2_fight_mode:
+		process_boss2_fight(delta)
 		return
 
 	# Verifica se terminou o lançamento
@@ -178,7 +187,7 @@ func climb_ladder(_delta):
 
 func _on_area_entered(area: Area2D):
 	# Ignora escadas durante boss fight ou lançamento
-	if boss_fight_mode or is_launched:
+	if boss_fight_mode or boss2_fight_mode or is_launched:
 		return
 	
 	if area.name == "Ladder":
@@ -188,7 +197,7 @@ func _on_area_entered(area: Area2D):
 
 func _on_area_exited(area: Area2D):
 	# Ignora escadas durante boss fight ou lançamento
-	if boss_fight_mode or is_launched:
+	if boss_fight_mode or boss2_fight_mode or is_launched:
 		return
 	
 	if area.name == "Ladder":
@@ -596,3 +605,54 @@ func shoot_boss_bullet():
 	# Set position AFTER adding to tree
 	bullet.global_position = spawn_pos
 	print("💥 Tiro!")
+
+# === BOSS 2 FIGHT (COLOR MATCH) ===
+
+func enter_boss2_fight(room: Node2D):
+	boss2_fight_mode = true
+	boss2_room = room
+	is_on_ladder = false
+	current_ladder = null
+
+	# Create target detector (Area2D, collision_mask = 64)
+	boss2_target_detector = Area2D.new()
+	boss2_target_detector.name = "Boss2TargetDetector"
+	boss2_target_detector.collision_layer = 0
+	boss2_target_detector.collision_mask = 64
+	boss2_target_detector.monitoring = true
+
+	var detect_collision = CollisionShape2D.new()
+	var detect_shape = RectangleShape2D.new()
+	detect_shape.size = Vector2(14, 20)
+	detect_collision.shape = detect_shape
+	boss2_target_detector.add_child(detect_collision)
+
+	boss2_target_detector.area_entered.connect(_on_boss2_target_touched)
+	add_child(boss2_target_detector)
+
+	print("Player entrou no boss 2 fight!")
+
+func exit_boss2_fight():
+	boss2_fight_mode = false
+	boss2_room = null
+
+	if boss2_target_detector and is_instance_valid(boss2_target_detector):
+		boss2_target_detector.queue_free()
+		boss2_target_detector = null
+
+	print("Player saiu do boss 2 fight!")
+
+func process_boss2_fight(delta):
+	apply_gravity(delta)
+	handle_jump(delta)
+	auto_walk(delta)
+	move_and_slide()
+	update_timers(delta)
+	check_wall_collision()
+	update_animation()
+
+func _on_boss2_target_touched(area):
+	if not area.is_in_group("boss2_target"):
+		return
+	if boss2_room and is_instance_valid(boss2_room):
+		boss2_room.on_target_touched(area)
