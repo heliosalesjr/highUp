@@ -23,6 +23,11 @@ var boss2_fight_mode = false
 var boss2_room: Node2D = null
 var boss2_target_detector: Area2D = null
 
+# Boss 3 fight (gravity flip)
+var boss3_fight_mode = false
+var boss3_room: Node2D = null
+var boss3_gravity_flipped = false
+
 # Constantes de movimento
 const SPEED = 400.0
 const JUMP_VELOCITY = -400.0
@@ -81,6 +86,10 @@ func _physics_process(delta):
 
 	if boss2_fight_mode:
 		process_boss2_fight(delta)
+		return
+
+	if boss3_fight_mode:
+		process_boss3_fight(delta)
 		return
 
 	# Verifica se terminou o lançamento
@@ -187,9 +196,9 @@ func climb_ladder(_delta):
 
 func _on_area_entered(area: Area2D):
 	# Ignora escadas durante boss fight ou lançamento
-	if boss_fight_mode or boss2_fight_mode or is_launched:
+	if boss_fight_mode or boss2_fight_mode or boss3_fight_mode or is_launched:
 		return
-	
+
 	if area.name == "Ladder":
 		is_on_ladder = true
 		current_ladder = area
@@ -197,9 +206,9 @@ func _on_area_entered(area: Area2D):
 
 func _on_area_exited(area: Area2D):
 	# Ignora escadas durante boss fight ou lançamento
-	if boss_fight_mode or boss2_fight_mode or is_launched:
+	if boss_fight_mode or boss2_fight_mode or boss3_fight_mode or is_launched:
 		return
-	
+
 	if area.name == "Ladder":
 		if not is_on_ladder:
 			current_ladder = null
@@ -656,3 +665,45 @@ func _on_boss2_target_touched(area):
 		return
 	if boss2_room and is_instance_valid(boss2_room):
 		boss2_room.on_target_touched(area)
+
+# === BOSS 3 FIGHT (GRAVITY FLIP) ===
+
+func enter_boss3_fight(room: Node2D):
+	boss3_fight_mode = true
+	boss3_room = room
+	boss3_gravity_flipped = false
+	is_on_ladder = false
+	current_ladder = null
+	print("Player entrou no boss 3 fight!")
+
+func exit_boss3_fight():
+	boss3_fight_mode = false
+	boss3_room = null
+	boss3_gravity_flipped = false
+	up_direction = Vector2.UP
+	animated_sprite.flip_v = false
+	print("Player saiu do boss 3 fight!")
+
+func process_boss3_fight(delta):
+	# Gravity flip on jump input
+	if Input.is_action_just_pressed("ui_accept"):
+		boss3_gravity_flipped = not boss3_gravity_flipped
+		velocity.y = 0  # Reset vertical for responsive flip
+		if boss3_gravity_flipped:
+			up_direction = Vector2.DOWN
+		else:
+			up_direction = Vector2.UP
+		animated_sprite.flip_v = boss3_gravity_flipped
+
+	# Custom gravity
+	if not is_on_floor():
+		if boss3_gravity_flipped:
+			velocity.y -= gravity * delta
+		else:
+			velocity.y += gravity * delta
+
+	auto_walk(delta)
+	move_and_slide()
+	update_timers(delta)
+	check_wall_collision()
+	update_animation()
