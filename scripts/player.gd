@@ -702,7 +702,13 @@ func process_boss3_fight(delta):
 		else:
 			velocity.y += gravity * delta
 
-	auto_walk(delta)
+	# Slower walk during boss3 (50% speed)
+	var boss3_speed = SPEED * 0.5
+	if is_on_floor():
+		velocity.x = move_toward(velocity.x, direction * boss3_speed, ACCELERATION * delta)
+	else:
+		velocity.x = move_toward(velocity.x, direction * boss3_speed, AIR_RESISTANCE * delta)
+
 	move_and_slide()
 	update_timers(delta)
 	check_wall_collision()

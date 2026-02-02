@@ -1,4 +1,4 @@
-# boss3_room.gd
+# boss3_room.gd — Gravity flip challenge room
 extends Node2D
 
 const ROOM_WIDTH = 360
@@ -9,14 +9,15 @@ const FLOOR_TILE_WIDTH = 16
 const WALL_TILE_HEIGHT = 32
 const LADDER_WIDTH = 15
 
-const CREATURE_HP = 3
-const TOTAL_WAVES = 3
-const WAVE_DURATION = 7.0
-const WAVE_PAUSE = 2.0
-const SPAWN_INTERVALS = [2.0, 1.5, 1.0]
-const OBSTACLE_SPEEDS = [100, 140, 180]
-const OBSTACLE_Y_MIN = 30
-const OBSTACLE_Y_MAX = 290
+const TOTAL_WAVES = 5
+const BIRDS_PER_WAVE = 3
+const WAVE_PAUSE = 1.5
+const BIRD_SPEED = 120.0
+const INITIAL_DELAY = 1.0
+
+# Y positions for birds in each half (3 birds covering the half)
+const BOTTOM_HALF_Y = [195, 235, 275]
+const TOP_HALF_Y = [45, 85, 125]
 
 var floor_tiles = [
 	preload("res://assets/aseprite-floor/piso1.png"),
@@ -32,19 +33,16 @@ var wall_tiles = [
 ]
 
 var ladder_side = 0
-var creature = null
 var ceiling_ref = null
 var fight_active = false
 var fight_over = false
 var waiting_for_player = false
 var player_ref = null
-var wave_active = false
 var current_wave = 0
-var wave_timer = 0.0
-var spawn_timer = 0.0
-var active_obstacles = []
-var wave_label = null
-var center_label = null
+var wave_birds = []
+var wave_in_progress = false
+var between_waves = false
+var warning_rect = null
 
 func _ready():
 	create_background()
@@ -52,31 +50,19 @@ func _ready():
 	create_ceiling()
 	create_walls()
 	create_entry_detector()
-	create_creature()
-	create_hud()
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if waiting_for_player and player_ref and is_instance_valid(player_ref):
 		if player_ref.is_on_floor() and not player_ref.is_on_ladder:
 			waiting_for_player = false
 			start_fight(player_ref)
 
-	if wave_active:
-		wave_timer += delta
-		spawn_timer += delta
-
-		var interval = SPAWN_INTERVALS[current_wave]
-		if spawn_timer >= interval:
-			spawn_timer -= interval
-			spawn_obstacle()
-
-		if wave_timer >= WAVE_DURATION:
-			end_wave()
-
-		# Update wave timer display
-		if wave_label:
-			var remaining = max(0, WAVE_DURATION - wave_timer)
-			wave_label.text = "WAVE %d/%d  -  %.1f" % [current_wave + 1, TOTAL_WAVES, remaining]
+	if wave_in_progress:
+		# Clean up freed birds and check if wave is done
+		wave_birds = wave_birds.filter(func(b): return is_instance_valid(b))
+		if wave_birds.is_empty():
+			wave_in_progress = false
+			wave_complete()
 
 func create_background():
 	var bg = ColorRect.new()
@@ -119,9 +105,7 @@ func create_ceiling():
 	shape.size = Vector2(ROOM_WIDTH, FLOOR_THICKNESS)
 	collision.shape = shape
 	collision.position = Vector2(ROOM_WIDTH / 2.0, FLOOR_THICKNESS / 2.0)
-	# NO one_way_collision — solid ceiling for gravity flip
 
-	# Visual tiles on ceiling
 	var num_tiles = ceil(float(ROOM_WIDTH) / FLOOR_TILE_WIDTH)
 	for i in range(num_tiles):
 		var tile = Sprite2D.new()
@@ -202,50 +186,6 @@ func _on_room_entered(body):
 			waiting_for_player = true
 			player_ref = body
 
-func create_creature():
-	var creature_script = load("res://scenes/boss/boss3_creature.gd")
-	creature = Node2D.new()
-	creature.set_script(creature_script)
-	creature.position = Vector2(ROOM_WIDTH / 2.0, ROOM_HEIGHT / 2.0)
-	creature.creature_hit.connect(_on_creature_hit)
-	add_child(creature)
-
-func create_hud():
-	# Wave counter label (top of room)
-	wave_label = Label.new()
-	wave_label.name = "WaveLabel"
-	wave_label.text = ""
-	wave_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	wave_label.position = Vector2(0, 10)
-	wave_label.size = Vector2(ROOM_WIDTH, 30)
-	wave_label.add_theme_font_size_override("font_size", 14)
-	wave_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0))
-	wave_label.z_index = 10
-	add_child(wave_label)
-
-	# Center message label (big text for announcements)
-	center_label = Label.new()
-	center_label.name = "CenterLabel"
-	center_label.text = ""
-	center_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	center_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	center_label.position = Vector2(0, ROOM_HEIGHT / 2.0 - 50)
-	center_label.size = Vector2(ROOM_WIDTH, 100)
-	center_label.add_theme_font_size_override("font_size", 24)
-	center_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.2))
-	center_label.z_index = 10
-	add_child(center_label)
-
-func show_center_message(text: String, duration: float = 1.5):
-	if not center_label:
-		return
-	center_label.text = text
-	center_label.modulate.a = 1.0
-	await get_tree().create_timer(duration).timeout
-	if is_instance_valid(center_label):
-		var tween = create_tween()
-		tween.tween_property(center_label, "modulate:a", 0.0, 0.3)
-
 func start_fight(player):
 	fight_active = true
 	player.enter_boss3_fight(self)
@@ -256,137 +196,123 @@ func start_fight(player):
 		camera.is_locked = true
 		camera.global_position.y = global_position.y + ROOM_HEIGHT / 2.0
 
-	# Show instruction
-	show_center_message("SOBREVIVA!\nPule para inverter a gravidade!", 1.5)
-
-	# Pause before starting waves
-	await get_tree().create_timer(1.5).timeout
+	await get_tree().create_timer(INITIAL_DELAY).timeout
 	if fight_over:
 		return
 	start_wave()
+
+func flash_warning(use_bottom: bool):
+	# Create a red overlay covering the danger half
+	warning_rect = ColorRect.new()
+	warning_rect.size = Vector2(ROOM_WIDTH, ROOM_HEIGHT / 2.0)
+	warning_rect.color = Color(1.0, 0.1, 0.1, 0.0)
+	warning_rect.z_index = 5
+	if use_bottom:
+		warning_rect.position = Vector2(0, ROOM_HEIGHT / 2.0)
+	else:
+		warning_rect.position = Vector2(0, 0)
+	add_child(warning_rect)
+
+	# 3 quick red flashes (~0.75s)
+	for flash in range(3):
+		if fight_over or not is_instance_valid(warning_rect):
+			break
+		warning_rect.color.a = 0.35
+		await get_tree().create_timer(0.15).timeout
+		if fight_over or not is_instance_valid(warning_rect):
+			break
+		warning_rect.color.a = 0.0
+		await get_tree().create_timer(0.10).timeout
+
+	# Pause after flashes so player has time to react
+	if not fight_over:
+		await get_tree().create_timer(0.4).timeout
+
+	if warning_rect and is_instance_valid(warning_rect):
+		warning_rect.queue_free()
+		warning_rect = null
 
 func start_wave():
 	if fight_over or current_wave >= TOTAL_WAVES:
 		return
 
-	# Show wave announcement
-	show_center_message("WAVE %d" % [current_wave + 1], 1.0)
-	await get_tree().create_timer(1.0).timeout
+	# Wave 0: always bottom half (teaches gravity flip — player must jump)
+	# Waves 1+: random half
+	var use_bottom = true
+	if current_wave > 0:
+		use_bottom = randi() % 2 == 0
+
+	# Flash warning before birds arrive
+	await flash_warning(use_bottom)
 	if fight_over:
 		return
 
-	wave_active = true
-	wave_timer = 0.0
-	spawn_timer = 0.0
-	print("Boss 3 Wave ", current_wave + 1, " started!")
+	var y_positions = BOTTOM_HALF_Y if use_bottom else TOP_HALF_Y
 
-func spawn_obstacle():
+	wave_birds.clear()
 	var obstacle_script = load("res://scenes/boss/boss3_obstacle.gd")
-	var obstacle = Area2D.new()
-	obstacle.set_script(obstacle_script)
 
-	# Random Y between min and max
-	var y = randf_range(OBSTACLE_Y_MIN, OBSTACLE_Y_MAX)
+	for i in range(BIRDS_PER_WAVE):
+		var bird = Node2D.new()
+		bird.set_script(obstacle_script)
+		bird.direction = 1  # fly left to right
+		bird.speed = BIRD_SPEED
+		bird.position = Vector2(-30, y_positions[i])
+		add_child(bird)
+		wave_birds.append(bird)
 
-	# Random direction
-	var dir = 1 if randi() % 2 == 0 else -1
-	obstacle.move_direction = dir
-	obstacle.speed = OBSTACLE_SPEEDS[current_wave]
+	wave_in_progress = true
+	print("Boss 3 Wave ", current_wave + 1, "/", TOTAL_WAVES)
 
-	# Start position based on direction
-	if dir == 1:
-		obstacle.position = Vector2(-30, y)
-	else:
-		obstacle.position = Vector2(ROOM_WIDTH + 30, y)
-
-	obstacle.body_entered.connect(_on_obstacle_body_entered.bind(obstacle))
-	add_child(obstacle)
-	active_obstacles.append(obstacle)
-
-func _on_obstacle_body_entered(body, obstacle):
-	if body.name == "Player" and not body.is_invulnerable:
-		body.trigger_hit_camera_shake()
-		var survived = GameManager.take_damage()
-		if survived:
-			body.start_invulnerability()
-		else:
-			body.die()
-			return
-	if is_instance_valid(obstacle):
-		obstacle.queue_free()
-		active_obstacles.erase(obstacle)
-
-func end_wave():
-	wave_active = false
-
-	# Destroy all active obstacles
-	for obs in active_obstacles:
-		if is_instance_valid(obs):
-			obs.queue_free()
-	active_obstacles.clear()
-
-	# Boss takes damage
-	if creature and is_instance_valid(creature):
-		creature.take_hit()
-		var camera = get_tree().get_first_node_in_group("camera")
-		if camera and camera.has_method("shake"):
-			camera.shake(0.3, 15.0)
+func wave_complete():
+	if fight_over or between_waves:
+		return
 
 	current_wave += 1
-	print("Boss 3 Wave ", current_wave, " / ", TOTAL_WAVES, " complete!")
 
-	# Show hit feedback
-	if current_wave < TOTAL_WAVES:
-		show_center_message("ACERTOU!", 1.0)
-	else:
-		show_center_message("DERROTADO!", 1.5)
+	# Small camera shake as feedback
+	var camera = get_tree().get_first_node_in_group("camera")
+	if camera and camera.has_method("shake"):
+		camera.shake(0.15, 8.0)
+
+	print("Boss 3 Wave ", current_wave, "/", TOTAL_WAVES, " complete!")
 
 	if current_wave >= TOTAL_WAVES:
-		# Small delay so player sees the message
-		await get_tree().create_timer(1.0).timeout
 		on_boss_defeated()
 		return
 
-	# Pause between waves — update wave label during pause
-	if wave_label:
-		wave_label.text = "WAVE %d/%d  -  COMPLETA!" % [current_wave, TOTAL_WAVES]
-
+	between_waves = true
 	await get_tree().create_timer(WAVE_PAUSE).timeout
+	between_waves = false
 	if not fight_over:
 		start_wave()
-
-func _on_creature_hit():
-	pass  # Hit tracking handled in end_wave
 
 func on_boss_defeated():
 	fight_active = false
 	fight_over = true
-	wave_active = false
+	wave_in_progress = false
 	GameManager.boss_3_defeated = true
 
-	# Destroy remaining obstacles
-	for obs in active_obstacles:
-		if is_instance_valid(obs):
-			obs.queue_free()
-	active_obstacles.clear()
+	# Clean up warning overlay if active
+	if warning_rect and is_instance_valid(warning_rect):
+		warning_rect.queue_free()
+		warning_rect = null
 
-	# Deactivate boss fight on player
+	# Clean up any remaining birds
+	for bird in wave_birds:
+		if is_instance_valid(bird):
+			bird.queue_free()
+	wave_birds.clear()
+
+	# Exit boss fight mode on player
 	var player = get_tree().get_first_node_in_group("player")
 	if player:
 		player.exit_boss3_fight()
-
-	# Creature dies
-	if creature and is_instance_valid(creature):
-		creature.die()
 
 	# Remove ceiling so player can climb out
 	if ceiling_ref and is_instance_valid(ceiling_ref):
 		ceiling_ref.queue_free()
 		ceiling_ref = null
-
-	# Clear HUD
-	if wave_label:
-		wave_label.text = ""
 
 	# Unlock camera
 	var camera = get_tree().get_first_node_in_group("camera")
