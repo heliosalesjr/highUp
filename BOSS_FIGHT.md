@@ -572,3 +572,268 @@ Round N:         [-------BOSS-------]         scale ?, y=?
 Plataformas:  [T1]  [T2]  [T3]  [T4]  [T5]  y=248~258 (fixas)
 Chao:         ==============================  y=314
 ```
+
+---
+
+# Boss 3 - "A Inversao" (Gravity Flip)
+
+## Visao Geral
+
+Quando o jogador atinge a room de numero `BOSS_3_ROOM_NUMBER` (configuravel em `game_manager.gd`), o sistema gera uma sala especial com o dobro da altura (320px) que inclui um **teto solido** alem do chao. O botao de pulo e reinterpretado: em vez de pular, ele **inverte a gravidade**. O jogador cai para o teto e anda de cabeca para baixo; apertar de novo e volta ao chao.
+
+Waves de 3 birds voam horizontalmente pela sala, ocupando uma metade (de cima ou de baixo). O jogador deve flipar a gravidade para ficar na metade segura. Sobreviver a 5 waves completa o desafio.
+
+Nao ha criatura/boss visivel -- e uma sala de desafio pura, onde a mecanica de gravidade invertida e o obstaculo.
+
+## Arquivos
+
+```
+scenes/boss/
+  boss3_room.gd       Orquestrador principal (sala, waves, warning, spawn de birds)
+  boss3_obstacle.gd   Bird animado que voa horizontalmente pela sala
+  boss3_creature.gd   (nao utilizado — arquivo legado)
+```
+
+Arquivos do core modificados:
+
+```
+scripts/player.gd         Modo boss3_fight_mode (gravity flip, velocidade reduzida)
+scripts/game_manager.gd   Flag boss_3_defeated, constante BOSS_3_ROOM_NUMBER
+scripts/main.gd           Logica de criacao da boss 3 room no sistema de rooms
+scripts/camera_2d.gd      Flag is_locked (compartilhada com boss 1 e 2)
+```
+
+## Arquitetura
+
+Mesma integracao dos bosses anteriores -- a boss room e um `Node2D` criado pelo `main.gd` no lugar de uma room normal, ocupando 2 slots de altura. A prioridade de criacao e: Boss 3 > Boss 2 > Boss 1 (para testes, todos usam `ROOM_NUMBER = 10`).
+
+```
+         main.gd
+            |
+     create_room(index)
+            |
+    index == BOSS_3_ROOM_NUMBER?
+         /        \
+       Sim         Nao
+        |            |
+  create_boss3_room()  (checa boss 2, depois boss 1)
+        |
+  boss3_room.gd (Node2D)
+   |       |        |       |
+ Floor  Ceiling   Walls   Birds (spawned per wave)
+```
+
+## Fluxo do Desafio
+
+```
+1. Player sobe normalmente pelas rooms
+                    |
+2. Room BOSS_3_ROOM_NUMBER e criada
+   (boss3_room.gd cria: chao, TETO SOLIDO, paredes, fundo)
+   Nao ha criatura — sala vazia com teto
+                    |
+3. Player entra na sala caminhando (auto-walk)
+   - EntryDetector chama GameManager.add_room()
+                    |
+4. Player toca o chao (is_on_floor)
+   - _physics_process detecta e chama start_fight()
+                    |
+5. start_fight():
+   - player.enter_boss3_fight(self)
+     - Pulo vira gravity flip
+     - Velocidade reduzida para 50% (200 px/s)
+   - Camera trava no centro da sala
+   - Pausa de 1.0s (INITIAL_DELAY)
+                    |
+6. Cada wave:
+   a. Metade escolhida (wave 0 = sempre bottom; waves 1-4 = random)
+   b. WARNING: metade de perigo pisca VERMELHO 3 vezes (~0.75s)
+   c. Pausa de 0.4s apos o warning (tempo de reacao)
+   d. 3 birds spawnados na metade perigosa, voam da esquerda para a direita
+   e. Player deve estar na metade OPOSTA para sobreviver
+
+   SOBREVIVEU (birds sairam da tela):
+     -> Camera shake sutil (feedback)
+     -> Pausa de 1.5s entre waves
+     -> Proxima wave
+
+   TOCOU EM BIRD:
+     -> Perde coracao + invulnerabilidade temporaria
+     -> Bird continua voando (nao desaparece)
+     -> Se perdeu todos os coracoes -> game_over.tscn
+                    |
+7. Apos 5 waves:
+   VITORIA:
+     -> on_boss_defeated()
+     -> Gravidade do player reseta para normal
+     -> Teto e REMOVIDO (player pode sair)
+     -> Camera destrava
+     -> Escada de vitoria aparece
+     -> Jogo continua normalmente
+```
+
+## Componentes
+
+### boss3_room.gd (Orquestrador)
+
+Extends `Node2D`. Cria a sala proceduralmente e gerencia as waves.
+
+**Elementos criados:**
+- Background escuro (320px, z_index=-5)
+- Chao com tiles (StaticBody2D, one_way_collision — player entra por baixo via escada)
+- **Teto solido** com tiles (StaticBody2D, SEM one_way — player anda de cabeca pra baixo)
+- Paredes esquerda/direita com tiles (StaticBody2D)
+- EntryDetector (Area2D, chama GameManager.add_room)
+- Warning overlay (ColorRect vermelho, criado/destruido por wave)
+- Birds (Node2D com boss3_obstacle.gd, spawned por wave)
+
+**Variaveis de estado:**
+- `fight_active` - True durante o desafio
+- `fight_over` - True apos vitoria (evita triggers duplicados)
+- `current_wave` - Indice da wave atual (0 a 4)
+- `wave_birds` - Array com os 3 birds da wave atual
+- `wave_in_progress` - True enquanto birds estao voando
+- `between_waves` - True durante pausa entre waves (evita chamadas duplicadas)
+- `warning_rect` - Referencia ao ColorRect de warning (null quando inativo)
+- `ceiling_ref` - Referencia ao teto (removido na vitoria)
+
+**Sistema de warning:**
+Antes de cada wave, `flash_warning(use_bottom)` cria um ColorRect vermelho semi-transparente cobrindo a metade de perigo. Ele pisca 3 vezes (alpha 0.35 -> 0.0) com timing de 0.15s on / 0.10s off, seguido de uma pausa de 0.4s. Total: ~1.15s de aviso antes dos birds chegarem.
+
+**Deteccao de wave completa:**
+`_physics_process` filtra `wave_birds` removendo instancias invalidas (birds que sairam da tela e fizeram queue_free). Quando o array fica vazio, `wave_complete()` e chamado.
+
+### boss3_obstacle.gd (Bird)
+
+Extends `Node2D`. Bird animado que voa horizontalmente.
+
+**Visual:**
+- AnimatedSprite2D criado programaticamente a partir de `BirdSprite.png`
+- 8 frames de 16x16 (atlas row 1), escala 2.375x
+- Animacao a 10 fps, loop infinito
+- `flip_h` baseado na direcao de voo
+
+**HitBox:**
+- Area2D filha (`collision_layer = 0`, `collision_mask = 1`, `monitoring = true`)
+- Shape: RectangleShape2D 39x23 px
+- `body_entered` detecta o player
+
+**Comportamento:**
+- Voa horizontalmente: `position.x += direction * speed * delta`
+- `queue_free()` ao sair dos limites da sala (x > 410 ou x < -50)
+- NAO desaparece ao tocar o player — continua voando
+
+**Ao tocar o player:**
+- Verifica `is_invulnerable` e `is_launched` (ignora se ativo)
+- Chama `GameManager.take_damage()` (lida com metal mode automaticamente)
+- Se sobreviveu: `start_invulnerability()`
+- Se morreu: `die()` -> game_over.tscn
+
+## Modificacoes no Player (player.gd)
+
+**Variaveis adicionadas:**
+```
+var boss3_fight_mode = false
+var boss3_room: Node2D = null
+var boss3_gravity_flipped = false
+```
+
+**enter_boss3_fight(room):**
+- Ativa `boss3_fight_mode`
+- Reseta `boss3_gravity_flipped = false`
+- Desativa escada (`is_on_ladder = false`)
+
+**exit_boss3_fight():**
+- Desativa `boss3_fight_mode`
+- Reseta gravidade: `up_direction = Vector2.UP`
+- Reseta visual: `animated_sprite.flip_v = false`
+
+**process_boss3_fight(delta):**
+- Chamado em `_physics_process` quando `boss3_fight_mode == true`
+- **Gravity flip:** `ui_accept` toggle `boss3_gravity_flipped`
+  - `velocity.y = 0` (reset vertical para flip responsivo)
+  - `up_direction = Vector2.DOWN` se flipped, `Vector2.UP` se normal
+  - `animated_sprite.flip_v` acompanha o flip
+- **Gravidade custom:** `velocity.y += gravity * delta` (normal) ou `-= gravity * delta` (flipped), so quando nao esta no chao/teto
+- **Velocidade reduzida:** 50% da velocidade normal (200 px/s em vez de 400)
+  - Inline: `move_toward(velocity.x, direction * SPEED * 0.5, ...)`
+  - Nao chama `auto_walk()` — implementa versao propria com velocidade menor
+- `move_and_slide()`, `update_timers()`, `check_wall_collision()`, `update_animation()`
+
+**Escadas ignoradas durante boss3:**
+- `_on_area_entered` e `_on_area_exited` verificam `boss3_fight_mode` e retornam sem processar
+
+## Modificacoes no GameManager (game_manager.gd)
+
+```
+var boss_3_defeated = false
+const BOSS_3_ROOM_NUMBER = 10  # Temporario: mesmo dos outros para teste
+```
+
+- `reset()`: Reseta `boss_3_defeated = false`
+- A flag impede que a sala seja criada novamente
+
+## Modificacoes no Main (main.gd)
+
+**create_room(index) — prioridade de bosses:**
+1. Checa Boss 3 primeiro (skip slot + create)
+2. Depois Boss 2
+3. Depois Boss 1
+4. Se nenhum: room normal
+
+**create_boss3_room(index):**
+- Carrega `boss3_room.gd` e cria `Node2D` com esse script
+- Posiciona 160px mais alto (cobre 2 slots)
+- Marca `highest_room_created = index + 1`
+
+## Constantes Ajustaveis
+
+| Constante | Valor | Arquivo | Descricao |
+|-----------|-------|---------|-----------|
+| `BOSS_3_ROOM_NUMBER` | 10* | game_manager.gd | Em qual room o desafio aparece |
+| `TOTAL_WAVES` | 5 | boss3_room.gd | Numero de waves para completar |
+| `BIRDS_PER_WAVE` | 3 | boss3_room.gd | Birds por wave |
+| `BIRD_SPEED` | 120.0 | boss3_room.gd | Velocidade dos birds (px/s) |
+| `WAVE_PAUSE` | 1.5 | boss3_room.gd | Pausa entre waves (s) |
+| `INITIAL_DELAY` | 1.0 | boss3_room.gd | Pausa antes da primeira wave (s) |
+| `BOTTOM_HALF_Y` | [195, 235, 275] | boss3_room.gd | Posicoes Y dos birds na metade inferior |
+| `TOP_HALF_Y` | [45, 85, 125] | boss3_room.gd | Posicoes Y dos birds na metade superior |
+| `SPEED * 0.5` | 200.0 | player.gd | Velocidade do player durante o desafio |
+
+*Para testes rapidos, todos os bosses usam room 10 atualmente.
+
+## Diagrama da Sala
+
+```
++---------- 360px ----------+
+|============================| Teto (StaticBody2D, solido — removido na vitoria)
+|                            |
+|  [BIRD] [BIRD] [BIRD] ->  |  Metade superior (birds voam se wave = top)
+|                            |
+|----------  160px  ---------|  Meio da sala (divisoria logica)
+|                            |
+|  [BIRD] [BIRD] [BIRD] ->  |  Metade inferior (birds voam se wave = bottom)
+|                            |
+|     [PLAYER]               |  Flip gravidade com pulo!
+|____________________________| Chao (one_way, player entra por baixo)
++----------------------------+
+```
+
+## Sequencia de Warning + Wave
+
+```
+Tempo   Evento
+─────   ──────────────────────────────────
+0.00s   Flash vermelho ON (alpha 0.35) na metade de perigo
+0.15s   Flash OFF
+0.25s   Flash ON
+0.40s   Flash OFF
+0.50s   Flash ON
+0.65s   Flash OFF
+0.65s   Pausa de reacao (0.4s)
+1.05s   Birds spawnam e voam da esquerda para direita
+~4.3s   Birds saem da tela (360+30+30 px / 120 px/s = ~3.5s)
+~4.3s   Camera shake sutil
+~4.3s   Pausa de 1.5s (WAVE_PAUSE)
+~5.8s   Proxima wave (ou vitoria se wave 5)
+```
