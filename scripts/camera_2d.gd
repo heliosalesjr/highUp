@@ -8,7 +8,7 @@ extends Camera2D
 const ROOM_HEIGHT = 160
 
 var fixed_x_position = 180
-var highest_y_reached = 640
+var highest_y_reached = 800  # Começa mais embaixo para a intro
 
 # Shake variables
 var is_shaking = false
@@ -22,15 +22,18 @@ var is_locked = false
 var main_scene: Node2D
 
 func _ready():
-	
+
 	add_to_group("camera")
-	
+
 	position.x = fixed_x_position
 	zoom = Vector2(1, 1)
 	position_smoothing_enabled = smoothing_enabled
 	position_smoothing_speed = smoothing_speed
 	main_scene = get_parent()
-	global_position.y = 320
+
+	# Inicia mais embaixo para a cutscene de entrada
+	# A câmera vai seguir o player subindo
+	global_position.y = 500
 
 func _process(delta):
 	if not target:
@@ -46,10 +49,12 @@ func _process(delta):
 	# Segue o player apenas no eixo Y
 	var target_y = target.global_position.y
 	var camera_target_y = target_y
-	
+
+	# Limita a câmera para não descer demais (floor da room 0 no centro)
+	# O floor está em Y=320, então a câmera não deve ir abaixo de 320
 	if camera_target_y > 320:
 		camera_target_y = 320
-	
+
 	# Atualiza posição da câmera
 	global_position.y = camera_target_y
 	
@@ -88,7 +93,9 @@ func shake(duration: float, intensity: float = 25.0):
 
 func check_and_generate_rooms():
 	"""Verifica se precisa gerar novas salas acima"""
-	var rooms_climbed = int(abs((highest_y_reached - 480) / ROOM_HEIGHT))
-	
+	# Base é o floor da room 0 (Y = 320)
+	var base_floor_y = 320
+	var rooms_climbed = int(abs((highest_y_reached - base_floor_y) / ROOM_HEIGHT))
+
 	if main_scene and main_scene.has_method("generate_rooms_ahead"):
 		main_scene.generate_rooms_ahead(rooms_climbed)

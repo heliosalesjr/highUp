@@ -4,6 +4,7 @@ var is_invulnerable = false
 const INVULNERABILITY_TIME = 1.5
 var damaged_enemies = []
 var is_launched = false
+var is_intro_launch = false  # Flag para lançamento da intro (sem movimento horizontal)
 var launch_invulnerability = false
 var magnet_icon = null
 const MAGNET_RANGE = 150.0
@@ -100,8 +101,11 @@ func _physics_process(delta):
 	if is_launched:
 		# Aplica gravidade para o arco de voo
 		velocity.y += gravity * delta
-		# Mantém movimento horizontal mínimo
-		velocity.x = direction * SPEED * 0.5
+		# Durante intro: sem movimento horizontal. Durante cannon: movimento mínimo
+		if is_intro_launch:
+			velocity.x = 0
+		else:
+			velocity.x = direction * SPEED * 0.5
 		move_and_slide()
 		update_animation()
 		return  # ← IMPORTANTE: Sai da função, ignora todo o resto
@@ -287,41 +291,75 @@ func show_game_over():
 		if tree:
 			tree.change_scene_to_file("res://scenes/ui/game_over.tscn")
 
+func intro_launch(launch_velocity: float):
+	"""Chamado na cutscene de entrada - player é lançado de baixo para cima"""
+	if is_launched:
+		return
+
+	print("🎬 INTRO LAUNCH!")
+
+	velocity.y = launch_velocity
+	velocity.x = 0  # Sem movimento horizontal
+	is_launched = true
+	is_intro_launch = true  # Flag para intro (sem movimento horizontal)
+	launch_invulnerability = true
+
+	is_on_ladder = false
+	current_ladder = null
+
+	# Durante intro: só colide com paredes
+	collision_mask = 1
+
+	# Camera shake suave
+	var camera = get_tree().get_first_node_in_group("camera")
+	if camera and camera.has_method("shake"):
+		camera.shake(0.8, 15.0)
+
+	is_invulnerable = true
+
+	# Efeito visual sutil de subida
+	var tween = create_tween()
+	tween.set_loops(5)
+	tween.tween_property(animated_sprite, "modulate", Color(1.3, 1.3, 1.3), 0.15)
+	tween.tween_property(animated_sprite, "modulate", Color(1, 1, 1), 0.15)
+	tween.finished.connect(func(): animated_sprite.modulate = Color(1, 1, 1))
+
 func launch_from_cannon(launch_velocity: float):
 	"""Chamado quando o player é lançado pelo canhão"""
 	if is_launched:
 		return
-	
+
 	print("🚀 LANÇAMENTO!")
-	
+
 	velocity.y = launch_velocity
 	is_launched = true
 	launch_invulnerability = true
-	
+
 	is_on_ladder = false
 	current_ladder = null
 
 	collision_mask = 17  # Durante lançamento: 1 + 16 (paredes sim, rocks não)
-	
+
 	start_camera_shake()
 	is_invulnerable = true
-	
+
 	# Efeito visual de brilho - CORRIGIDO  ← MUDOU AQUI
 	var tween = create_tween()
 	tween.set_loops(8)  # ← Número fixo de loops em vez de infinito
 	tween.tween_property(animated_sprite, "modulate", Color(1.5, 1.5, 1.5), 0.1)
 	tween.tween_property(animated_sprite, "modulate", Color(1, 1, 1), 0.1)
-	
+
 	# Para garantir que volta ao normal
 	tween.finished.connect(func(): animated_sprite.modulate = Color(1, 1, 1))
 func end_launch():
 	"""Termina o estado de lançamento"""
 	print("🛬 Aterrissagem!")
 	is_launched = false
+	is_intro_launch = false  # Reseta flag da intro
 
 	# REABILITA COLISÃO COM INIMIGOS E ROCKS
 	collision_mask = 27  # Volta ao normal: 1 + 2 + 8 + 16
-	
+
 	# Pequeno delay antes de remover invulnerabilidade
 	await get_tree().create_timer(0.5).timeout
 	launch_invulnerability = false
