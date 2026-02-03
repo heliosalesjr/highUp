@@ -6,6 +6,10 @@ extends CanvasLayer
 @onready var heart1 = $HeartsContainer/Heart1
 @onready var heart2 = $HeartsContainer/Heart2
 @onready var heart3 = $HeartsContainer/Heart3
+@onready var pause_button = $PauseButton
+@onready var pause_menu = $PauseMenu
+@onready var resume_button = $PauseMenu/VBoxContainer/ResumeButton
+@onready var quit_button = $PauseMenu/VBoxContainer/QuitButton
 
 # Preload das texturas dos corações
 var heart_empty_texture = preload("res://assets/heart_empty.png")  # Ajuste o caminho
@@ -23,6 +27,9 @@ var invincible_indicator: Control = null
 var invincible_indicator_scene = preload("res://scenes/ui/invincible_indicator.tscn")
 
 func _ready():
+	# Permite que a HUD processe inputs mesmo quando pausado
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
 	# Conecta aos sinais do GameManager
 	GameManager.rooms_changed.connect(_on_rooms_changed)
 	GameManager.diamonds_changed.connect(_on_diamonds_changed)
@@ -46,6 +53,11 @@ func _ready():
 	_on_rooms_changed(GameManager.rooms_count)
 	_on_diamonds_changed(GameManager.diamonds_count)
 	_on_hearts_changed(GameManager.filled_hearts)  # ← NOVO
+
+	# Conecta botões do pause
+	pause_button.pressed.connect(_on_pause_pressed)
+	resume_button.pressed.connect(_on_resume_pressed)
+	quit_button.pressed.connect(_on_quit_pressed)
 
 func _on_rooms_changed(value: int):
 	rooms_label.text = "Rooms: " + str(value)
@@ -101,3 +113,26 @@ func _on_mist_mode_changed(is_active: bool):
 			print("🌫️ Neblina OCULTA!")
 
 	# O indicador se mostra/esconde sozinho (veja mist_indicator.gd)
+
+func _input(event):
+	if event.is_action_pressed("ui_cancel"):  # ESC
+		toggle_pause()
+
+func toggle_pause():
+	var is_paused = get_tree().paused
+	if is_paused:
+		_on_resume_pressed()
+	else:
+		_on_pause_pressed()
+
+func _on_pause_pressed():
+	get_tree().paused = true
+	pause_menu.visible = true
+
+func _on_resume_pressed():
+	get_tree().paused = false
+	pause_menu.visible = false
+
+func _on_quit_pressed():
+	get_tree().paused = false
+	get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
