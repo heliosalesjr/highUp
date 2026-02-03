@@ -53,13 +53,13 @@ repeat_times = 20
 centered = false
 
 [node name="Player" parent="." instance=ExtResource("2_sugp2")]
-position = Vector2(177, 536)
+position = Vector2(180, 700)
 
 [node name="Camera2D" type="Camera2D" parent="." node_paths=PackedStringArray("target")]
-position = Vector2(360, 640)
+position = Vector2(180, 500)
 limit_left = 0
 limit_right = 360
-limit_bottom = 640
+limit_bottom = 800
 script = ExtResource("3_sugp2")
 target = NodePath("../Player")
 
