@@ -11,9 +11,9 @@ const LADDER_WIDTH = 15
 
 const TOTAL_WAVES = 5
 const BIRDS_PER_WAVE = 3
-const WAVE_PAUSE = 1.5
 const BIRD_SPEED = 120.0
 const INITIAL_DELAY = 1.0
+const TIME_BEFORE_NEXT_WARNING = 2.0  # Tempo após spawn para iniciar warning da próxima wave
 
 # Y positions for birds in each half (3 birds covering the half)
 const BOTTOM_HALF_Y = [195, 235, 275]
@@ -41,8 +41,9 @@ var player_ref = null
 var current_wave = 0
 var wave_birds = []
 var wave_in_progress = false
-var between_waves = false
 var warning_rect = null
+var next_wave_use_bottom = true  # Lado da próxima wave (pré-calculado)
+var next_wave_ready = false  # Warning já foi exibido, pronto para spawnar birds
 
 func _ready():
 	create_background()
@@ -236,16 +237,14 @@ func start_wave():
 	if fight_over or current_wave >= TOTAL_WAVES:
 		return
 
-	# Wave 0: always bottom half (teaches gravity flip — player must jump)
-	# Waves 1+: random half
-	var use_bottom = true
-	if current_wave > 0:
-		use_bottom = randi() % 2 == 0
+	# Usa o lado pré-calculado (ou calcula para a primeira wave)
+	var use_bottom = next_wave_use_bottom
 
-	# Flash warning before birds arrive
-	await flash_warning(use_bottom)
-	if fight_over:
-		return
+	# Se é a primeira wave, mostra o warning primeiro
+	if current_wave == 0:
+		await flash_warning(use_bottom)
+		if fight_over:
+			return
 
 	var y_positions = BOTTOM_HALF_Y if use_bottom else TOP_HALF_Y
 
@@ -262,10 +261,31 @@ func start_wave():
 		wave_birds.append(bird)
 
 	wave_in_progress = true
+	next_wave_ready = false
 	print("Boss 3 Wave ", current_wave + 1, "/", TOTAL_WAVES)
 
+	# Agenda o warning da próxima wave (se houver)
+	if current_wave + 1 < TOTAL_WAVES:
+		schedule_next_warning()
+
+func schedule_next_warning():
+	"""Agenda o warning da próxima wave para aparecer enquanto os birds atuais ainda voam"""
+	await get_tree().create_timer(TIME_BEFORE_NEXT_WARNING).timeout
+
+	if fight_over or current_wave + 1 >= TOTAL_WAVES:
+		return
+
+	# Calcula o lado da próxima wave
+	next_wave_use_bottom = randi() % 2 == 0
+
+	# Mostra o warning da próxima wave
+	await flash_warning(next_wave_use_bottom)
+
+	# Marca que está pronto para spawnar a próxima wave
+	next_wave_ready = true
+
 func wave_complete():
-	if fight_over or between_waves:
+	if fight_over:
 		return
 
 	current_wave += 1
@@ -281,11 +301,17 @@ func wave_complete():
 		on_boss_defeated()
 		return
 
-	between_waves = true
-	await get_tree().create_timer(WAVE_PAUSE).timeout
-	between_waves = false
-	if not fight_over:
+	# Se o warning já foi exibido, spawna imediatamente
+	if next_wave_ready:
 		start_wave()
+	else:
+		# Espera o warning terminar (caso os birds tenham sumido muito rápido)
+		await get_tree().create_timer(0.5).timeout
+		# Aguarda até next_wave_ready ficar true
+		while not next_wave_ready and not fight_over:
+			await get_tree().create_timer(0.1).timeout
+		if not fight_over:
+			start_wave()
 
 func on_boss_defeated():
 	fight_active = false
