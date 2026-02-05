@@ -32,9 +32,7 @@ var boss_2_defeated = false
 var boss_3_defeated = false
 
 const DIAMONDS_BEFORE_HEART = 2
-const BOSS_ROOM_NUMBER = 10
-const BOSS_2_ROOM_NUMBER = 10  # Temporario: mesmo que boss 1 para teste
-const BOSS_3_ROOM_NUMBER = 10  # Temporario: mesmo dos outros para teste
+const BOSS_INTERVAL = 50  # A cada 50 rooms aparece um boss (50, 100, 150, 200...)
 const MIST_DURATION = 10.0
 const INVINCIBLE_DURATION = 10.0
 const SAVE_FILE = "user://save_data.json"
@@ -47,6 +45,22 @@ func _ready():
 	filled_hearts = 3
 	hearts_changed.emit(filled_hearts)
 	print("🧪 TESTE: Começando com 3 corações")
+func get_boss_for_room(room_index: int) -> int:
+	"""Retorna qual boss aparece nessa room (0 = nenhum, 1/2/3 = boss)
+	Room 50 = Boss 1, Room 100 = Boss 2, Room 150 = Boss 3,
+	Room 200 = Boss 1, Room 250 = Boss 2, Room 300 = Boss 3, ..."""
+	if room_index <= 0 or room_index % BOSS_INTERVAL != 0:
+		return 0
+
+	# (room / 50) ciclando entre 1, 2, 3
+	var cycle = (room_index / BOSS_INTERVAL) % 3
+	if cycle == 1:
+		return 1  # Boss 1
+	elif cycle == 2:
+		return 2  # Boss 2
+	else:
+		return 3  # Boss 3 (cycle == 0)
+
 func add_room():
 	rooms_count += 1
 	rooms_changed.emit(rooms_count)
@@ -54,10 +68,6 @@ func add_room():
 	if rooms_count > highest_room:
 		highest_room = rooms_count
 		save_stats()
-
-	if rooms_count == BOSS_ROOM_NUMBER and not boss_defeated:
-		boss_fight_triggered.emit()
-		print("🏟️ BOSS FIGHT TRIGGERED!")
 
 	print("📊 Rooms: ", rooms_count)
 

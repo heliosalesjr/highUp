@@ -310,11 +310,6 @@ func intro_launch(launch_velocity: float):
 	# Durante intro: só colide com paredes
 	collision_mask = 1
 
-	# Camera shake suave
-	var camera = get_tree().get_first_node_in_group("camera")
-	if camera and camera.has_method("shake"):
-		camera.shake(0.8, 15.0)
-
 	is_invulnerable = true
 
 	# Efeito visual sutil de subida
