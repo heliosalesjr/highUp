@@ -39,11 +39,13 @@ func _ready():
 
 	create_rooms()
 
-	# Encontra o player
-	await get_tree().process_frame  # Aguarda tudo estar pronto
+	# Encontra o player e congela antes do primeiro frame de física
 	find_player()
+	if player and intro_active:
+		player.set_physics_process(false)
 
-	# Inicia a cutscene de entrada
+	# Aguarda 1 frame para tudo estar pronto, então lança imediatamente
+	await get_tree().process_frame
 	if player and intro_active:
 		start_intro_cutscene()
 
@@ -318,22 +320,15 @@ func create_intro_walls():
 	print("🧱 Paredes de intro criadas!")
 
 func start_intro_cutscene():
-	"""Inicia a cutscene de entrada - player é lançado de baixo para cima"""
+	"""Inicia a cutscene de entrada - player já começa sendo lançado para cima"""
 	print("🎬 Iniciando cutscene de entrada!")
 
 	# Posiciona player abaixo da tela
-	player.global_position.y = INTRO_PLAYER_START_Y
-	player.global_position.x = 180  # Centro horizontal
+	player.global_position = Vector2(180, INTRO_PLAYER_START_Y)
 
-	# Pequeno delay antes de lançar
-	await get_tree().create_timer(0.3).timeout
-
-	# Lança o player para cima
-	if player.has_method("intro_launch"):
-		player.intro_launch(INTRO_LAUNCH_VELOCITY)
-	else:
-		# Fallback: usa launch_from_cannon se intro_launch não existir
-		player.launch_from_cannon(INTRO_LAUNCH_VELOCITY)
+	# Reativa a física e lança imediatamente - sem delay
+	player.set_physics_process(true)
+	player.intro_launch(INTRO_LAUNCH_VELOCITY)
 
 	intro_active = false
 	print("🎬 Player lançado!")
