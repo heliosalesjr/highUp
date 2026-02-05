@@ -130,34 +130,22 @@ func create_rooms():
 func create_room(index: int):
 	"""Cria uma sala específica"""
 
-	# Boss 3 room takes 2 slots - skip the second slot
-	if index == GameManager.BOSS_3_ROOM_NUMBER + 1 and highest_room_created >= GameManager.BOSS_3_ROOM_NUMBER:
+	# Verifica se o index anterior era um boss room (boss ocupa 2 slots, pula o +1)
+	var prev_boss = GameManager.get_boss_for_room(index - 1)
+	if prev_boss > 0 and highest_room_created >= index - 1:
 		highest_room_created = max(highest_room_created, index)
 		return
 
-	# Create boss 3 room (highest priority for testing)
-	if index == GameManager.BOSS_3_ROOM_NUMBER and not GameManager.boss_3_defeated:
-		create_boss3_room(index)
+	# Verifica se esta room é um boss
+	var boss_type = GameManager.get_boss_for_room(index)
+	if boss_type == 1:
+		create_boss_room(index)
 		return
-
-	# Boss 2 room takes 2 slots - skip the second slot
-	if index == GameManager.BOSS_2_ROOM_NUMBER + 1 and highest_room_created >= GameManager.BOSS_2_ROOM_NUMBER:
-		highest_room_created = max(highest_room_created, index)
-		return
-
-	# Create boss 2 room instead of normal room
-	if index == GameManager.BOSS_2_ROOM_NUMBER and not GameManager.boss_2_defeated:
+	elif boss_type == 2:
 		create_boss2_room(index)
 		return
-
-	# Boss room takes 2 slots - skip the second slot
-	if index == GameManager.BOSS_ROOM_NUMBER + 1 and highest_room_created >= GameManager.BOSS_ROOM_NUMBER:
-		highest_room_created = max(highest_room_created, index)
-		return
-
-	# Create boss room instead of normal room
-	if index == GameManager.BOSS_ROOM_NUMBER and not GameManager.boss_defeated:
-		create_boss_room(index)
+	elif boss_type == 3:
+		create_boss3_room(index)
 		return
 
 	print("→ Criando Room ", index)
