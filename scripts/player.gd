@@ -30,12 +30,12 @@ var boss3_room: Node2D = null
 var boss3_gravity_flipped = false
 
 # Constantes de movimento
-const SPEED = 400.0
-const JUMP_VELOCITY = -400.0
+const SPEED = 350.0
+const JUMP_VELOCITY = -450.0
 const ACCELERATION = 1000.0
 const FRICTION = 200.0
-const AIR_RESISTANCE = 50.0
-const JUMP_RELEASE_FORCE = -250.0
+const AIR_RESISTANCE = 100.0
+const JUMP_RELEASE_FORCE = -230.0
 
 # Escada
 const CLIMB_SPEED = 250.0
@@ -49,7 +49,7 @@ const JUMP_BUFFER_TIME = 0.1
 var jump_buffer_timer = 0.0
 
 # Gravidade
-var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var gravity = 1300.0
 
 # Direção automática (1 = direita, -1 = esquerda)
 var direction = 1
