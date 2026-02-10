@@ -49,7 +49,7 @@ const JUMP_BUFFER_TIME = 0.1
 var jump_buffer_timer = 0.0
 
 # Gravidade
-var gravity = 1300.0
+var gravity = 1100.0
 
 # Direção automática (1 = direita, -1 = esquerda)
 var direction = 1
