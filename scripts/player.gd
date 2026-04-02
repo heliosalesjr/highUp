@@ -1,13 +1,41 @@
 extends CharacterBody2D
 
+# === PARÂMETROS EXPORTADOS (editáveis no Inspector) ===
+
+@export_group("Movimento")
+@export var SPEED: float = 350.0
+@export var JUMP_VELOCITY: float = -450.0
+@export var ACCELERATION: float = 1000.0
+@export var FRICTION: float = 200.0
+@export var AIR_RESISTANCE: float = 100.0
+@export var JUMP_RELEASE_FORCE: float = -230.0
+@export var gravity: float = 1100.0
+
+@export_group("Escada")
+@export var CLIMB_SPEED: float = 250.0
+
+@export_group("Pulo (Feel)")
+@export var COYOTE_TIME: float = 0.1
+@export var JUMP_BUFFER_TIME: float = 0.1
+
+@export_group("Combate")
+@export var INVULNERABILITY_TIME: float = 1.5
+
+@export_group("Ímã")
+@export var MAGNET_RANGE: float = 150.0
+
+@export_group("Boss")
+@export var BOSS_SHOOT_COOLDOWN: float = 0.3
+
+@export_group("")
+
+# === ESTADO INTERNO ===
 var is_invulnerable = false
-const INVULNERABILITY_TIME = 1.5
 var damaged_enemies = []
 var is_launched = false
 var is_intro_launch = false  # Flag para lançamento da intro (sem movimento horizontal)
 var launch_invulnerability = false
 var magnet_icon = null
-const MAGNET_RANGE = 150.0
 var attracted_collectibles = []
 var metal_shader_material = null
 var sparkle_particles: GPUParticles2D = null
@@ -17,7 +45,6 @@ var boss_fight_mode = false
 var boss_car: Node2D = null
 var boss_room: Node2D = null
 var boss_shoot_cooldown = 0.0
-const BOSS_SHOOT_COOLDOWN = 0.3
 
 # Boss 2 fight (color match)
 var boss2_fight_mode = false
@@ -29,27 +56,13 @@ var boss3_fight_mode = false
 var boss3_room: Node2D = null
 var boss3_gravity_flipped = false
 
-# Constantes de movimento
-const SPEED = 350.0
-const JUMP_VELOCITY = -450.0
-const ACCELERATION = 1000.0
-const FRICTION = 200.0
-const AIR_RESISTANCE = 100.0
-const JUMP_RELEASE_FORCE = -230.0
-
 # Escada
-const CLIMB_SPEED = 250.0
 var is_on_ladder = false
 var current_ladder: Area2D = null
 
-# Coiote time e buffer de pulo
-const COYOTE_TIME = 0.1
+# Timers internos de pulo
 var coyote_timer = 0.0
-const JUMP_BUFFER_TIME = 0.1
 var jump_buffer_timer = 0.0
-
-# Gravidade
-var gravity = 1100.0
 
 # Direção automática (1 = direita, -1 = esquerda)
 var direction = 1
